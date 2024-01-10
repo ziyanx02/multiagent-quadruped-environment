@@ -29,19 +29,9 @@
 # Copyright (c) 2021 ETH Zurich, Nikita Rudin
 
 from legged_gym import LEGGED_GYM_ROOT_DIR, LEGGED_GYM_ENVS_DIR
-from legged_gym.envs.a1.a1_config import A1RoughCfg, A1RoughCfgPPO, A1PlaneCfg, A1RoughCfgTPPO
 from .base.legged_robot import LeggedRobot
 from .base.legged_robot_field import LeggedRobotField
 from .base.legged_robot_noisy import LeggedRobotNoisy
-from .anymal_c.anymal import Anymal
-from .anymal_c.mixed_terrains.anymal_c_rough_config import AnymalCRoughCfg, AnymalCRoughCfgPPO
-from .anymal_c.flat.anymal_c_flat_config import AnymalCFlatCfg, AnymalCFlatCfgPPO
-from .anymal_b.anymal_b_config import AnymalBRoughCfg, AnymalBRoughCfgPPO
-from .cassie.cassie import Cassie
-from .cassie.cassie_config import CassieRoughCfg, CassieRoughCfgPPO
-from .a1.a1_config import A1RoughCfg, A1RoughCfgPPO
-from .a1.a1_field_config import A1FieldCfg, A1FieldCfgPPO
-from .a1.a1_field_distill_config import A1FieldDistillCfg, A1FieldDistillCfgPPO
 from .go1.go1_field_config import Go1FieldCfg, Go1FieldCfgPPO
 from .go1.go1_field_distill_config import Go1FieldDistillCfg, Go1FieldDistillCfgPPO
 
@@ -50,29 +40,8 @@ import os
 
 from legged_gym.utils.task_registry import task_registry
 
-task_registry.register( "anymal_c_rough", Anymal, AnymalCRoughCfg(), AnymalCRoughCfgPPO() )
-task_registry.register( "anymal_c_flat", Anymal, AnymalCFlatCfg(), AnymalCFlatCfgPPO() )
-task_registry.register( "anymal_b", Anymal, AnymalBRoughCfg(), AnymalBRoughCfgPPO() )
-task_registry.register( "a1", LeggedRobot, A1RoughCfg(), A1RoughCfgPPO() )
-task_registry.register( "a1_teacher", LeggedRobot, A1PlaneCfg(), A1RoughCfgTPPO() )
-task_registry.register( "a1_field", LeggedRobotNoisy, A1FieldCfg(), A1FieldCfgPPO() )
-task_registry.register( "a1_distill", LeggedRobotNoisy, A1FieldDistillCfg(), A1FieldDistillCfgPPO() )
-task_registry.register( "cassie", Cassie, CassieRoughCfg(), CassieRoughCfgPPO() )
 task_registry.register( "go1_field", LeggedRobotNoisy, Go1FieldCfg(), Go1FieldCfgPPO())
 task_registry.register( "go1_distill", LeggedRobotNoisy, Go1FieldDistillCfg(), Go1FieldDistillCfgPPO())
-
-## The following tasks are for the convinience of opensource
-from .a1.a1_climb_config import A1ClimbCfg, A1ClimbCfgPPO
-task_registry.register( "a1_climb", LeggedRobotNoisy, A1ClimbCfg(), A1ClimbCfgPPO() )
-from .a1.a1_leap_config import A1LeapCfg, A1LeapCfgPPO
-task_registry.register( "a1_leap", LeggedRobotNoisy, A1LeapCfg(), A1LeapCfgPPO() )
-from .a1.a1_crawl_config import A1CrawlCfg, A1CrawlCfgPPO
-task_registry.register( "a1_crawl", LeggedRobotNoisy, A1CrawlCfg(), A1CrawlCfgPPO() )
-from .a1.a1_tilt_config import A1TiltCfg, A1TiltCfgPPO
-task_registry.register( "a1_tilt", LeggedRobotNoisy, A1TiltCfg(), A1TiltCfgPPO() )
-
-from .a1.a1_dualrun_config import A1DualrunCfg, A1DualrunCfgPPO
-task_registry.register( "a1_dualrun", LeggedRobotField, A1DualrunCfg(), A1DualrunCfgPPO() )
 
 from .go1.go1_dualrun_config import Go1DualrunCfg, Go1DualrunCfgPPO
 task_registry.register( "go1_dualrun", LeggedRobotField, Go1DualrunCfg(), Go1DualrunCfgPPO() )

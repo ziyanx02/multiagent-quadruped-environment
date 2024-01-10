@@ -119,9 +119,9 @@ class Go1RoughCfg(LeggedRobotCfg):
 
         class default_command:
 
-            lin_vel_x = 1.5
+            lin_vel_x = 0.0
             lin_vel_y = 0.0
-            ang_vel = -0.2
+            ang_vel = -0.0
             body_height = 0.0
             gait_freq = 3.0
             gait = "trotting"

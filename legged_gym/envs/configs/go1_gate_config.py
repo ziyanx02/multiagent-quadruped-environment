@@ -1,11 +1,10 @@
 import numpy as np
-from legged_gym.envs.field.go1_field_config import Go1FieldCfg, Go1FieldCfgPPO
 from legged_gym.utils.helpers import merge_dict
 from legged_gym.envs.go1.go1 import Go1Cfg
 
-class Go1DualrunTestCfg(Go1Cfg):
+class Go1GateCfg(Go1Cfg):
 
-    class env(Go1FieldCfg.env):
+    class env(Go1Cfg.env):
         num_envs = 25 # 4096
         num_agents = 2
         obs_components = [
@@ -25,7 +24,7 @@ class Go1DualrunTestCfg(Go1Cfg):
     #         latency_range = [0.04-0.0025, 0.04+0.0075]
     #### uncomment the above to train non-virtual terrain
 
-    class terrain(Go1FieldCfg.terrain):
+    class terrain(Go1Cfg.terrain):
 
         # mesh_type = "plane"
         # selected = False
@@ -38,14 +37,13 @@ class Go1DualrunTestCfg(Go1Cfg):
         slope_treshold = 20.
         curriculum = False
 
-        BarrierTrack_kwargs = merge_dict(Go1FieldCfg.terrain.BarrierTrack_kwargs, dict(
+        BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
                 "init_block",
                 "cranny",
-                "cranny",
             ],
             randomize_obstacle_order = False,
-            wall_thickness= 0.04,
+            # wall_thickness= 0.2,
             track_width = 2.,
             # track_block_length = 2., # the x-axis distance from the env origin point
             cranny = dict(
@@ -66,12 +64,12 @@ class Go1DualrunTestCfg(Go1Cfg):
             add_perlin_noise = False
        ))
 
-        TerrainPerlin_kwargs = merge_dict(Go1FieldCfg.terrain.TerrainPerlin_kwargs, dict(
+        TerrainPerlin_kwargs = merge_dict(Go1Cfg.terrain.TerrainPerlin_kwargs, dict(
             zScale = [0.05, 0.1],
        ))
     
-    class commands(Go1FieldCfg.commands):
-        class ranges(Go1FieldCfg.commands.ranges):
+    class commands(Go1Cfg.commands):
+        class ranges(Go1Cfg.commands.ranges):
             lin_vel_x = [0.3, 0.6]
             lin_vel_y = [0.0, 0.0]
             ang_vel_yaw = [0., 0.]
@@ -79,7 +77,7 @@ class Go1DualrunTestCfg(Go1Cfg):
     class control(Go1Cfg.control):
         control_type = 'C'
 
-    class termination(Go1FieldCfg.termination):
+    class termination(Go1Cfg.termination):
         # additional factors that determines whether to terminates the episode
         check_obstacle_conditioned_threshold = False
         termination_terms = [
@@ -99,7 +97,7 @@ class Go1DualrunTestCfg(Go1Cfg):
             y= [-0.1, 0.1],
         )
 
-    class rewards(Go1FieldCfg.rewards):
+    class rewards(Go1Cfg.rewards):
         class scales:
             tracking_ang_vel = 0.05
             world_vel_l2norm = -1.
@@ -110,31 +108,6 @@ class Go1DualrunTestCfg(Go1Cfg):
             # exceed_dof_pos_limits = -1e-1
             # exceed_torque_limits_i = -2e-1
 
-    class curriculum(Go1FieldCfg.curriculum):
-        penetrate_volume_threshold_harder = 4000
-        penetrate_volume_threshold_easier = 10000
-        penetrate_depth_threshold_harder = 100
-        penetrate_depth_threshold_easier = 300
-
-    class viewer(Go1FieldCfg.viewer):
+    class viewer(Go1Cfg.viewer):
         pos = [0., 11., 5.]  # [m]
         lookat = [4., 11., 0.]  # [m]
-
-class Go1DualrunCfgPPO(Go1FieldCfgPPO):
-    class algorithm(Go1FieldCfgPPO.algorithm):
-        entropy_coef = 0.0
-        clip_min_std = 0.2
-    
-    class runner(Go1FieldCfgPPO.runner):
-        policy_class_name = "ActorCriticRecurrent"
-        experiment_name = "field_a1"
-        run_name = "".join(["test","run"])
-        resume = False
-        # resume = True
-        # load_run = "{Your traind walking model directory}"
-        # load_run = "{Your virtual terrain model directory}"
-        # load_run = "Aug17_11-13-14_WalkingBase_pEnergySubsteps2e-5_aScale0.5"
-        # load_run = "Aug23_22-03-41_SkillDualrun_pPenV3e-3_pPenD3e-3_DualrunMax0.40_virtual"
-        max_iterations = 20000
-        save_interval = 500
-    

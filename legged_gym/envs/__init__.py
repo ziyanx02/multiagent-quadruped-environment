@@ -28,25 +28,24 @@
 #
 # Copyright (c) 2021 ETH Zurich, Nikita Rudin
 
-from legged_gym import LEGGED_GYM_ROOT_DIR, LEGGED_GYM_ENVS_DIR
-from legged_gym.envs.base.legged_robot import LeggedRobot
-from legged_gym.envs.field.legged_robot_field import LeggedRobotField
-from legged_gym.envs.base.legged_robot_noisy import LeggedRobotNoisy
-from legged_gym.envs.field.go1_field_config import Go1FieldCfg, Go1FieldCfgPPO
-from legged_gym.envs.go1.go1_field_distill_config import Go1FieldDistillCfg, Go1FieldDistillCfgPPO
+# from legged_gym import LEGGED_GYM_ROOT_DIR, LEGGED_GYM_ENVS_DIR
+# from legged_gym.envs.base.legged_robot import LeggedRobot
+# from legged_gym.envs.field.legged_robot_field import LeggedRobotField
+# from legged_gym.envs.field.go1_field_config import Go1FieldCfg, Go1FieldCfgPPO
+# from legged_gym.envs.go1.go1_field_distill_config import Go1FieldDistillCfg, Go1FieldDistillCfgPPO
 
 
-import os
+# import os
 
-from legged_gym.utils.task_registry import task_registry
+# from legged_gym.utils.task_registry import task_registry
 
-task_registry.register( "go1_field", LeggedRobotNoisy, Go1FieldCfg(), Go1FieldCfgPPO())
-task_registry.register( "go1_distill", LeggedRobotNoisy, Go1FieldDistillCfg(), Go1FieldDistillCfgPPO())
+# task_registry.register( "go1_field", LeggedRobotNoisy, Go1FieldCfg(), Go1FieldCfgPPO())
+# task_registry.register( "go1_distill", LeggedRobotNoisy, Go1FieldDistillCfg(), Go1FieldDistillCfgPPO())
 
-from .go1.go1_dualrun_config import Go1DualrunCfg, Go1DualrunCfgPPO
-task_registry.register( "go1_dualrun", LeggedRobotField, Go1DualrunCfg(), Go1DualrunCfgPPO() )
-from .go1.go1_config import Go1Cfg, Go1CfgPPO
-from .go1.go1 import Go1
-task_registry.register( "go1", Go1, Go1Cfg(), Go1CfgPPO() )
-from .configs.go1_dualrun_test_config import Go1DualrunTestCfg
-task_registry.register("go1_test_dualrun", Go1, Go1DualrunTestCfg(), Go1DualrunCfgPPO())
+# from .go1.go1_dualrun_config import Go1DualrunCfg, Go1DualrunCfgPPO
+# task_registry.register( "go1_dualrun", LeggedRobotField, Go1DualrunCfg(), Go1DualrunCfgPPO() )
+# from .go1.go1_config import Go1Cfg, Go1CfgPPO
+# from .go1.go1 import Go1
+# task_registry.register( "go1", Go1, Go1Cfg(), Go1CfgPPO() )
+# from .configs.go1_dualrun_test_config import Go1DualrunTestCfg
+# task_registry.register("go1_test_dualrun", Go1, Go1DualrunTestCfg(), Go1DualrunCfgPPO())

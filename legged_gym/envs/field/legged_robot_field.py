@@ -634,21 +634,21 @@ class LeggedRobotField(LeggedRobot):
                 cam_axes = gymutil.AxesGeometry(scale= 0.1)
                 gymutil.draw_lines(cam_axes, self.gym, self.viewer, env_h, camera_transform)
 
-    def _draw_debug_vis(self):
-        # if not "height_measurements" in self.all_obs_components:
-        #     measure_heights_tmp = self.terrain.cfg.measure_heights
-        #     self.terrain.cfg.measure_heights = False
-        #     return_ = super()._draw_debug_vis()
-        #     self.terrain.cfg.measure_heights = measure_heights_tmp
-        # else:
-        #     return_ = super()._draw_debug_vis()
-        if self.cfg.terrain.selected == "BarrierTrack":
-            self.terrain.draw_virtual_terrain(self.viewer)
-        if hasattr(self, "volume_sample_points") and self.cfg.viewer.draw_volume_sample_points:
-            self.draw_volume_sample_points()
-        for env_h, sensor_hd in zip(self.envs, self.sensor_handles):
-            self._draw_sensor_vis(env_h, sensor_hd)
-        return return_
+    # def _draw_debug_vis(self):
+    #     if not "height_measurements" in self.all_obs_components:
+    #         measure_heights_tmp = self.terrain.cfg.measure_heights
+    #         self.terrain.cfg.measure_heights = False
+    #         return_ = super()._draw_debug_vis()
+    #         self.terrain.cfg.measure_heights = measure_heights_tmp
+    #     else:
+    #         return_ = super()._draw_debug_vis()
+    #     if self.cfg.terrain.selected == "BarrierTrack":
+    #         self.terrain.draw_virtual_terrain(self.viewer)
+    #     if hasattr(self, "volume_sample_points") and self.cfg.viewer.draw_volume_sample_points:
+    #         self.draw_volume_sample_points()
+    #     for env_h, sensor_hd in zip(self.envs, self.sensor_handles):
+    #         self._draw_sensor_vis(env_h, sensor_hd)
+    #     return return_
 
     ##### defines observation segments, which tells the order of the entire flattened obs #####
     def get_obs_segment_from_components(self, components):

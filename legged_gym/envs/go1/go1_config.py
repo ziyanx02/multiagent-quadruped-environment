@@ -28,10 +28,11 @@
 #
 # Copyright (c) 2021 ETH Zurich, Nikita Rudin
 
-from legged_gym.envs.base.legged_robot_config import LeggedRobotCfg, LeggedRobotCfgPPO
+from legged_gym.envs.base.legged_robot_config import LeggedRobotCfg
+from legged_gym.envs.field.legged_robot_field_config import LeggedRobotFieldCfg
 
-class Go1Cfg(LeggedRobotCfg):
-    class env(LeggedRobotCfg.env):
+class Go1Cfg(LeggedRobotFieldCfg):
+    class env(LeggedRobotFieldCfg.env):
         use_lin_vel = True
         num_envs = 256
         num_observations = 235
@@ -48,42 +49,7 @@ class Go1Cfg(LeggedRobotCfg):
         recording_mode = "COLOR"
         num_recording_envs = 1
 
-    class terrain:
-        mesh_type = "plane"
-        selected = False
-        # mesh_type = 'trimesh' # "heightfield" # none, plane, heightfield or trimesh
-        horizontal_scale = 0.1 # [m]
-        vertical_scale = 0.005 # [m]
-        border_size = 0 # [m]
-        curriculum = True
-        static_friction = 1.0
-        dynamic_friction = 1.0
-        restitution = 0.
-        # rough terrain only:
-        terrain_smoothness = 0.005
-        measured_points_x = [-0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8] # 1mx1.6m rectangle (without center line)
-        measured_points_y = [-0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4, 0.5]
-        selected = False # select a unique terrain type and pass all arguments
-        terrain_kwargs = None # Dict of arguments for selected terrain
-        max_init_terrain_level = 5 # starting curriculum state
-        terrain_length = 8.
-        terrain_width = 8.
-        num_rows= 10 # number of terrain rows (levels)
-        num_cols = 20 # number of terrain cols (types)
-        x_init_range = 1.
-        y_init_range = 1.
-        yaw_init_range = 0.
-        x_init_offset = 0.
-        y_init_offset = 0.
-        # terrain types: [smooth slope, rough slope, stairs up, stairs down, discrete]
-        terrain_proportions = [0.1, 0.1, 0.35, 0.25, 0.2]
-        # trimesh only:
-        slope_treshold = 0.75 # slopes above this threshold will be corrected to vertical surfaces
-        
-        difficulty_scale = 1.
-        max_platform_height = 0.2
-
-    class init_state(LeggedRobotCfg.init_state):
+    class init_state(LeggedRobotFieldCfg.init_state):
         pos = [0.0, 0.0, 0.34] # x,y,z [m]
         default_joint_angles = { # = target angles [rad] when action = 0.0
             'FR_hip_joint': -0.1 ,  # [rad]
@@ -102,7 +68,7 @@ class Go1Cfg(LeggedRobotCfg):
             'RR_calf_joint': -1.5,    # [rad]
         }
 
-    class control(LeggedRobotCfg.control):
+    class control(LeggedRobotFieldCfg.control):
         control_type = 'C' # P: position, V: velocity, T: torques, C: command
         stiffness = {'joint': 20.}
         damping = {'joint': 0.5}
@@ -180,7 +146,7 @@ class Go1Cfg(LeggedRobotCfg):
             ang_vel_yaw = [-1, 1]    # min max [rad/s]
             heading = [-3.14, 3.14]
 
-    class asset(LeggedRobotCfg.asset):
+    class asset(LeggedRobotFieldCfg.asset):
         file = "{LEGGED_GYM_ROOT_DIR}/resources/robots/go1/urdf/go1.urdf"
         name = "go1"
         foot_name = "foot"
@@ -223,7 +189,7 @@ class Go1Cfg(LeggedRobotCfg):
         # timeout_at_border = True
         # timeout_at_finished = True
 
-    class domain_rand(LeggedRobotCfg.domain_rand):
+    class domain_rand(LeggedRobotFieldCfg.domain_rand):
         randomize_com = False
         class com_range:
             x = [-0.05, 0.15]
@@ -312,20 +278,13 @@ class Go1Cfg(LeggedRobotCfg):
                     print(key, end=" ")
             print("\n===========================")
 
-    class rewards(LeggedRobotCfg.rewards):
+    class rewards(LeggedRobotFieldCfg.rewards):
         soft_dof_pos_limit = 0.9
         base_height_target = 0.25
-        class scales(LeggedRobotCfg.rewards.scales):
+        class scales(LeggedRobotFieldCfg.rewards.scales):
             torques = -0.0002
             dof_pos_limits = -10.0
 
-    class viewer(LeggedRobotCfg.viewer):
+    class viewer(LeggedRobotFieldCfg.viewer):
         pos = [0., 11., 5.]  # [m]
         lookat = [4., 11., 0.]  # [m]
-
-class Go1CfgPPO(LeggedRobotCfgPPO):
-    class algorithm(LeggedRobotCfgPPO.algorithm):
-        entropy_coef = 0.01
-    class runner(LeggedRobotCfgPPO.runner):
-        run_name = 'full'
-        experiment_name = 'rough_go1'

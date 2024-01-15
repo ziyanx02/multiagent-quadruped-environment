@@ -16,8 +16,8 @@ def train(args):
     from legged_gym.envs.configs.go1_plane_config import Go1PlaneCfg
     from legged_gym.envs.configs.go1_gate_config import Go1GateCfg
 
-    # env, env_cfg = make_env(Go1, Go1GateCfg(), args)
-    env, env_cfg = make_env(Go1, Go1PlaneCfg(), args)
+    env, env_cfg = make_env(Go1, Go1GateCfg(), args)
+    # env, env_cfg = make_env(Go1, Go1PlaneCfg(), args)
     # env, env_cfg = make_env(Go1, Go1Cfg(), args)
     env.reset()
     obs = env.get_observations()

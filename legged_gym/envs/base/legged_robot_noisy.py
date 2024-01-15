@@ -6,7 +6,7 @@ import torch
 import torch.nn.functional as F
 import torchvision.transforms as T
 
-from legged_gym.envs.base.legged_robot_field import LeggedRobotField
+from legged_gym.envs.field.legged_robot_field import LeggedRobotField
 
 class LeggedRobotNoisy(LeggedRobotField):
     """ This class should be independent from the terrain, but depend on the sensors of the parent

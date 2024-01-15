@@ -7,7 +7,7 @@ import torch
 
 from legged_gym.envs.base.legged_robot import LeggedRobot
 from legged_gym.utils.terrain import get_terrain_cls
-from .legged_robot_config import LeggedRobotCfg
+from ..base.legged_robot_config import LeggedRobotCfg
 
 class LeggedRobotField(LeggedRobot):
     """ NOTE: Most of this class implementation does not depend on the terrain. Check where
@@ -635,13 +635,13 @@ class LeggedRobotField(LeggedRobot):
                 gymutil.draw_lines(cam_axes, self.gym, self.viewer, env_h, camera_transform)
 
     def _draw_debug_vis(self):
-        if not "height_measurements" in self.all_obs_components:
-            measure_heights_tmp = self.terrain.cfg.measure_heights
-            self.terrain.cfg.measure_heights = False
-            return_ = super()._draw_debug_vis()
-            self.terrain.cfg.measure_heights = measure_heights_tmp
-        else:
-            return_ = super()._draw_debug_vis()
+        # if not "height_measurements" in self.all_obs_components:
+        #     measure_heights_tmp = self.terrain.cfg.measure_heights
+        #     self.terrain.cfg.measure_heights = False
+        #     return_ = super()._draw_debug_vis()
+        #     self.terrain.cfg.measure_heights = measure_heights_tmp
+        # else:
+        #     return_ = super()._draw_debug_vis()
         if self.cfg.terrain.selected == "BarrierTrack":
             self.terrain.draw_virtual_terrain(self.viewer)
         if hasattr(self, "volume_sample_points") and self.cfg.viewer.draw_volume_sample_points:

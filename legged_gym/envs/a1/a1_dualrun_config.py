@@ -1,5 +1,5 @@
 import numpy as np
-from legged_gym.envs.a1.a1_field_config import A1FieldCfg, A1FieldCfgPPO
+from legged_gym.envs.field.a1_field_config import A1FieldCfg, A1FieldCfgPPO
 from legged_gym.utils.helpers import merge_dict
 
 class A1DualrunCfg(A1FieldCfg):
@@ -28,7 +28,6 @@ class A1DualrunCfg(A1FieldCfg):
 
         num_rows = 10 # 20
         num_cols = 10 # 50
-        measure_heights = False
         max_init_terrain_level = 2
         border_size = 1
         slope_treshold = 20.

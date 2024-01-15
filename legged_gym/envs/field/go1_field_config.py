@@ -1,7 +1,7 @@
 import numpy as np
 import os
 from os import path as osp
-from legged_gym.envs.a1.a1_field_config import A1FieldCfg, A1FieldCfgPPO
+from legged_gym.envs.field.a1_field_config import A1FieldCfg, A1FieldCfgPPO
 
 class Go1FieldCfg( A1FieldCfg ):
 

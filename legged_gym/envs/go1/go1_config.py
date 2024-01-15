@@ -30,7 +30,7 @@
 
 from legged_gym.envs.base.legged_robot_config import LeggedRobotCfg, LeggedRobotCfgPPO
 
-class Go1RoughCfg(LeggedRobotCfg):
+class Go1Cfg(LeggedRobotCfg):
     class env(LeggedRobotCfg.env):
         use_lin_vel = True
         num_envs = 256
@@ -49,7 +49,9 @@ class Go1RoughCfg(LeggedRobotCfg):
         num_recording_envs = 1
 
     class terrain:
-        mesh_type = 'trimesh' # "heightfield" # none, plane, heightfield or trimesh
+        mesh_type = "plane"
+        selected = False
+        # mesh_type = 'trimesh' # "heightfield" # none, plane, heightfield or trimesh
         horizontal_scale = 0.1 # [m]
         vertical_scale = 0.005 # [m]
         border_size = 0 # [m]
@@ -59,7 +61,6 @@ class Go1RoughCfg(LeggedRobotCfg):
         restitution = 0.
         # rough terrain only:
         terrain_smoothness = 0.005
-        measure_heights = True
         measured_points_x = [-0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8] # 1mx1.6m rectangle (without center line)
         measured_points_y = [-0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4, 0.5]
         selected = False # select a unique terrain type and pass all arguments
@@ -83,7 +84,7 @@ class Go1RoughCfg(LeggedRobotCfg):
         max_platform_height = 0.2
 
     class init_state(LeggedRobotCfg.init_state):
-        pos = [0.0, 0.0, 0.4] # x,y,z [m]
+        pos = [0.0, 0.0, 0.34] # x,y,z [m]
         default_joint_angles = { # = target angles [rad] when action = 0.0
             'FR_hip_joint': -0.1 ,  # [rad]
             'FL_hip_joint': 0.1,   # [rad]
@@ -102,7 +103,7 @@ class Go1RoughCfg(LeggedRobotCfg):
         }
 
     class control(LeggedRobotCfg.control):
-        control_type = 'P' # P: position, V: velocity, T: torques, C: command
+        control_type = 'C' # P: position, V: velocity, T: torques, C: command
         stiffness = {'joint': 20.}
         damping = {'joint': 0.5}
         # action_scale = [0.2, 0.4, 0.4] * 4 # for walk
@@ -119,9 +120,9 @@ class Go1RoughCfg(LeggedRobotCfg):
 
         class default_command:
 
-            lin_vel_x = 0.0
+            lin_vel_x = 1.0
             lin_vel_y = 0.0
-            ang_vel = -0.0
+            ang_vel = -0.2
             body_height = 0.0
             gait_freq = 3.0
             gait = "trotting"
@@ -196,7 +197,7 @@ class Go1RoughCfg(LeggedRobotCfg):
             "pitch",
             "z_low",
             "z_high",
-            "out_of_track", # for leap, walk
+            # "out_of_track", # for leap, walk
         ]
 
         roll_kwargs = dict(
@@ -218,27 +219,27 @@ class Go1RoughCfg(LeggedRobotCfg):
             threshold= 1., # [m]
         )
 
-        check_obstacle_conditioned_threshold = True
-        timeout_at_border = True
+        # check_obstacle_conditioned_threshold = True
+        # timeout_at_border = True
         # timeout_at_finished = True
 
     class domain_rand(LeggedRobotCfg.domain_rand):
-        randomize_com = True
+        randomize_com = False
         class com_range:
             x = [-0.05, 0.15]
             y = [-0.1, 0.1]
             z = [-0.05, 0.05]
         
-        randomize_motor = True
+        randomize_motor = False
         leg_motor_strength_range = [0.9, 1.1]
 
-        randomize_base_mass = True
+        randomize_base_mass = False
         added_mass_range = [-1.0, 3.0]
 
-        randomize_friction = True
+        randomize_friction = False
         friction_range = [0.05, 4.5]
 
-        randomize_lag_timesteps = True
+        randomize_lag_timesteps = False
         lag_timesteps = 6
 
         init_base_pos_range = dict(
@@ -318,7 +319,11 @@ class Go1RoughCfg(LeggedRobotCfg):
             torques = -0.0002
             dof_pos_limits = -10.0
 
-class Go1RoughCfgPPO(LeggedRobotCfgPPO):
+    class viewer(LeggedRobotCfg.viewer):
+        pos = [0., 11., 5.]  # [m]
+        lookat = [4., 11., 0.]  # [m]
+
+class Go1CfgPPO(LeggedRobotCfgPPO):
     class algorithm(LeggedRobotCfgPPO.algorithm):
         entropy_coef = 0.01
     class runner(LeggedRobotCfgPPO.runner):

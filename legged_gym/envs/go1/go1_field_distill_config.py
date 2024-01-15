@@ -3,7 +3,7 @@ import os
 import datetime
 import os.path as osp
 import numpy as np
-from legged_gym.envs.go1.go1_field_config import Go1FieldCfg, Go1FieldCfgPPO
+from legged_gym.envs.field.go1_field_config import Go1FieldCfg, Go1FieldCfgPPO
 from legged_gym.envs.a1.a1_field_distill_config import A1FieldDistillCfg, A1FieldDistillCfgPPO
 from legged_gym.utils.helpers import merge_dict
 

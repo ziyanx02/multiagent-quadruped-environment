@@ -1,5 +1,5 @@
 import numpy as np
-from legged_gym.envs.go1.go1_field_config import Go1FieldCfg, Go1FieldCfgPPO
+from legged_gym.envs.field.go1_field_config import Go1FieldCfg, Go1FieldCfgPPO
 from legged_gym.utils.helpers import merge_dict
 
 class Go1DualrunCfg(Go1FieldCfg):

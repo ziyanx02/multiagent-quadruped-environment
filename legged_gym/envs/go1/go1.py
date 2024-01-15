@@ -11,13 +11,13 @@ from copy import copy
 
 from legged_gym import LEGGED_GYM_ROOT_DIR, envs
 from legged_gym.envs.base.legged_robot import LeggedRobot
-from legged_gym.envs.base.legged_robot_field import LeggedRobotField
-from legged_gym.envs.go1.go1_config import Go1RoughCfg
+from legged_gym.envs.field.legged_robot_field import LeggedRobotField
+from legged_gym.envs.go1.go1_config import Go1Cfg
 from legged_gym.utils.math import quat_apply_yaw, wrap_to_pi, torch_rand_sqrt_float
 from legged_gym.utils.helpers import class_to_dict
 
 class Go1(LeggedRobotField):
-    def __init__(self, cfg: Go1RoughCfg, sim_params, physics_engine, sim_device, headless):
+    def __init__(self, cfg: Go1Cfg, sim_params, physics_engine, sim_device, headless):
 
         self.cfg = cfg
 
@@ -44,6 +44,9 @@ class Go1(LeggedRobotField):
         self.render()
         for dec_i in range(self.decimation):
             self.torques = self._compute_torques(self.actions).view(self.torques.shape)
+            # print(self._compute_torques(self.actions))
+            # print("torques")
+            # input()
             # self.torques = torch.ones_like(self.torques, device=self.torques.device)
             self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(self.torques))
             self.gym.simulate(self.sim)
@@ -102,7 +105,7 @@ class Go1(LeggedRobotField):
         # print("5", obs[:, 42:54])
         # print("6", obs[:, 54:66])
         # print("clock_inputs", obs[:, 66:70])
-        # print(self.dof_state)
+        # print("dof_state", self.dof_state)
 
         self.history_locomotion_obs = torch.cat((self.history_locomotion_obs[:, 70:], self.locomotion_obs), dim=-1)
 
@@ -207,8 +210,8 @@ class Go1(LeggedRobotField):
         #     heading = torch.atan2(forward[:, 1], forward[:, 0])
         #     self.commands[:, 2] = torch.clip(0.5*wrap_to_pi(self.commands[:, 3] - heading), -1., 1.)
 
-        if self.cfg.terrain.measure_heights:
-            self.measured_heights = self._get_heights()
+        # if self.cfg.terrain.measure_heights:
+        #     self.measured_heights = self._get_heights()
         if self.cfg.domain_rand.push_robots and  (self.common_step_counter % self.cfg.domain_rand.push_interval == 0):
             self._push_robots()
 
@@ -393,9 +396,18 @@ class Go1(LeggedRobotField):
                 # with open("/home/ziyanx/walk-these-ways/action_wtw", "rb") as f:
                 #     action_wtw = pickle.load(f)
                 # print("action", torch.sum(action-action_wtw))
+                # obs[:, -70] = 0
+                # obs[:, -69] = 0
+                # obs[:, -68] = -1
+                # print(torch.sum(obs[:, :-70]))
+                # print(obs[:, -70:])
+                # print("obs in policy")
 
                 latent = adaptation_module.forward(obs.to('cpu'))
                 action = body.forward(torch.cat((obs.to('cpu'), latent), dim=-1))
+                # print(action)
+                # print("policy here")
+                # input()
             info['latent'] = latent
             return action
         

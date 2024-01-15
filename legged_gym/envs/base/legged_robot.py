@@ -143,8 +143,8 @@ class LeggedRobot(BaseTask):
         self.last_dof_vel[:] = self.dof_vel[:]
         self.last_root_vel[:] = self.root_states[:, 7:13]
 
-        if self.viewer and self.enable_viewer_sync and self.debug_viz:
-            self._draw_debug_vis()
+        # if self.viewer and self.enable_viewer_sync and self.debug_viz:
+        #     self._draw_debug_vis()
 
     def check_termination(self):
         """ Check if environments need to be reset
@@ -222,10 +222,6 @@ class LeggedRobot(BaseTask):
                                     ),dim=-1)
 
         # add perceptive inputs if not blind
-        if self.cfg.terrain.measure_heights:
-            heights = torch.clip(self.root_states[:, 2].unsqueeze(1) - 0.5 - self.measured_heights, -1, 1.) * self.obs_scales.height_measurements
-            self.obs_buf = torch.cat((self.obs_buf, heights), dim=-1)
-
         if not self.num_privileged_obs is None:
             min_shape = min(self.obs_buf.shape[1], self.privileged_obs_buf.shape[1])
             self.privileged_obs_buf[:, :min_shape] = self.obs_buf[:, :min_shape] # copy content
@@ -333,8 +329,6 @@ class LeggedRobot(BaseTask):
             heading = torch.atan2(forward[:, 1], forward[:, 0])
             self.commands[:, 2] = torch.clip(0.5*wrap_to_pi(self.commands[:, 3] - heading), -1., 1.)
 
-        if self.cfg.terrain.measure_heights:
-            self.measured_heights = self._get_heights()
         if self.cfg.domain_rand.push_robots and  (self.common_step_counter % self.cfg.domain_rand.push_interval == 0):
             self._push_robots()
 
@@ -498,8 +492,6 @@ class LeggedRobot(BaseTask):
         noise_vec = torch.zeros_like(self.obs_buf[0])
         self.add_noise = self.cfg.noise.add_noise
         self._write_proprioception_noise(noise_vec[:48])
-        if self.cfg.terrain.measure_heights:
-            self._write_height_measurements_noise(noise_vec[48:235])
         return noise_vec
 
     def _write_proprioception_noise(self, noise_vec):
@@ -561,10 +553,6 @@ class LeggedRobot(BaseTask):
         # initialize some data used later on
         self.common_step_counter = 0
         self.extras = {}
-
-        if self.cfg.terrain.measure_heights:
-            self.height_points = self._init_height_points()
-        self.measured_heights = 0
 
         self.noise_scale_vec = self._get_noise_scale_vec(self.cfg)
         self.gravity_vec = to_torch(get_axis_params(-1., self.up_axis_idx), device=self.device).repeat((self.num_envs * self.num_agents, 1))
@@ -911,26 +899,26 @@ class LeggedRobot(BaseTask):
 
         self.cfg.domain_rand.push_interval = np.ceil(self.cfg.domain_rand.push_interval_s / self.dt)
 
-    def _draw_debug_vis(self):
-        """ Draws visualizations for dubugging (slows down simulation a lot).
-            Default behaviour: draws height measurement points
-        """
-        # draw height lines
-        self.gym.clear_lines(self.viewer)
-        self.gym.refresh_rigid_body_state_tensor(self.sim)
-        if not self.terrain.cfg.measure_heights:
-            return
-        sphere_geom = gymutil.WireframeSphereGeometry(0.02, 4, 4, None, color=(1, 1, 0))
-        for i in range(self.num_envs):
-            base_pos = (self.root_states[i, :3]).cpu().numpy()
-            heights = self.measured_heights[i].cpu().numpy()
-            height_points = quat_apply_yaw(self.base_quat[i].repeat(heights.shape[0]), self.height_points[i]).cpu().numpy()
-            for j in range(heights.shape[0]):
-                x = height_points[j, 0] + base_pos[0]
-                y = height_points[j, 1] + base_pos[1]
-                z = heights[j]
-                sphere_pose = gymapi.Transform(gymapi.Vec3(x, y, z), r=None)
-                gymutil.draw_lines(sphere_geom, self.gym, self.viewer, self.envs[i], sphere_pose) 
+    # def _draw_debug_vis(self):
+    #     """ Draws visualizations for dubugging (slows down simulation a lot).
+    #         Default behaviour: draws height measurement points
+    #     """
+    #     # draw height lines
+    #     self.gym.clear_lines(self.viewer)
+    #     self.gym.refresh_rigid_body_state_tensor(self.sim)
+    #     if not self.terrain.cfg.measure_heights:
+    #         return
+    #     sphere_geom = gymutil.WireframeSphereGeometry(0.02, 4, 4, None, color=(1, 1, 0))
+    #     for i in range(self.num_envs):
+    #         base_pos = (self.root_states[i, :3]).cpu().numpy()
+    #         heights = self.measured_heights[i].cpu().numpy()
+    #         height_points = quat_apply_yaw(self.base_quat[i].repeat(heights.shape[0]), self.height_points[i]).cpu().numpy()
+    #         for j in range(heights.shape[0]):
+    #             x = height_points[j, 0] + base_pos[0]
+    #             y = height_points[j, 1] + base_pos[1]
+    #             z = heights[j]
+    #             sphere_pose = gymapi.Transform(gymapi.Vec3(x, y, z), r=None)
+    #             gymutil.draw_lines(sphere_geom, self.gym, self.viewer, self.envs[i], sphere_pose) 
 
     def _init_height_points(self):
         """ Returns points at which the height measurments are sampled (in base frame)
@@ -948,43 +936,43 @@ class LeggedRobot(BaseTask):
         points[:, :, 1] = grid_y.flatten()
         return points
 
-    def _get_heights(self, env_ids=None):
-        """ Samples heights of the terrain at required points around each robot.
-            The points are offset by the base's position and rotated by the base's yaw
+    # def _get_heights(self, env_ids=None):
+    #     """ Samples heights of the terrain at required points around each robot.
+    #         The points are offset by the base's position and rotated by the base's yaw
 
-        Args:
-            env_ids (List[int], optional): Subset of environments for which to return the heights. Defaults to None.
+    #     Args:
+    #         env_ids (List[int], optional): Subset of environments for which to return the heights. Defaults to None.
 
-        Raises:
-            NameError: [description]
+    #     Raises:
+    #         NameError: [description]
 
-        Returns:
-            [type]: [description]
-        """
-        if self.cfg.terrain.mesh_type == 'plane':
-            return torch.zeros(self.num_envs, self.num_height_points, device=self.device, requires_grad=False)
-        elif self.cfg.terrain.mesh_type == 'none':
-            raise NameError("Can't measure height with terrain mesh type 'none'")
+    #     Returns:
+    #         [type]: [description]
+    #     """
+    #     if self.cfg.terrain.mesh_type == 'plane':
+    #         return torch.zeros(self.num_envs, self.num_height_points, device=self.device, requires_grad=False)
+    #     elif self.cfg.terrain.mesh_type == 'none':
+    #         raise NameError("Can't measure height with terrain mesh type 'none'")
 
-        if env_ids:
-            points = quat_apply_yaw(self.base_quat[env_ids].repeat(1, self.num_height_points), self.height_points[env_ids]) + (self.root_states[env_ids, :3]).unsqueeze(1)
-        else:
-            points = quat_apply_yaw(self.base_quat.repeat(1, self.num_height_points), self.height_points) + (self.root_states[:, :3]).unsqueeze(1)
+    #     if env_ids:
+    #         points = quat_apply_yaw(self.base_quat[env_ids].repeat(1, self.num_height_points), self.height_points[env_ids]) + (self.root_states[env_ids, :3]).unsqueeze(1)
+    #     else:
+    #         points = quat_apply_yaw(self.base_quat.repeat(1, self.num_height_points), self.height_points) + (self.root_states[:, :3]).unsqueeze(1)
 
-        points += self.terrain.cfg.border_size
-        points = (points/self.terrain.cfg.horizontal_scale).long()
-        px = points[:, :, 0].view(-1)
-        py = points[:, :, 1].view(-1)
-        px = torch.clip(px, 0, self.height_samples.shape[0]-2)
-        py = torch.clip(py, 0, self.height_samples.shape[1]-2)
+    #     points += self.terrain.cfg.border_size
+    #     points = (points/self.terrain.cfg.horizontal_scale).long()
+    #     px = points[:, :, 0].view(-1)
+    #     py = points[:, :, 1].view(-1)
+    #     px = torch.clip(px, 0, self.height_samples.shape[0]-2)
+    #     py = torch.clip(py, 0, self.height_samples.shape[1]-2)
 
-        heights1 = self.height_samples[px, py]
-        heights2 = self.height_samples[px+1, py]
-        heights3 = self.height_samples[px, py+1]
-        heights = torch.min(heights1, heights2)
-        heights = torch.min(heights, heights3)
+    #     heights1 = self.height_samples[px, py]
+    #     heights2 = self.height_samples[px+1, py]
+    #     heights3 = self.height_samples[px, py+1]
+    #     heights = torch.min(heights1, heights2)
+    #     heights = torch.min(heights, heights3)
 
-        return heights.view(self.num_envs, -1) * self.terrain.cfg.vertical_scale
+    #     return heights.view(self.num_envs, -1) * self.terrain.cfg.vertical_scale
     
     def _fill_extras(self, env_ids):
         self.extras["episode"] = {}

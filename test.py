@@ -13,9 +13,12 @@ from legged_gym.debugger import break_into_debugger
 def train(args):
 
     from legged_gym.envs.go1.go1 import Go1
-    from legged_gym.envs.go1.go1_dualrun_test_config import Go1DualrunTestCfg
+    from legged_gym.envs.configs.go1_dualrun_test_config import Go1DualrunTestCfg
+    from legged_gym.envs.configs.go1_plane_config import Go1PlaneCfg
 
-    env, env_cfg = make_env(Go1, Go1DualrunTestCfg(), args)
+    # env, env_cfg = make_env(Go1, Go1DualrunTestCfg(), args)
+    env, env_cfg = make_env(Go1, Go1PlaneCfg(), args)
+    # env, env_cfg = make_env(Go1, Go1Cfg(), args)
     # env, env_cfg = task_registry.make_env(name=args.task, args=args)
     env.reset()
     obs = env.get_observations()

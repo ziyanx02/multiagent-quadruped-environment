@@ -1,13 +1,13 @@
 import numpy as np
-from legged_gym.envs.go1.go1_field_config import Go1FieldCfg, Go1FieldCfgPPO
+from legged_gym.envs.field.go1_field_config import Go1FieldCfg, Go1FieldCfgPPO
 from legged_gym.utils.helpers import merge_dict
-from legged_gym.envs.go1.go1 import Go1RoughCfg
+from legged_gym.envs.go1.go1 import Go1Cfg
 
-class Go1DualrunTestCfg(Go1RoughCfg):
+class Go1DualrunTestCfg(Go1Cfg):
 
     class env(Go1FieldCfg.env):
         num_envs = 25 # 4096
-        num_agents = 1
+        num_agents = 2
         obs_components = [
             "proprioception", # 48
             # "height_measurements", # 187
@@ -27,13 +27,12 @@ class Go1DualrunTestCfg(Go1RoughCfg):
 
     class terrain(Go1FieldCfg.terrain):
 
-        mesh_type = "plane"
-        selected = False
-        # mesh_type = "trimesh"
-        # selected = "BarrierTrack"
-        num_rows = 5 # 20
-        num_cols = 5 # 50
-        measure_heights = False
+        # mesh_type = "plane"
+        # selected = False
+        mesh_type = "trimesh"
+        selected = "BarrierTrack"
+        num_rows = 2 # 20
+        num_cols = 10 # 50
         max_init_terrain_level = 2
         border_size = 1
         slope_treshold = 20.
@@ -77,7 +76,7 @@ class Go1DualrunTestCfg(Go1RoughCfg):
             lin_vel_y = [0.0, 0.0]
             ang_vel_yaw = [0., 0.]
 
-    class control(Go1RoughCfg.control):
+    class control(Go1Cfg.control):
         control_type = 'C'
 
     class termination(Go1FieldCfg.termination):
@@ -91,7 +90,7 @@ class Go1DualrunTestCfg(Go1RoughCfg):
             "out_of_track",
         ]
 
-    class domain_rand(Go1RoughCfg.domain_rand):
+    class domain_rand(Go1Cfg.domain_rand):
         # push_robots = True # use for virtual training
         push_robots = False # use for non-virtual training
         init_dof_pos_ratio_range = None

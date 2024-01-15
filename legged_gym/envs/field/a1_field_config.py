@@ -1,5 +1,5 @@
 import numpy as np
-from legged_gym.envs.a1.a1_config import A1RoughCfg, A1RoughCfgPPO
+from legged_gym.envs.field.a1_config import A1RoughCfg, A1RoughCfgPPO
 
 class A1FieldCfg( A1RoughCfg ):
     class env( A1RoughCfg.env ):

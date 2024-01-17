@@ -129,15 +129,15 @@ class LeggedRobotField(LeggedRobot):
         p[p > np.pi] -= np.pi * 2 # to range (-pi, pi)
         z = self.root_states[:, 2] - self.agent_origins.reshape(-1, 3)[:, 2]
 
-        if getattr(self.cfg.termination, "check_obstacle_conditioned_threshold", False) and self.check_BarrierTrack_terrain():
-            if hasattr(self, "volume_sample_points"):
-                self.refresh_volume_sample_points()
-                stepping_obstacle_info = self.terrain.get_stepping_obstacle_info(self.volume_sample_points.view(-1, 3))
-            else:
-                stepping_obstacle_info = self.terrain.get_stepping_obstacle_info(self.root_states[:, :3])
-            stepping_obstacle_info = stepping_obstacle_info.view(self.num_envs, -1, stepping_obstacle_info.shape[-1])
-            # Assuming that each robot will only be in one obstacle or non obstacle.
-            robot_stepping_obstacle_id = torch.max(stepping_obstacle_info[:, :, 0], dim= -1)[0]
+        # if getattr(self.cfg.termination, "check_obstacle_conditioned_threshold", False) and self.check_BarrierTrack_terrain():
+        #     if hasattr(self, "volume_sample_points"):
+        #         self.refresh_volume_sample_points()
+        #         stepping_obstacle_info = self.terrain.get_stepping_obstacle_info(self.volume_sample_points.view(-1, 3))
+        #     else:
+        #         stepping_obstacle_info = self.terrain.get_stepping_obstacle_info(self.root_states[:, :3])
+        #     stepping_obstacle_info = stepping_obstacle_info.view(self.num_envs, -1, stepping_obstacle_info.shape[-1])
+        #     # Assuming that each robot will only be in one obstacle or non obstacle.
+        #     robot_stepping_obstacle_id = torch.max(stepping_obstacle_info[:, :, 0], dim= -1)[0]
         
         if "roll" in self.cfg.termination.termination_terms:
             if "robot_stepping_obstacle_id" in locals():
@@ -187,32 +187,32 @@ class LeggedRobotField(LeggedRobot):
         if "z_high" in self.cfg.termination.termination_terms:
             z_high_term_buff = (z > self.cfg.termination.z_high_kwargs["threshold"]).reshape(self.num_envs, -1).sum(1).to(torch.bool)
             self.reset_buf |= z_high_term_buff
-        if "out_of_track" in self.cfg.termination.termination_terms and self.check_BarrierTrack_terrain():
-            # robot considered dead if it goes side ways
-            side_distance = self.terrain.get_sidewall_distance(self.root_states[:, :3])
-            side_diff = torch.abs(side_distance[..., 0] - side_distance[..., 1])
-            out_of_track_buff = side_diff > self.cfg.termination.out_of_track_kwargs["threshold"]
-            out_of_track_buff |= side_distance[..., 0] <= 0
-            out_of_track_buff |= side_distance[..., 1] <= 0
-            self.reset_buf |= out_of_track_buff.reshape(self.num_envs, -1).sum(1).to(torch.bool)
+        # if "out_of_track" in self.cfg.termination.termination_terms and self.check_BarrierTrack_terrain():
+        #     # robot considered dead if it goes side ways
+        #     side_distance = self.terrain.get_sidewall_distance(self.root_states[:, :3])
+        #     side_diff = torch.abs(side_distance[..., 0] - side_distance[..., 1])
+        #     out_of_track_buff = side_diff > self.cfg.termination.out_of_track_kwargs["threshold"]
+        #     out_of_track_buff |= side_distance[..., 0] <= 0
+        #     out_of_track_buff |= side_distance[..., 1] <= 0
+        #     self.reset_buf |= out_of_track_buff.reshape(self.num_envs, -1).sum(1).to(torch.bool)
 
-        if getattr(self.cfg.termination, "timeout_at_border", False) and self.check_BarrierTrack_terrain():
-            track_idx = self.terrain.get_track_idx(self.root_states[:, :3], clipped= False)
-            # The robot is going +x direction, so no checking for row_idx <= 0
-            out_of_border_buff = track_idx[:, 0] >= self.terrain.cfg.num_rows
-            out_of_border_buff |= track_idx[:, 1] < 0
-            out_of_border_buff |= track_idx[:, 1] >= self.terrain.cfg.num_cols
-            out_of_border_buff = out_of_border_buff.reshape(self.num_envs, -1).sum(1).to(torch.bool)
+        # if getattr(self.cfg.termination, "timeout_at_border", False) and self.check_BarrierTrack_terrain():
+        #     track_idx = self.terrain.get_track_idx(self.root_states[:, :3], clipped= False)
+        #     # The robot is going +x direction, so no checking for row_idx <= 0
+        #     out_of_border_buff = track_idx[:, 0] >= self.terrain.cfg.num_rows
+        #     out_of_border_buff |= track_idx[:, 1] < 0
+        #     out_of_border_buff |= track_idx[:, 1] >= self.terrain.cfg.num_cols
+        #     out_of_border_buff = out_of_border_buff.reshape(self.num_envs, -1).sum(1).to(torch.bool)
 
-            self.time_out_buf |= out_of_border_buff
-            self.reset_buf |= out_of_border_buff
-        if getattr(self.cfg.termination, "timeout_at_finished", False) and self.check_BarrierTrack_terrain():
-            raise NotImplementedError
-            # TODO: create finish line
-            x = self.root_states[:, 0] - self.env_origins[:, 0]
-            finished_buffer = x > (self.terrain.env_length)
-            self.time_out_buf |= finished_buffer
-            self.reset_buf |= finished_buffer
+        #     self.time_out_buf |= out_of_border_buff
+        #     self.reset_buf |= out_of_border_buff
+        # if getattr(self.cfg.termination, "timeout_at_finished", False) and self.check_BarrierTrack_terrain():
+        #     raise NotImplementedError
+        #     # TODO: create finish line
+        #     x = self.root_states[:, 0] - self.env_origins[:, 0]
+        #     finished_buffer = x > (self.terrain.env_length)
+        #     self.time_out_buf |= finished_buffer
+        #     self.reset_buf |= finished_buffer
         
         return return_
 

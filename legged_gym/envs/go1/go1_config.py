@@ -168,12 +168,9 @@ class Go1Cfg(LeggedRobotFieldCfg):
 
         roll_kwargs = dict(
             threshold= 0.8, # [rad] # for tilt
-            tilt_threshold= 1.5, # for tilt (condition on engaging block)
         )
         pitch_kwargs = dict(
             threshold= 1.6,
-            climb_threshold= 1.6,
-            leap_threshold= 1.5,
         )
         z_low_kwargs = dict(
             threshold= 0.08, # [m]

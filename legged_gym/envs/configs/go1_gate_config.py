@@ -5,7 +5,7 @@ from legged_gym.envs.go1.go1 import Go1Cfg
 class Go1GateCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
-        num_envs = 25 # 4096
+        num_envs = 20 # 4096
         num_agents = 2
         obs_components = [
             "proprioception", # 48
@@ -44,17 +44,17 @@ class Go1GateCfg(Go1Cfg):
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
-            track_width = 2.,
+            track_width = 2.6,
             # track_block_length = 2., # the x-axis distance from the env origin point
             cranny = dict(
-                block_length = 1.6,
-                width = 0.5,
+                block_length = 3.0,
+                width = 0.6,
                 depth = 0.1, # size along the forward axis
-                offset = (0.4, 0),
+                offset = (0, 0),
             ),
             init_block = dict(
-                block_length = 3.0,
-                room_size = (1.0, 1.0),
+                block_length = 2.0,
+                room_size = (1.0, 0.8),
                 border_width = 0.00,
                 offset = (0, 0),
             ),

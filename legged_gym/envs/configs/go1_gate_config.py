@@ -5,7 +5,7 @@ from legged_gym.envs.go1.go1 import Go1Cfg
 class Go1GateCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
-        num_envs = 20 # 4096
+        num_envs = 1 # 4096
         num_agents = 2
         obs_components = [
             "proprioception", # 48
@@ -30,8 +30,8 @@ class Go1GateCfg(Go1Cfg):
         # selected = False
         mesh_type = "trimesh"
         selected = "BarrierTrack"
-        num_rows = 2 # 20
-        num_cols = 10 # 50
+        num_rows = 1 # 20
+        num_cols = 1 # 50
         max_init_terrain_level = 2
         border_size = 1
         slope_treshold = 20.
@@ -39,24 +39,28 @@ class Go1GateCfg(Go1Cfg):
 
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
-                "init_block",
-                "cranny",
+                "init",
+                "gate",
+                "wall",
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
             track_width = 2.6,
             # track_block_length = 2., # the x-axis distance from the env origin point
-            cranny = dict(
+            init = dict(
+                block_length = 2.0,
+                room_size = (1.0, 0.8),
+                border_width = 0.00,
+                offset = (0, 0),
+            ),
+            gate = dict(
                 block_length = 3.0,
                 width = 0.6,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
             ),
-            init_block = dict(
-                block_length = 2.0,
-                room_size = (1.0, 0.8),
-                border_width = 0.00,
-                offset = (0, 0),
+            wall = dict(
+                block_length = 0.1
             ),
             wall_height= 0.5,
             virtual_terrain = False, # Change this to False for real terrain

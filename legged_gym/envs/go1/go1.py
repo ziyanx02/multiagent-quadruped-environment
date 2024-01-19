@@ -165,6 +165,12 @@ class Go1(LeggedRobotField):
         dof_pos = (self.dof_pos - self.default_dof_pos).reshape(-1, dof_num)
         dof_vel = self.dof_vel.reshape(-1, dof_num)
 
+        if self.cfg.obs.cfgs.base_pos:
+            self.obs_buf.base_pos = (self.base_pos - self.env_origins_repeat) * self.cfg.obs.scales.base_pos
+
+        if self.cfg.obs.cfgs.base_quat:
+            self.obs_buf.base_quat = self.base_quat * self.cfg.obs.scales.base_quat
+
         if self.cfg.obs.cfgs.dof_pos or self.cfg.control.control_type == "C":
             self.obs_buf.dof_pos = dof_pos * self.obs_scales.dof_pos
 
@@ -180,8 +186,8 @@ class Go1(LeggedRobotField):
         if self.cfg.obs.cfgs.last_action or self.cfg.control.control_type == "C":
             self.obs_buf.last_action = self.actions.reshape(-1, dof_num)
 
-        if self.cfg.obs.cfgs.last_two_action or self.cfg.control.control_type == "C":
-            self.obs_buf.last_two_action = self.last_actions.reshape(-1, dof_num)
+        if self.cfg.obs.cfgs.last_last_action or self.cfg.control.control_type == "C":
+            self.obs_buf.last_last_action = self.last_actions.reshape(-1, dof_num)
 
         if self.cfg.obs.cfgs.projected_gravity or self.cfg.control.control_type == "C":
             self.obs_buf.projected_gravity = copy(self.projected_gravity)

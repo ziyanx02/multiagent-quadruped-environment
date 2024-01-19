@@ -872,6 +872,7 @@ class LeggedRobot(BaseTask):
             else:
                 terrain_agent_origins = self.terrain_origins
             self.env_origins[:] = self.terrain_origins[self.terrain_levels, self.terrain_types]
+            self.env_origins_repeat = copy(self.env_origins).unsqueeze(1).repeat(1, self.num_agents, 1).reshape(-1, 3)
             self.agent_origins = terrain_agent_origins[self.terrain_levels, self.terrain_types]
         else:
             self.custom_origins = False

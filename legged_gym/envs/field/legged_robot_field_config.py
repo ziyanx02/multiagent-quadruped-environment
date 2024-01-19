@@ -19,23 +19,32 @@ class LeggedRobotFieldCfg( LeggedRobotCfg ):
 
         BarrierTrack_kwargs = dict(
             options = [
-                "init_block",
+                "init",
+                "gate",
+                "wall",
+                "plane",
             ],
             randomize_obstacle_order = False,
             wall_thickness= 0.04,
             track_width = 2.,
             # track_block_length = 2., # the x-axis distance from the env origin point
-            cranny = dict(
-                block_length = 1.6,
-                width = 0.5,
-                depth = 0.1, # size along the forward axis
-                offset = (0.4, 0),
+            wall = dict(
+                block_length = 3.0,
             ),
-            init_block = dict(
+            plane = dict(
+                block_length = 3.0,
+            ),
+            init = dict(
                 block_length = 3.0,
                 room_size = (1.0, 1.0),
                 border_width = 0.00,
                 offset = (0, 0),
+            ),
+            gate = dict(
+                block_length = 1.6,
+                width = 0.5,
+                depth = 0.1, # size along the forward axis
+                offset = (0.4, 0),
             ),
             wall_height= 0.5,
             virtual_terrain = False, # Change this to False for real terrain

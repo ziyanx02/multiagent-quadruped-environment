@@ -12,8 +12,10 @@ class BarrierTrack:
     # default kwargs
     track_kwargs = dict(
             options = [
-                "cranny",
-                "init_block",
+                "gate",
+                "init",
+                "wall",
+                "plane",
                 # "climb",
                 # "crawl",
                 # "tilt",
@@ -49,13 +51,19 @@ class BarrierTrack:
             #     depth = 0.5,
             #     height = 0.1, # expected leap height over the gap
             # ),
-            init_block = dict(
+            wall = dict(
+                block_length = 3.0,
+            ),
+            plane = dict(
+                block_length = 3.0,
+            ),
+            init = dict(
                 block_length = 1.2,
                 room_size = (0.8, 0.8),
                 border_with = 0.05,
                 offset = (0, 0),
             ),
-            cranny = dict(
+            gate = dict(
                 block_length = 1.2,
                 width = 1.,
                 depth = 1., # size along the forward axis
@@ -75,8 +83,10 @@ class BarrierTrack:
         )
     max_track_options = 5 # ("tilt", "crawl", "climb", "dynamic", "dualrun") at most
     track_options_id_dict = {
-        "cranny": 0,
-        "init_block": 1,
+        "gate": 0,
+        "init": 1,
+        "wall": 2,
+        "plane": 3,
         # "tilt": 1,
         # "crawl": 2,
         # "climb": 3,
@@ -189,7 +199,64 @@ class BarrierTrack:
 
     """
 
-    def get_init_block_track(self,
+    def get_wall_block(self,
+            wall_thickness,
+            block_resolution,
+            difficulty = None,
+            virtual = False,
+        ):
+        block_heighfield = np.zeros(block_resolution, dtype= np.float32)
+        heighfield_noise_mask = np.zeros(block_resolution, dtype= np.float32)
+        reset_pos_px = None
+        
+        wall_height = ( \
+            np.random.uniform(*self.track_kwargs["wall_height"]) \
+            if isinstance(self.track_kwargs["wall_height"], (tuple, list)) \
+            else self.track_kwargs["wall_height"] \
+        ) / self.cfg.vertical_scale
+
+        block_heighfield[ :, :] = wall_height
+
+        block_info = torch.tensor([
+            0., # obstacle depth (along x-axis)
+            0., # critical parameter for each obstacle
+        ], dtype= torch.float32, device= self.device)
+
+        height_offset_px = 0
+
+        return block_heighfield, block_info, heighfield_noise_mask, height_offset_px, reset_pos_px
+
+    def get_plane_block(self,
+            wall_thickness,
+            block_resolution,
+            difficulty = None,
+            virtual = False,
+        ):
+        block_heighfield = np.zeros(block_resolution, dtype= np.float32)
+        heighfield_noise_mask = np.zeros(block_resolution, dtype= np.float32)
+        reset_pos_px = None
+        
+        wall_height = ( \
+            np.random.uniform(*self.track_kwargs["wall_height"]) \
+            if isinstance(self.track_kwargs["wall_height"], (tuple, list)) \
+            else self.track_kwargs["wall_height"] \
+        ) / self.cfg.vertical_scale
+        wall_thickness_px = np.ceil(wall_thickness / self.cfg.horizontal_scale).astype(int)
+
+        block_heighfield[ :, : wall_thickness_px] = wall_height
+        block_heighfield[ :, -wall_thickness_px :] = wall_height
+        heighfield_noise_mask[ :, wall_thickness_px: block_resolution[1] - wall_thickness_px] = 1.
+
+        block_info = torch.tensor([
+            0., # obstacle depth (along x-axis)
+            0., # critical parameter for each obstacle
+        ], dtype= torch.float32, device= self.device)
+
+        height_offset_px = 0
+
+        return block_heighfield, block_info, heighfield_noise_mask, height_offset_px, reset_pos_px
+
+    def get_init_block(self,
             wall_thickness,
             block_resolution,
             difficulty = None,
@@ -205,11 +272,11 @@ class BarrierTrack:
             else self.track_kwargs["wall_height"] \
         ) / self.cfg.vertical_scale
 
-        room_offset_px = (int(self.track_kwargs["init_block"]["offset"][0] / self.cfg.horizontal_scale), \
-                          int(self.track_kwargs["init_block"]["offset"][1] / self.cfg.horizontal_scale))
-        room_size_px = (int(self.track_kwargs["init_block"]["room_size"][0] / self.cfg.horizontal_scale), \
-                        int(self.track_kwargs["init_block"]["room_size"][1] / self.cfg.horizontal_scale))
-        border_px = np.ceil(self.track_kwargs["init_block"]["border_width"] / self.cfg.horizontal_scale).astype(int)
+        room_offset_px = (int(self.track_kwargs["init"]["offset"][0] / self.cfg.horizontal_scale), \
+                          int(self.track_kwargs["init"]["offset"][1] / self.cfg.horizontal_scale))
+        room_size_px = (int(self.track_kwargs["init"]["room_size"][0] / self.cfg.horizontal_scale), \
+                        int(self.track_kwargs["init"]["room_size"][1] / self.cfg.horizontal_scale))
+        border_px = np.ceil(self.track_kwargs["init"]["border_width"] / self.cfg.horizontal_scale).astype(int)
         wall_thickness_px = np.ceil(wall_thickness / self.cfg.horizontal_scale).astype(int)
 
         # make room for agents
@@ -253,7 +320,7 @@ class BarrierTrack:
         track_heightfield = block_heighfield
         return track_trimesh, track_heightfield, block_info, height_offset_px
 
-    def get_cranny_track(self,
+    def get_gate_block(self,
             wall_thickness,
             block_resolution,
             difficulty = None,
@@ -261,47 +328,48 @@ class BarrierTrack:
         ):
         block_heighfield = np.zeros(block_resolution, dtype= np.float32)
         heighfield_noise_mask = np.ones(block_resolution, dtype= np.float32)
+        reset_pos_px = None
         
-        cranny_depth = np.random.uniform(*self.track_kwargs["cranny"]["depth"]) \
-                        if isinstance(self.track_kwargs["cranny"]["depth"], (tuple, list)) \
-                        else self.track_kwargs["cranny"]["depth"]
+        gate_depth = np.random.uniform(*self.track_kwargs["gate"]["depth"]) \
+                        if isinstance(self.track_kwargs["gate"]["depth"], (tuple, list)) \
+                        else self.track_kwargs["gate"]["depth"]
         wall_height = np.random.uniform(*self.track_kwargs["wall_height"]) \
                                 if isinstance(self.track_kwargs["wall_height"], (tuple, list)) \
                                 else self.track_kwargs["wall_height"]
-        offset_px = (np.ceil(self.track_kwargs["cranny"]["offset"][0] / self.cfg.horizontal_scale).astype(int), \
-                     np.ceil(self.track_kwargs["cranny"]["offset"][1] / self.cfg.horizontal_scale).astype(int))
+        offset_px = (np.ceil(self.track_kwargs["gate"]["offset"][0] / self.cfg.horizontal_scale).astype(int), \
+                     np.ceil(self.track_kwargs["gate"]["offset"][1] / self.cfg.horizontal_scale).astype(int))
         
-        if isinstance(self.track_kwargs["cranny"]["width"], (tuple, list)):
+        if isinstance(self.track_kwargs["gate"]["width"], (tuple, list)):
             if difficulty is None:
-                cranny_width = np.random.uniform(*self.track_kwargs["cranny"]["width"])
+                gate_width = np.random.uniform(*self.track_kwargs["gate"]["width"])
             else:
-                cranny_width = difficulty * self.track_kwargs["cranny"]["width"][0] + (1-difficulty) * self.track_kwargs["cranny"]["width"][1]
+                gate_width = difficulty * self.track_kwargs["gate"]["width"][0] + (1-difficulty) * self.track_kwargs["gate"]["width"][1]
         else:
-            cranny_width = self.track_kwargs["cranny"]["width"]
-        depth_px = int(cranny_depth / self.cfg.horizontal_scale)
-        width_px = int(cranny_width / self.cfg.horizontal_scale)
+            gate_width = self.track_kwargs["gate"]["width"]
+        depth_px = int(gate_depth / self.cfg.horizontal_scale)
+        width_px = int(gate_width / self.cfg.horizontal_scale)
         height_value = wall_height / self.cfg.vertical_scale
         wall_thickness_px = np.ceil(wall_thickness / self.cfg.horizontal_scale).astype(int)
 
-        cranny_origin = np.asarray([np.ceil((block_resolution[0] - depth_px) / 2).astype(int) + offset_px[0], \
+        gate_origin = np.asarray([np.ceil((block_resolution[0] - depth_px) / 2).astype(int) + offset_px[0], \
                                     np.ceil((block_resolution[1] - width_px) / 2).astype(int) + offset_px[1]])
 
-        block_heighfield[cranny_origin[0] : cranny_origin[0] + depth_px, :] = height_value
+        block_heighfield[gate_origin[0] : gate_origin[0] + depth_px, :] = height_value
         block_heighfield[ :, : wall_thickness_px] = height_value
         block_heighfield[ :, -wall_thickness_px :] = height_value
-        heighfield_noise_mask[cranny_origin[0] : cranny_origin[0] + depth_px, :] = 0.
+        heighfield_noise_mask[gate_origin[0] : gate_origin[0] + depth_px, :] = 0.
         heighfield_noise_mask[ :, : wall_thickness_px] = 0.
         heighfield_noise_mask[ :, -wall_thickness_px :] = 0.
-        block_heighfield[cranny_origin[0] : cranny_origin[0] + depth_px, cranny_origin[1] : cranny_origin[1] + width_px] = 0.
-        heighfield_noise_mask[cranny_origin[0] : cranny_origin[0] + depth_px, cranny_origin[1] : cranny_origin[1] + width_px] = 1.
+        block_heighfield[gate_origin[0] : gate_origin[0] + depth_px, gate_origin[1] : gate_origin[1] + width_px] = 0.
+        heighfield_noise_mask[gate_origin[0] : gate_origin[0] + depth_px, gate_origin[1] : gate_origin[1] + width_px] = 1.
 
         block_info = torch.tensor([
-            cranny_depth,
-            cranny_width,
+            gate_depth,
+            gate_width,
         ], dtype= torch.float32, device= self.device)
         height_offset_px = 0
         
-        return block_heighfield, block_info, heighfield_noise_mask, height_offset_px, None
+        return block_heighfield, block_info, heighfield_noise_mask, height_offset_px, reset_pos_px
 
     def get_climb_track(self,
             wall_thickness,
@@ -633,7 +701,7 @@ class BarrierTrack:
 
         for block_idx, block_name in enumerate(block_order):
 
-            block_heighfield, block_info, heighfield_noise_mask, height_offset_px, reset_pos = getattr(self, "get_" + block_name + "_track")(
+            block_heighfield, block_info, heighfield_noise_mask, height_offset_px, reset_pos = getattr(self, "get_" + block_name + "_block")(
                 wall_thickness,
                 self.track_block_resolutions[block_idx],
                 virtual = virtual_track,

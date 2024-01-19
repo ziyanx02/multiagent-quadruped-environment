@@ -87,7 +87,7 @@ class Go1Cfg(LeggedRobotFieldCfg):
         class default_command:
 
             lin_vel_x = 1.0
-            lin_vel_y = 0.0
+            lin_vel_y = -0.0
             ang_vel = -0.2
             body_height = 0.0
             gait_freq = 3.0
@@ -215,6 +215,8 @@ class Go1Cfg(LeggedRobotFieldCfg):
     class obs:
 
         class cfgs:
+            base_pos = True
+            base_quat = True
             dof_pos = True
             dof_vel = True
             lin_vel = True
@@ -228,9 +230,16 @@ class Go1Cfg(LeggedRobotFieldCfg):
             timing_parameter = False
             clock_inputs = False
             last_action = True
-            last_two_action = True
+            last_last_action = True
             imu = False
         
+        class scales:
+            base_pos = 1.0
+            base_quat = 1.0
+            segmentation_image = 1.0
+            rgb_image = 1.0
+            depth_image = 1.0
+
         def keys(self):
             key_dict = dir(self.cfgs)
             print("===Available Obsevations Start===")
@@ -239,28 +248,6 @@ class Go1Cfg(LeggedRobotFieldCfg):
                     print(key, end=" ")
             print("\n====Available Obsevations End====")
             return "================================="
-
-        class scales:
-            lin_vel = 2.0
-            ang_vel = 0.25
-            dof_pos = 1.0
-            dof_vel = 0.05
-            imu = 0.1
-            height_measurements = 5.0
-            friction_measurements = 1.0
-            body_height_cmd = 2.0
-            gait_phase_cmd = 1.0
-            gait_freq_cmd = 1.0
-            footswing_height_cmd = 0.15
-            body_pitch_cmd = 0.3
-            body_roll_cmd = 0.3
-            aux_reward_cmd = 1.0
-            compliance_cmd = 1.0
-            stance_width_cmd = 1.0
-            stance_length_cmd = 1.0
-            segmentation_image = 1.0
-            rgb_image = 1.0
-            depth_image = 1.0
 
     class privileged_obs:
         

@@ -5,7 +5,7 @@ from legged_gym.envs.go1.go1 import Go1Cfg
 class Go1GateCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
-        num_envs = 1 # 4096
+        num_envs = 10 # 4096
         num_agents = 2
         obs_components = [
             "proprioception", # 48
@@ -16,6 +16,7 @@ class Go1GateCfg(Go1Cfg):
             # "sidewall_distance",
             # "forward_depth",
         ]
+        episode_length_s = 5 # episode length in seconds
 
     #### uncomment this to train non-virtual terrain
     # class sensor(A1FieldCfg.sensor):
@@ -30,8 +31,8 @@ class Go1GateCfg(Go1Cfg):
         # selected = False
         mesh_type = "trimesh"
         selected = "BarrierTrack"
-        num_rows = 1 # 20
-        num_cols = 1 # 50
+        num_rows = 2 # 20
+        num_cols = 5 # 50
         max_init_terrain_level = 2
         border_size = 1
         slope_treshold = 20.

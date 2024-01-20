@@ -8,8 +8,6 @@ from legged_gym.envs import *
 from legged_gym.utils import get_args, make_env
 import torch
 
-from legged_gym.debugger import break_into_debugger
-
 def train(args):
 
     from legged_gym.envs.go1.go1 import Go1
@@ -28,7 +26,7 @@ def train(args):
     num_actions = env.num_actions
     import time
     while True:
-        env.step(torch.randn([num_envs, num_actions], dtype=torch.float32, device="cuda"))
+        env.step(torch.tensor([[[1.0, 0, 0],[0, 0, 1.0]],], dtype=torch.float32, device="cuda").repeat(env.num_envs, 1, 1))
 
 
 if __name__ == '__main__':

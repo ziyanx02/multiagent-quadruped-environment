@@ -73,11 +73,10 @@ class Go1GateCfg(Go1Cfg):
             zScale = [0.05, 0.1],
        ))
     
-    class commands(Go1Cfg.commands):
-        class ranges(Go1Cfg.commands.ranges):
-            lin_vel_x = [0.3, 0.6]
-            lin_vel_y = [0.0, 0.0]
-            ang_vel_yaw = [0., 0.]
+    class command(Go1Cfg.command):
+
+        class cfg(Go1Cfg.command.cfg):
+            vel = True         # lin_vel, ang_vel
 
     class control(Go1Cfg.control):
         control_type = 'C'

@@ -88,6 +88,18 @@ class LeggedRobotCfg(BaseConfig):
             heading = [-3.14, 3.14]
 
     class init_state:
+
+        def __init__(self,
+            pos = [0.0, 0.0, 1.], # x,y,z [m]
+            rot = [0.0, 0.0, 0.0, 1.0], # x,y,z,w [quat]
+            lin_vel = [0.0, 0.0, 0.0],  # x,y,z [m/s]
+            ang_vel = [0.0, 0.0, 0.0],  # x,y,z [rad/s]
+        ) -> None:
+            self.pos = pos
+            self.rot = rot
+            self.lin_vel = lin_vel
+            self.ang_vel = ang_vel
+        
         pos = [0.0, 0.0, 1.] # x,y,z [m]
         rot = [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
         lin_vel = [0.0, 0.0, 0.0]  # x,y,z [m/s]

@@ -409,7 +409,7 @@ class LeggedRobot(BaseTask):
         # base position
         actor_ids_int32 = self.actor_indices[env_ids].view(-1)
         agent_ids = self.env_agent_indices[env_ids].reshape(-1)
-        self.root_states[agent_ids] = self.base_init_state
+        self.root_states[agent_ids] = self.base_init_state[agent_ids]
         self.root_states[agent_ids, :3] += self.agent_origins[env_ids].reshape(-1, 3)
         if self.custom_origins:
             if hasattr(self.cfg.domain_rand, "init_base_pos_range"):
@@ -741,10 +741,22 @@ class LeggedRobot(BaseTask):
         for name in self.cfg.asset.terminate_after_contacts_on:
             termination_contact_names.extend([s for s in body_names if name in s])
 
-        base_init_state_list = self.cfg.init_state.pos + self.cfg.init_state.rot + self.cfg.init_state.lin_vel + self.cfg.init_state.ang_vel
-        self.base_init_state = to_torch(base_init_state_list, device=self.device, requires_grad=False)
-        start_pose = gymapi.Transform()
-        start_pose.p = gymapi.Vec3(*self.base_init_state[:3])
+        if getattr(self.cfg.init_state, "multi_init_state", False):
+            init_state_list = []
+            for idx, init_state in enumerate(self.cfg.init_state.init_states):
+                base_init_state_list = init_state.pos + init_state.rot + init_state.lin_vel + init_state.ang_vel
+                base_init_state = to_torch(base_init_state_list, device=self.device, requires_grad=False)
+                init_state_list.append(base_init_state)
+                if idx == 0:
+                    start_pose = gymapi.Transform()
+                    start_pose.p = gymapi.Vec3(*base_init_state[:3])
+            self.base_init_state = torch.stack(init_state_list, dim=0).repeat(self.num_envs, 1)
+        else:
+            base_init_state_list = self.cfg.init_state.pos + self.cfg.init_state.rot + self.cfg.init_state.lin_vel + self.cfg.init_state.ang_vel
+            base_init_state = to_torch(base_init_state_list, device=self.device, requires_grad=False)
+            start_pose = gymapi.Transform()
+            start_pose.p = gymapi.Vec3(*base_init_state[:3])
+            self.base_init_state = base_init_state.unsqueeze(0).repeat(self.num_agents * self.num_envs, 1)
 
         self._get_env_origins()
         env_lower = gymapi.Vec3(0., 0., 0.)

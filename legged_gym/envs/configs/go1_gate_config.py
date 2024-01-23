@@ -78,6 +78,24 @@ class Go1GateCfg(Go1Cfg):
         class cfg(Go1Cfg.command.cfg):
             vel = True         # lin_vel, ang_vel
 
+    class init_state(Go1Cfg.init_state):
+        multi_init_state = True
+        init_state_class = Go1Cfg.init_state
+        init_states = [
+            init_state_class(
+                pos = [0.0, 0.0, 0.34],
+                rot = [0.0, 0.0, 0.0, 1.0],
+                lin_vel = [0.0, 0.0, 0.0],
+                ang_vel = [0.0, 0.0, 0.0],
+            ),
+            init_state_class(
+                pos = [0.0, 0.0, 0.34],
+                rot = [0.0, 0.0, 0.0, 1.0],
+                lin_vel = [0.0, 0.0, 0.0],
+                ang_vel = [0.0, 0.0, 0.0],
+            ),
+        ]
+
     class control(Go1Cfg.control):
         control_type = 'C'
 
@@ -103,10 +121,11 @@ class Go1GateCfg(Go1Cfg):
 
     class rewards(Go1Cfg.rewards):
         class scales:
-            tracking_ang_vel = 0.05
-            world_vel_l2norm = -1.
-            legs_energy_substeps = -1e-5
-            alive = 2.
+            pass
+            # tracking_ang_vel = 0.05
+            # world_vel_l2norm = -1.
+            # legs_energy_substeps = -1e-5
+            # alive = 2.
             # penetrate_depth = -3e-3
             # penetrate_volume = -3e-3
             # exceed_dof_pos_limits = -1e-1

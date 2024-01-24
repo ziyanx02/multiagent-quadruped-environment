@@ -69,3 +69,14 @@ class LeggedRobotFieldCfg( LeggedRobotCfg ):
             # zScale= [0.1, 0.15], # for walk
             frequency= 10,
         )
+
+    class sensor:
+        class forward_camera:
+            resolution = [16, 16]
+            position = [0.26, 0., 0.03] # position in base_link
+            rotation = [0., 0., 0.] # ZYX Euler angle in base_link
+    
+        class proprioception:
+            delay_action_obs = False
+            latency_range = [0.0, 0.0]
+            latency_resample_time = 2.0 # [s]

@@ -39,11 +39,11 @@ class mqe_openrl_wrapper(gym.Wrapper):
         """Step all environments."""
         actions = torch.from_numpy(actions).cuda()
 
-        obs_buff, self._rew, self._resets, self._extras = self.env.step(actions)
+        obs, reward, termination, info = self.env.step(actions)
 
-        obs = obs_buff.cpu().numpy()
-        rewards = self._rew.cpu().numpy()
-        dones = self._resets.cpu().numpy().astype(bool)
+        obs = obs.cpu().numpy()
+        rewards = reward.cpu().unsqueeze(-1).numpy()
+        dones = termination.cpu().unsqueeze(-1).repeat(1, self.agent_num).numpy().astype(bool)
 
         infos = []
         for i in range(dones.shape[0]):

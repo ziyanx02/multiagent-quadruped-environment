@@ -6,7 +6,7 @@ class Go1GateCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1gate"
-        num_envs = 10 # 4096
+        num_envs = 1000 # 4096
         num_agents = 2
         obs_components = [
             "proprioception", # 48
@@ -32,7 +32,7 @@ class Go1GateCfg(Go1Cfg):
         # selected = False
         mesh_type = "trimesh"
         selected = "BarrierTrack"
-        num_rows = 2 # 20
+        num_rows = 5 # 20
         num_cols = 5 # 50
         max_init_terrain_level = 2
         border_size = 1

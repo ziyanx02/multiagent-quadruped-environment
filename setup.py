@@ -8,9 +8,8 @@ setup(
     license="BSD-3-Clause",
     packages=find_packages(),
     author_email='',
-    description='Multiagent-Quadruped-Environments',
+    description='multiagent-quadruped-environments',
     install_requires=['isaacgym',
                       'matplotlib',
-                      'tensorboardX',
                       'debugpy']
 )

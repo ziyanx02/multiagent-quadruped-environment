@@ -3,6 +3,7 @@ from legged_gym.envs.go1.go1_config import Go1Cfg
 
 class Go1PlaneCfg(Go1Cfg):
     class env(Go1Cfg.env):
+        env_name = "go1plane"
         use_lin_vel = True
         num_envs = 25
         num_observations = 235

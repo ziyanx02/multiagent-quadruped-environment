@@ -20,6 +20,7 @@ class Go1(LeggedRobotField):
     def __init__(self, cfg: Go1Cfg, sim_params, physics_engine, sim_device, headless):
 
         self.cfg = cfg
+        self.env_name = cfg.env.env_name
 
         super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
         

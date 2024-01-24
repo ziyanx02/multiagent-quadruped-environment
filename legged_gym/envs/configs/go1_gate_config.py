@@ -5,6 +5,7 @@ from legged_gym.envs.go1.go1 import Go1Cfg
 class Go1GateCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
+        env_name = "go1gate"
         num_envs = 10 # 4096
         num_agents = 2
         obs_components = [

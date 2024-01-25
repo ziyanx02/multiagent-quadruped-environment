@@ -6,7 +6,7 @@ class Go1GateCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1gate"
-        num_envs = 1000 # 4096
+        num_envs = 25 # 4096
         num_agents = 2
         obs_components = [
             "proprioception", # 48

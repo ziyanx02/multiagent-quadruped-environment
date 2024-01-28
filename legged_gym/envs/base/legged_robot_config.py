@@ -40,6 +40,8 @@ class LeggedRobotCfg(BaseConfig):
         env_spacing = 3.  # not used with heightfields/trimeshes 
         send_timeouts = True # send time out information to the algorithm
         episode_length_s = 20 # episode length in seconds
+        num_npcs = 0
+        num_actions_npc = 0
 
     class terrain:
         mesh_type = 'trimesh' # "heightfield" # none, plane, heightfield or trimesh
@@ -120,7 +122,9 @@ class LeggedRobotCfg(BaseConfig):
 
     class asset:
         file = ""
+        file_npc = ""
         name = "legged_robot"  # actor name
+        name_npc = ""
         foot_name = "None" # name of the feet bodies, used to index body state and contact force tensors
         penalize_contacts_on = []
         terminate_after_contacts_on = []

@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<robot name="sheep">
+
+  <material name="white">    
+      <color rgba="0.7 0.7 0.7 0.0"/>  
+  </material>
+  <material name="black">    
+      <color rgba="0.1 0.1 0.1 0.0"/>  
+  
+  </material>
+  <link name="body">
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.2"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.2" length="0.5"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.03"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+
+  <link name="head">
+    <visual>
+      <origin xyz="0 0.21 0.05"/>
+      <geometry>
+        <sphere radius="0.07"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+  <joint name="body_head" type="fixed">
+    <parent link="body"/>
+    <child link="head"/>
+  </joint>
+  
+  <link name="face">
+    <visual>
+      <origin xyz="0 0.22 0.025"/>
+      <geometry>
+        <sphere radius="0.07"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="body_face" type="fixed">
+    <parent link="body"/>
+    <child link="face"/>
+  </joint>
+  
+  <link name="FL_leg">
+    <visual>
+      <origin xyz="-0.1 0.1 -0.1" rpy="0.2 0.2 0.0"/>
+      <geometry>
+        <cylinder radius="0.025" length="0.25"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="body_FL_leg" type="fixed">
+    <parent link="body"/>
+    <child link="FL_leg"/>
+  </joint>
+
+  <link name="FR_leg">
+    <visual>
+      <origin xyz="0.1 0.1 -0.1" rpy="0.2 -0.2 0.0"/>
+      <geometry>
+        <cylinder radius="0.025" length="0.25"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="body_FR_leg" type="fixed">
+    <parent link="body"/>
+    <child link="FR_leg"/>
+  </joint>
+
+  <link name="RR_leg">
+    <visual>
+      <origin xyz="0.1 -0.1 -0.1" rpy="-0.2 -0.2 0.0"/>
+      <geometry>
+        <cylinder radius="0.025" length="0.25"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="body_RR_leg" type="fixed">
+    <parent link="body"/>
+    <child link="RR_leg"/>
+  </joint>
+
+  <link name="RL_leg">
+    <visual>
+      <origin xyz="-0.1 -0.1 -0.1" rpy="-0.2 0.2 0.0"/>
+      <geometry>
+        <cylinder radius="0.025" length="0.25"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="body_RL_leg" type="fixed">
+    <parent link="body"/>
+    <child link="RL_leg"/>
+  </joint>
+
+</robot>

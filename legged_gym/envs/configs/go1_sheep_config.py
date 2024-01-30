@@ -2,14 +2,13 @@ import numpy as np
 from legged_gym.utils.helpers import merge_dict
 from legged_gym.envs.go1.go1 import Go1Cfg
 
-class Go1GateBallCfg(Go1Cfg):
+class Go1SheepCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
-        env_name = "go1gate"
-        num_envs = 25 # 4096
+        env_name = "go1sheep"
+        num_envs = 2 # 4096
         num_agents = 2
         num_npcs = 1
-        num_actions_npc = 0
         obs_components = [
             "proprioception", # 48
             # "height_measurements", # 187
@@ -27,18 +26,18 @@ class Go1GateBallCfg(Go1Cfg):
     #         delay_action_obs = True
     #         latency_range = [0.04-0.0025, 0.04+0.0075]
     #### uncomment the above to train non-virtual terrain
-        
-    class asset(Go1Cfg.asset):
-        file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/ball.urdf"
-        name_npc = "ball"
 
+    class asset(Go1Cfg.asset):
+        file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/sheep.urdf"
+        name_npc = "sheep"
+    
     class terrain(Go1Cfg.terrain):
 
         # mesh_type = "plane"
         # selected = False
         mesh_type = "trimesh"
         selected = "BarrierTrack"
-        num_rows = 5 # 20
+        num_rows = 2 # 20
         num_cols = 5 # 50
         max_init_terrain_level = 2
         border_size = 1
@@ -104,7 +103,7 @@ class Go1GateBallCfg(Go1Cfg):
         ]
         init_states_npc = [
             init_state_class(
-                pos = [1.0, .0, 0.34],
+                pos = [1.0, .0, 0.3],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],

@@ -56,13 +56,13 @@ class Go1(LeggedRobotField):
             if self.device == 'cpu':
                 self.gym.fetch_results(self.sim, True)
             self.gym.refresh_dof_state_tensor(self.sim)
-            # print(self.dof_state)
-            # exit()
+            
+            self._step_npc()
+
             self.post_decimation_step(dec_i)
 
         self.post_physics_step()
-        #self.npc_move()
-
+        
         return self.obs_buf, self.rew_buf, self.reset_buf, self.extras
     
     def preprocess_action(self, actions):

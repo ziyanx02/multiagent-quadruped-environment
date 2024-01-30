@@ -95,6 +95,7 @@ class LeggedRobot(BaseTask):
             # if self.device == 'cpu':
             self.gym.fetch_results(self.sim, True)
             self.gym.refresh_dof_state_tensor(self.sim)
+            self._step_npc()
             self.post_decimation_step(dec_i)
         self.post_physics_step()
 
@@ -184,25 +185,6 @@ class LeggedRobot(BaseTask):
         self._resample_commands(env_ids)
         self._reset_buffers(env_ids)
 
-    def npc_move(self):
-        rang_y = [0,0]
-        rang_x = [0,0]
-        for i in range(self.num_envs*self.num_npcs):
-            rang_x[0] = -0.05 if self.root_states_npc[i, 0] > self.npc_state_range_min[i, 0] else 0
-            rang_x[1] = 0.05 if self.root_states_npc[i, 0] < self.npc_state_range_max[i, 0] else 0
-            rang_y[0] = -0.05 if self.root_states_npc[i, 0] > self.npc_state_range_min[i, 0] else 0
-            rang_y[1] = 0.05 if self.root_states_npc[i, 0] < self.npc_state_range_max[i, 0] else 0
-            npc_move = to_torch([random.uniform(rang_x[0], rang_x[1]),0], device= self.device).view(-1) if self.npc_change else to_torch([0, random.uniform(rang_y[0], rang_y[1])], device= self.device).view(-1)
-
-            self.all_root_states[torch.div(i, self.num_npcs, rounding_mode='floor')*(self.num_agents + self.num_npcs) + i%self.num_npcs + self.num_agents, :2] += npc_move
-        self.npc_change =  not self.npc_change 
-        actor_indices = self.actor_indices.view(-1)
-        self.gym.set_actor_root_state_tensor_indexed(self.sim,
-                                                     gymtorch.unwrap_tensor(self.all_root_states),
-                                                     gymtorch.unwrap_tensor(actor_indices), len(actor_indices))
-        self.gym.refresh_rigid_body_state_tensor(self.sim)
-
-        
     def compute_reward(self):
         """ Compute rewards
             Calls each reward function which had a non-zero scale (processed in self._prepare_reward_function())
@@ -455,7 +437,7 @@ class LeggedRobot(BaseTask):
             (len(agent_ids), 6),
             device=self.device, 
         ) # [7:10]: lin vel, [10:13]: ang vel
-        self.all_root_states[(self.num_agents + self.num_npcs) * torch.div(agent_ids, self.num_agents, rounding_mode='floor') + agent_ids % self.num_agents] = self.root_states[agent_ids]
+        self.all_root_states[(self.num_agents + self.num_npcs) * (agent_ids // self.num_agents) + agent_ids % self.num_agents] = self.root_states[agent_ids]
         actor_ids_int32 = self.actor_indices[env_ids].view(-1)
         self.gym.set_actor_root_state_tensor_indexed(self.sim,
                                                      gymtorch.unwrap_tensor(self.all_root_states),
@@ -561,11 +543,7 @@ class LeggedRobot(BaseTask):
         self.base_pos = self.root_states[:, 0:3]
         self.base_quat = self.root_states[:, 3:7]
         self.prev_base_pos = self.base_pos.clone()
-        if self.num_npcs != 0 : 
-            self.root_states_npc = self.all_root_states.view(self.num_envs, -1, 13)[:, self.num_agents:, :].reshape(-1, 13) # (num_envs * num_npcs, 13)
-            self.npc_state_range = self.base_init_state_npc[:, :2] + self.agent_origins[:, 0, :2].reshape(-1, 2)
-            self.npc_state_range_max = self.npc_state_range + to_torch(self.move_npc_range, device=self.device)
-            self.npc_state_range_min = self.npc_state_range - to_torch(self.move_npc_range, device=self.device)
+        self.root_states_npc = self.all_root_states.view(self.num_envs, -1, 13)[:, self.num_agents:, :].reshape(-1, 13) # (num_envs * num_npcs, 13)
 
         # dof state
         self.all_dof_states = gymtorch.wrap_tensor(dof_state_tensor)
@@ -725,18 +703,24 @@ class LeggedRobot(BaseTask):
         """
         return dict()
 
-    def _create_npc(self, env_handle, env_idx, asset_npc, start_pose_npc):
+    def _step_npc(self):
+        """ prepare the asset and init position of npcs if needed
+        to be implemented in child class
+        """
+        return
+
+    def _prepare_npc(self):
+        """ prepare the asset and init position of npcs if needed
+        to be implemented in child class
+        """
+        return
+
+    def _create_npc(self, env_handle, i):
         """ create additional opponent for each environment such as static objects, random agents
         or turbulance.
+        to be implemented in child class
         """
-        npc_handles = []
-        for i in range(self.num_npcs):
-            pos = self.env_origins[i].clone()
-            start_pose_npc.p = gymapi.Vec3(*pos)
-            npc_handle = self.gym.create_actor(env_handle, asset_npc, start_pose_npc, self.cfg.asset.name_npc, env_idx, self.cfg.asset.self_collisions, 0)
-            npc_handles.append(npc_handle)
-
-        return npc_handles
+        return []
 
     def _create_envs(self):
         """ Creates environments:
@@ -774,6 +758,8 @@ class LeggedRobot(BaseTask):
         rigid_shape_props_asset = self.gym.get_asset_rigid_shape_properties(robot_asset)
         assert self.num_actuated_dof == self.num_actions, "num_actions {} soes not match num_actuated_dof {}".format(self.num_actions, self.num_actuated_dof)
 
+        self._prepare_npc()
+
         # save body names from the asset
         body_names = self.gym.get_asset_rigid_body_names(robot_asset)
         self.num_bodies = self.gym.get_asset_rigid_body_count(robot_asset)
@@ -801,28 +787,6 @@ class LeggedRobot(BaseTask):
             start_pose = gymapi.Transform()
             start_pose.p = gymapi.Vec3(*base_init_state[:3])
             self.base_init_state = base_init_state.unsqueeze(0).repeat(self.num_agents * self.num_envs, 1)
-
-        if self.num_npcs != 0:
-            #creat npc asset
-            asset_path_npc = self.cfg.asset.file_npc.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR)
-            asset_root_npc = os.path.dirname(asset_path_npc)
-            asset_file_npc = os.path.basename(asset_path_npc)
-            asset_options_npc = gymapi.AssetOptions()
-            asset_options_npc.fix_base_link = self.type_npc
-            asset_options_npc.disable_gravity = self.type_npc
-            asset_npc = self.gym.load_asset(self.sim, asset_root_npc, asset_file_npc, asset_options_npc)
-
-            #init npc state
-            init_state_list_npc = []
-            start_pose_npc = gymapi.Transform()
-            for idx, init_state_npc  in enumerate(self.init_state_npc):
-                base_init_state_list_npc = init_state_npc.pos + init_state_npc.rot + init_state_npc.lin_vel + init_state_npc.ang_vel
-                base_init_state_npc = to_torch(base_init_state_list_npc, device=self.device, requires_grad=False)
-                init_state_list_npc.append(base_init_state_npc)
-                if idx == 0:
-                    start_pose_npc.p = gymapi.Vec3(*base_init_state_npc[:3])
-            self.base_init_state_npc = torch.stack(init_state_list_npc, dim=0).repeat(self.num_envs, 1)
-            
 
         self._get_env_origins()
         env_lower = gymapi.Vec3(0., 0., 0.)
@@ -870,18 +834,22 @@ class LeggedRobot(BaseTask):
                 agent_handles.append(agent_handle)
                 sensor_handle_dicts.append(sensor_handle_dict)
 
-            npc_handles = self._create_npc(env_handle, i, asset_npc, start_pose_npc) if self.num_npcs != 0 else []
+            npc_handles = self._create_npc(env_handle, i)
             self.envs.append(env_handle)
             self.actor_handles.append(agent_handles + npc_handles)
             self.sensor_handles.append(sensor_handle_dicts)
             self.npc_handles.append(npc_handles)
 
         self.actor_indices = torch.zeros(self.num_envs, self.num_agents + self.num_npcs, dtype=torch.int32, device=self.device, requires_grad=False)
-        self.agent_indices = torch.zeros(self.num_envs, self.num_agents + self.num_npcs, dtype=torch.int32, device=self.device, requires_grad=False)
+        self.agent_indices = torch.zeros(self.num_envs, self.num_agents, dtype=torch.int32, device=self.device, requires_grad=False)
+        self.npc_indices = torch.zeros(self.num_envs, self.num_npcs, dtype=torch.int32, device=self.device, requires_grad=False)
         for i in range(self.num_envs):
             for j in range(self.num_agents + self.num_npcs):
                 self.actor_indices[i, j] = self.gym.get_actor_index(self.envs[i], self.actor_handles[i][j], gymapi.DOMAIN_SIM)
-                if j < self.num_agents : self.agent_indices[i, j] = self.gym.get_actor_index(self.envs[i], self.actor_handles[i][j], gymapi.DOMAIN_SIM)
+                if j < self.num_agents:
+                    self.agent_indices[i, j] = self.gym.get_actor_index(self.envs[i], self.actor_handles[i][j], gymapi.DOMAIN_SIM)
+                if j >= self.num_agents:
+                    self.npc_indices[i, j - self.num_agents] = self.gym.get_actor_index(self.envs[i], self.actor_handles[i][j], gymapi.DOMAIN_SIM)
 
         self.feet_indices = torch.zeros(len(feet_names), dtype=torch.long, device=self.device, requires_grad=False)
         for i in range(len(feet_names)):

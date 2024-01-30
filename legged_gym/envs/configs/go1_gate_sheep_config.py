@@ -102,6 +102,14 @@ class Go1GateCfg(Go1Cfg):
                 ang_vel = [0.0, 0.0, 0.0],
             ),
         ]
+        init_states_npc = [
+            init_state_class(
+                pos = [1.0, .5, 0.34],
+                rot = [0.0, 0.0, 0.0, 1.0],
+                lin_vel = [0.0, 0.0, 0.0],
+                ang_vel = [0.0, 0.0, 0.0],
+            )
+        ]
 
     class control(Go1Cfg.control):
         control_type = 'C'

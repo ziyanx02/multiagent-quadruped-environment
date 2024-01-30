@@ -9,7 +9,7 @@ class Go1GateCfg(Go1Cfg):
         num_envs = 25 # 4096
         num_agents = 2
         num_npcs = 1
-        num_actions_npc = 12
+        num_actions_npc = 0
         obs_components = [
             "proprioception", # 48
             # "height_measurements", # 187
@@ -29,7 +29,7 @@ class Go1GateCfg(Go1Cfg):
     #### uncomment the above to train non-virtual terrain
         
     class asset(Go1Cfg.asset):
-        file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/robots/go1/urdf/go1.urdf"
+        file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/ball.urdf"
         name_npc = "ball"
 
     class terrain(Go1Cfg.terrain):
@@ -101,6 +101,14 @@ class Go1GateCfg(Go1Cfg):
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
+        ]
+        init_states_npc = [
+            init_state_class(
+                pos = [1.0, .0, 0.34],
+                rot = [0.0, 0.0, 0.0, 1.0],
+                lin_vel = [0.0, 0.0, 0.0],
+                ang_vel = [0.0, 0.0, 0.0],
+            )
         ]
 
     class control(Go1Cfg.control):

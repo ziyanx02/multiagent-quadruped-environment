@@ -21,7 +21,6 @@ class Go1(LeggedRobotField):
 
         self.cfg = cfg
         self.env_name = cfg.env.env_name
-        self.init_state_npc = [[1.0, .5, 0.34]]
         headless = False
         super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
         

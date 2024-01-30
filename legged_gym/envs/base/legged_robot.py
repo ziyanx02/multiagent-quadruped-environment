@@ -455,8 +455,7 @@ class LeggedRobot(BaseTask):
             (len(agent_ids), 6),
             device=self.device, 
         ) # [7:10]: lin vel, [10:13]: ang vel
-        for i in agent_ids:
-            self.all_root_states[torch.div(i, self.num_agents, rounding_mode='floor')*(self.num_agents + self.num_npcs) + i%self.num_agents] = self.root_states[i]
+        self.all_root_states[(self.num_agents + self.num_npcs) * torch.div(agent_ids, self.num_agents, rounding_mode='floor') + agent_ids % self.num_agents] = self.root_states[agent_ids]
         actor_ids_int32 = self.actor_indices[env_ids].view(-1)
         self.gym.set_actor_root_state_tensor_indexed(self.sim,
                                                      gymtorch.unwrap_tensor(self.all_root_states),
@@ -817,7 +816,7 @@ class LeggedRobot(BaseTask):
             init_state_list_npc = []
             start_pose_npc = gymapi.Transform()
             for idx, init_state_npc  in enumerate(self.init_state_npc):
-                base_init_state_list_npc = init_state_npc + [0., 0., 0., 1., 0., 0., 0., 0., 0., 0.]
+                base_init_state_list_npc = init_state_npc.pos + init_state_npc.rot + init_state_npc.lin_vel + init_state_npc.ang_vel
                 base_init_state_npc = to_torch(base_init_state_list_npc, device=self.device, requires_grad=False)
                 init_state_list_npc.append(base_init_state_npc)
                 if idx == 0:

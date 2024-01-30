@@ -22,6 +22,7 @@ class Go1Sheep(Go1):
         super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
 
     def _step_npc(self):
+        
         pass
 
     def _prepare_npc(self):

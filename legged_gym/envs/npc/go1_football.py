@@ -13,11 +13,13 @@ from legged_gym.envs.go1.go1 import Go1
 
 class Go1Football(Go1):
 
-    def __init__(self):
+    def __init__(self, cfg, sim_params, physics_engine, sim_device, headless):
 
         self.npc_collision = True
         self.fix_npc_base_link = False
         self.npc_gravity = True
+
+        super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
 
     def _step_npc(self):
         return

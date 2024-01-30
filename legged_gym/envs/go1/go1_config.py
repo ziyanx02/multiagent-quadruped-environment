@@ -43,6 +43,7 @@ class Go1Cfg(LeggedRobotFieldCfg):
         send_timeouts = True # send time out information to the algorithm
         episode_length_s = 20 # episode length in seconds
 
+
         # recording cfgs
         recording_width_px = 360
         recording_height_px = 240

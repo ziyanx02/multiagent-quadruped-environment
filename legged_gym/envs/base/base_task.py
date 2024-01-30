@@ -60,14 +60,23 @@ class BaseTask():
 
         self.num_envs = cfg.env.num_envs
         self.num_agents = getattr(cfg.env, "num_agents", 1)
+        self.num_npcs = cfg.env.num_npcs
         self.num_obs = cfg.env.num_observations
         self.num_privileged_obs = cfg.env.num_privileged_obs
         self.num_action = cfg.env.num_actions
         self.num_actions = self.num_agents * cfg.env.num_actions
-
+        self.num_actions_npc = cfg.env.num_actions_npc * self.num_npcs
+        self.move_npc_range = [0.5, 0.5]
+        self.npc_change = False
+        self.init_state_npc = getattr(cfg.init_state, "init_states_npc", [])
+        
         # optimization flags for pytorch JIT
         torch._C._jit_set_profiling_mode(False)
         torch._C._jit_set_profiling_executor(False)
+        
+        # npc informations
+
+        self.type_npc = True if self.cfg.asset.name_npc == "sheep" else False
 
         # allocate buffers
         self.obs_buf = torch.zeros(self.num_envs, self.num_obs, device=self.device, dtype=torch.float)

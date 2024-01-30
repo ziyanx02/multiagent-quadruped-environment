@@ -21,7 +21,7 @@ class Go1(LeggedRobotField):
 
         self.cfg = cfg
         self.env_name = cfg.env.env_name
-
+        headless = False
         super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
         
         self.obs_buf = copy(self.cfg.obs)
@@ -49,7 +49,9 @@ class Go1(LeggedRobotField):
             # print("torques")
             # input()
             # self.torques = torch.ones_like(self.torques, device=self.torques.device)
-            self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(self.torques))
+            torques = torch.cat((self.torques, torch.zeros((self.num_envs, self.num_actions_npc), dtype=torch.long, device=self.device)), dim=1) if self.num_actions_npc != 0 else self.torques
+
+            self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(torques))
             self.gym.simulate(self.sim)
             if self.device == 'cpu':
                 self.gym.fetch_results(self.sim, True)
@@ -57,7 +59,9 @@ class Go1(LeggedRobotField):
             # print(self.dof_state)
             # exit()
             self.post_decimation_step(dec_i)
+
         self.post_physics_step()
+        #self.npc_move()
 
         return self.obs_buf, self.rew_buf, self.reset_buf, self.extras
     

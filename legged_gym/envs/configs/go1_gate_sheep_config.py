@@ -21,13 +21,6 @@ class Go1GateCfg(Go1Cfg):
         ]
         episode_length_s = 5 # episode length in seconds
 
-    #### uncomment this to train non-virtual terrain
-    # class sensor(A1FieldCfg.sensor):
-    #     class proprioception(A1FieldCfg.sensor.proprioception):
-    #         delay_action_obs = True
-    #         latency_range = [0.04-0.0025, 0.04+0.0075]
-    #### uncomment the above to train non-virtual terrain
-        
     class asset(Go1Cfg.asset):
         file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/robots/go1/urdf/go1.urdf"
         name_npc = "sheep"

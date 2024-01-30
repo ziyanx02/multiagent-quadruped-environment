@@ -395,9 +395,9 @@ class LeggedRobot(BaseTask):
         else:
             self.dof_pos[env_ids] = self.default_dof_pos
         self.dof_vel[env_ids] = 0.
-        if self.num_npcs != 0  and  self.type_npc:
-            self.dof_pos_npc = self.default_dof_pos
-            self.dof_vel_npc[env_ids] = 0.
+        # if self.num_npcs  and  self.type_npc:
+        #     self.dof_pos_npc = self.default_dof_pos
+        #     self.dof_vel_npc[env_ids] = 0.
         # Find actor indices according to env_ids
         actor_ids_int32 = self.actor_indices[env_ids].view(-1) if self.num_actions_npc != 0 else self.agent_indices[env_ids].view(-1)
         self.gym.set_dof_state_tensor_indexed(self.sim,
@@ -416,7 +416,7 @@ class LeggedRobot(BaseTask):
         npc_ids = self.env_npc_indices[env_ids].reshape(-1)
         self.root_states[agent_ids] = self.base_init_state[agent_ids]
         self.root_states[agent_ids, :3] += self.agent_origins[env_ids].reshape(-1, 3)
-        if self.num_npcs != 0:
+        if self.num_npcs:
             self.root_states_npc[npc_ids] = self.base_init_state_npc[npc_ids]
             self.root_states_npc[npc_ids, :3] += self.agent_origins[env_ids, 0, :].reshape(-1, 3)
 
@@ -551,10 +551,10 @@ class LeggedRobot(BaseTask):
         self.dof_pos = self.dof_state[:, :, 0]
         self.dof_vel = self.dof_state[:, :, 1]
 
-        if self.num_npcs != 0 and self.type_npc: 
-            self.dof_state_npc = self.all_dof_states.view(self.num_envs, -1, 2)[:, self.num_actuated_dof:, :]
-            self.dof_pos_npc = self.dof_state_npc[:, :, 0]
-            self.dof_vel_npc = self.dof_state_npc[:, :, 1]
+        # if self.type_npc: 
+        #     self.dof_state_npc = self.all_dof_states.view(self.num_envs, -1, 2)[:, self.num_actuated_dof:, :]
+        #     self.dof_pos_npc = self.dof_state_npc[:, :, 0]
+        #     self.dof_vel_npc = self.dof_state_npc[:, :, 1]
 
         # rigid_body_state
         # self.rigid_body_state = gymtorch.wrap_tensor(rigid_body_state)[:self.num_envs * self.num_bodies, :]

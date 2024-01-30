@@ -22,7 +22,7 @@ from legged_gym.utils.helpers import class_to_dict
 
 from legged_gym.envs.go1.go1 import Go1
 
-class Go1Sheep(Go1):
+class Go1Football(Go1):
 
     def _step_npc(self):
         pass

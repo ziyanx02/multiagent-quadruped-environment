@@ -6,7 +6,7 @@ class Go1SheepCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1sheep"
-        num_envs = 2 # 4096
+        num_envs = 10 # 4096
         num_agents = 2
         num_npcs = 1
         obs_components = [

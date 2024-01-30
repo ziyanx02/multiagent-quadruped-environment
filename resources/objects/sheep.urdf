@@ -19,11 +19,11 @@
     <collision>
       <origin xyz="0 0 0"/>
       <geometry>
-        <cylinder radius="0.2" length="0.5"/>
+        <cylinder radius="0.25" length="0.5"/>
       </geometry>
     </collision>
     <inertial>
-      <mass value="0.03"/>
+      <mass value="5"/>
       <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
     </inertial>
   </link>

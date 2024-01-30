@@ -437,6 +437,7 @@ class LeggedRobot(BaseTask):
             (len(agent_ids), 6),
             device=self.device, 
         ) # [7:10]: lin vel, [10:13]: ang vel
+
         self.all_root_states[(self.num_agents + self.num_npcs) * (agent_ids // self.num_agents) + agent_ids % self.num_agents] = self.root_states[agent_ids]
         actor_ids_int32 = self.actor_indices[env_ids].view(-1)
         self.gym.set_actor_root_state_tensor_indexed(self.sim,

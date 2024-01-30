@@ -27,7 +27,9 @@ ENV_DICT = {
 
 def make_mqe_env(env_name, args):
     
-    env, env_cfg = make_env(Go1Sheep, Go1SheepCfg(), args)
-    env = Go1GateWrapper(env)
+    env_dict = ENV_DICT[env_name]
+
+    env, env_cfg = make_env(env_dict["class"], env_dict["config"], args)
+    env = env_dict["wrapper"](env)
 
     return env, env_cfg

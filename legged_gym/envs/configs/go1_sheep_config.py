@@ -6,58 +6,46 @@ class Go1SheepCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1sheep"
-        num_envs = 10 # 4096
+        num_envs = 2 # 4096
         num_agents = 2
-        num_npcs = 1
-        obs_components = [
-            "proprioception", # 48
-            # "height_measurements", # 187
-            "base_pose",
-            "robot_config",
-            # "engaging_block",
-            # "sidewall_distance",
-            # "forward_depth",
-        ]
-        episode_length_s = 5 # episode length in seconds
-
+        num_npcs = 25
+        episode_length_s = 5
+    
     class asset(Go1Cfg.asset):
         file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/sheep.urdf"
         name_npc = "sheep"
     
     class terrain(Go1Cfg.terrain):
 
-        # mesh_type = "plane"
-        # selected = False
-        mesh_type = "trimesh"
-        selected = "BarrierTrack"
         num_rows = 2 # 20
-        num_cols = 5 # 50
-        max_init_terrain_level = 2
-        border_size = 1
-        slope_treshold = 20.
-        curriculum = False
+        num_cols = 1 # 50
 
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
                 "init",
+                "plane",
                 "gate",
+                "plane",
                 "wall",
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
-            track_width = 2.6,
+            track_width = 5.,
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
-                room_size = (1.0, 0.8),
+                room_size = (1.0, 2.0),
                 border_width = 0.00,
                 offset = (0, 0),
             ),
             gate = dict(
                 block_length = 3.0,
-                width = 0.6,
+                width = 1.,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
+            ),
+            plane = dict(
+                block_length = 3.0,
             ),
             wall = dict(
                 block_length = 0.1
@@ -68,10 +56,6 @@ class Go1SheepCfg(Go1Cfg):
             add_perlin_noise = False
        ))
 
-        TerrainPerlin_kwargs = merge_dict(Go1Cfg.terrain.TerrainPerlin_kwargs, dict(
-            zScale = [0.05, 0.1],
-       ))
-    
     class command(Go1Cfg.command):
 
         class cfg(Go1Cfg.command.cfg):
@@ -94,17 +78,6 @@ class Go1SheepCfg(Go1Cfg):
                 ang_vel = [0.0, 0.0, 0.0],
             ),
         ]
-        init_states_npc = [
-            init_state_class(
-                pos = [1.0, .0, 0.3],
-                rot = [0.0, 0.0, 0.0, 1.0],
-                lin_vel = [0.0, 0.0, 0.0],
-                ang_vel = [0.0, 0.0, 0.0],
-            ),
-        ]
-
-    class control(Go1Cfg.control):
-        control_type = 'C'
 
     class termination(Go1Cfg.termination):
         # additional factors that determines whether to terminates the episode
@@ -139,5 +112,5 @@ class Go1SheepCfg(Go1Cfg):
             # exceed_torque_limits_i = -2e-1
 
     class viewer(Go1Cfg.viewer):
-        pos = [0., 11., 5.]  # [m]
-        lookat = [4., 11., 0.]  # [m]
+        pos = [0., 3., 5.]  # [m]
+        lookat = [4., 3., 0.]  # [m]

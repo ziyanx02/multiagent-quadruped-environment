@@ -41,7 +41,7 @@ class Go1Cfg(LeggedRobotFieldCfg):
         num_actions = 12
         env_spacing = 3.  # not used with heightfields/trimeshes 
         send_timeouts = True # send time out information to the algorithm
-        episode_length_s = 20 # episode length in seconds
+        episode_length_s = 5 # episode length in seconds
 
 
         # recording cfgs
@@ -49,6 +49,16 @@ class Go1Cfg(LeggedRobotFieldCfg):
         recording_height_px = 240
         recording_mode = "COLOR"
         num_recording_envs = 1
+
+        obs_components = [
+            "proprioception", # 48
+            # "height_measurements", # 187
+            "base_pose",
+            "robot_config",
+            # "engaging_block",
+            # "sidewall_distance",
+            # "forward_depth",
+        ]
 
     class init_state(LeggedRobotFieldCfg.init_state):
         pos = [0.0, 0.0, 0.34] # x,y,z [m]

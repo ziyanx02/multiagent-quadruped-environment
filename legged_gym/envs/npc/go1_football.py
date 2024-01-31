@@ -26,6 +26,8 @@ class Go1Football(Go1):
 
     def _prepare_npc(self):
     
+        self.init_state_npc = getattr(self.cfg.init_state, "init_states_npc")
+        
         #creat npc asset
         asset_path_npc = self.cfg.asset.file_npc.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR)
         asset_root_npc = os.path.dirname(asset_path_npc)

@@ -66,8 +66,7 @@ class BaseTask():
         self.num_action = cfg.env.num_actions
         self.num_actions = self.num_agents * cfg.env.num_actions
         self.num_actions_npc = getattr(cfg.env, "num_actions_npc", 0) * self.num_npcs
-        self.init_state_npc = getattr(cfg.init_state, "init_states_npc", [])
-        
+
         # optimization flags for pytorch JIT
         torch._C._jit_set_profiling_mode(False)
         torch._C._jit_set_profiling_executor(False)

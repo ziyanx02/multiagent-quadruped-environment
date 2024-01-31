@@ -9,33 +9,15 @@ class Go1FootballCfg(Go1Cfg):
         num_envs = 2 # 4096
         num_agents = 2
         num_npcs = 1
-        obs_components = [
-            "proprioception", # 48
-            # "height_measurements", # 187
-            "base_pose",
-            "robot_config",
-            # "engaging_block",
-            # "sidewall_distance",
-            # "forward_depth",
-        ]
-        episode_length_s = 5 # episode length in seconds
-
+    
     class asset(Go1Cfg.asset):
         file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/ball.urdf"
         name_npc = "ball"
     
     class terrain(Go1Cfg.terrain):
 
-        # mesh_type = "plane"
-        # selected = False
-        mesh_type = "trimesh"
-        selected = "BarrierTrack"
         num_rows = 2 # 20
         num_cols = 5 # 50
-        max_init_terrain_level = 2
-        border_size = 1
-        slope_treshold = 20.
-        curriculum = False
 
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
@@ -68,10 +50,6 @@ class Go1FootballCfg(Go1Cfg):
             add_perlin_noise = False
        ))
 
-        TerrainPerlin_kwargs = merge_dict(Go1Cfg.terrain.TerrainPerlin_kwargs, dict(
-            zScale = [0.05, 0.1],
-       ))
-    
     class command(Go1Cfg.command):
 
         class cfg(Go1Cfg.command.cfg):

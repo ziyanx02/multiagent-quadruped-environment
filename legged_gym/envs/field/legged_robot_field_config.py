@@ -9,7 +9,7 @@ class LeggedRobotFieldCfg( LeggedRobotCfg ):
         num_cols = 50
         selected = "BarrierTrack"
         max_init_terrain_level = 0 # for climb, leap finetune
-        border_size = 5
+        border_size = 1
         slope_treshold = 100.
 
         curriculum = True # for tilt, crawl, climb, leap
@@ -80,3 +80,6 @@ class LeggedRobotFieldCfg( LeggedRobotCfg ):
             delay_action_obs = False
             latency_range = [0.0, 0.0]
             latency_resample_time = 2.0 # [s]
+
+    class curriculum:
+        pass

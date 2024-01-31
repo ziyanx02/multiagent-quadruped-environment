@@ -67,7 +67,7 @@ class Go1Sheep(Go1):
         #init npc state
         num_rols = 5
         num_cols = 5
-        dis_sheep = (1.0, 1.0)
+        dis_sheep = (0.8, 0.8)
 
         sheep_origin = np.array([4.0 - num_rols // 2 * dis_sheep[0], - (num_cols // 2) * dis_sheep[1], 0.3])
         pos = sheep_origin.copy()
@@ -109,6 +109,6 @@ class Go1Sheep(Go1):
 
         npc_handles = []
         for i in range(self.num_npcs):
-            npc_handle = self.gym.create_actor(env_handle, self.asset_npc, self.start_pose_npc, self.cfg.asset.name_npc, env_id, self.npc_collision, 0)
+            npc_handle = self.gym.create_actor(env_handle, self.asset_npc, self.start_pose_npc, self.cfg.asset.name_npc, env_id, not self.npc_collision)
             npc_handles.append(npc_handle)
         return npc_handles

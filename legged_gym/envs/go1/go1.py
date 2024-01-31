@@ -60,8 +60,6 @@ class Go1(LeggedRobotField):
             self.post_decimation_step(dec_i)
 
         self.post_physics_step()
-
-        self._step_npc()
         
         return self.obs_buf, self.rew_buf, self.reset_buf, self.extras
     

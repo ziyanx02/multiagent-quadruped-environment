@@ -6,10 +6,10 @@ class Go1SheepCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1sheep"
-        num_envs = 2 # 4096
+        num_envs = 1 # 4096
         num_agents = 2
         num_npcs = 25
-        episode_length_s = 5
+        episode_length_s = 1
     
     class asset(Go1Cfg.asset):
         file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/sheep.urdf"
@@ -30,11 +30,11 @@ class Go1SheepCfg(Go1Cfg):
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
-            track_width = 5.,
+            track_width = 10.,
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
-                room_size = (1.0, 2.0),
+                room_size = (1.0, 5.0),
                 border_width = 0.00,
                 offset = (0, 0),
             ),

@@ -19,7 +19,7 @@
     <collision>
       <origin xyz="0 0 0"/>
       <geometry>
-        <cylinder radius="0.25" length="0.5"/>
+        <cylinder radius="0.2" length="0.5"/>
       </geometry>
     </collision>
     <inertial>
@@ -30,9 +30,9 @@
 
   <link name="head">
     <visual>
-      <origin xyz="0 0.21 0.05"/>
+      <origin xyz="0 0.21 0.075"/>
       <geometry>
-        <sphere radius="0.07"/>
+        <sphere radius="0.08"/>
       </geometry>
       <material name="white"/>
     </visual>
@@ -46,7 +46,7 @@
     <visual>
       <origin xyz="0 0.22 0.025"/>
       <geometry>
-        <sphere radius="0.07"/>
+        <sphere radius="0.08"/>
       </geometry>
       <material name="black"/>
     </visual>
@@ -60,7 +60,7 @@
     <visual>
       <origin xyz="-0.1 0.1 -0.1" rpy="0.2 0.2 0.0"/>
       <geometry>
-        <cylinder radius="0.025" length="0.25"/>
+        <cylinder radius="0.03" length="0.25"/>
       </geometry>
       <material name="black"/>
     </visual>
@@ -74,7 +74,7 @@
     <visual>
       <origin xyz="0.1 0.1 -0.1" rpy="0.2 -0.2 0.0"/>
       <geometry>
-        <cylinder radius="0.025" length="0.25"/>
+        <cylinder radius="0.03" length="0.25"/>
       </geometry>
       <material name="black"/>
     </visual>
@@ -88,7 +88,7 @@
     <visual>
       <origin xyz="0.1 -0.1 -0.1" rpy="-0.2 -0.2 0.0"/>
       <geometry>
-        <cylinder radius="0.025" length="0.25"/>
+        <cylinder radius="0.03" length="0.25"/>
       </geometry>
       <material name="black"/>
     </visual>
@@ -102,7 +102,7 @@
     <visual>
       <origin xyz="-0.1 -0.1 -0.1" rpy="-0.2 0.2 0.0"/>
       <geometry>
-        <cylinder radius="0.025" length="0.25"/>
+        <cylinder radius="0.03" length="0.25"/>
       </geometry>
       <material name="black"/>
     </visual>

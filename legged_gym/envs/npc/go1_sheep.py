@@ -11,6 +11,10 @@ from legged_gym import LEGGED_GYM_ROOT_DIR
 
 from legged_gym.envs.go1.go1 import Go1
 
+def relative_pos_to_dv(relative_pos):
+    dv = relative_pos / (torch.sum(relative_pos ** 2, dim=2) ** 0.8).unsqueeze(-1).repeat(1, 1, 3)
+    return dv
+
 class Go1Sheep(Go1):
 
     def __init__(self, cfg, sim_params, physics_engine, sim_device, headless):
@@ -18,15 +22,36 @@ class Go1Sheep(Go1):
         self.npc_collision = True
         self.fix_npc_base_link = False
         self.npc_gravity = True
+        
+        # dv = randomness + scale * fn(relative distance) 
+        self.sheep_movement_scale = 0.2
+        self.sheep_movement_randomness = 0.1
+        self.sheep_movement_range = [2.0, 2.0, 0]
 
         super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
 
     def _step_npc(self):
-        
-        actor_ids_int32 = self.actor_indices.view(-1)
+
+        dog_pos = self.root_states[:, :3].reshape(self.num_envs, -1, 3)
+        sheep_pos = self.root_states_npc[:, :3].reshape(self.num_envs, -1, 3)
+
+        dv = self.sheep_movement_randomness * torch.randn_like(sheep_pos, device=self.device)
+
+        for i in range(self.num_agents):
+
+            relative_pos = sheep_pos - dog_pos[:, i : i+1, :].repeat(1, self.num_npcs, 1)
+            dv += self.sheep_movement_scale * relative_pos_to_dv(relative_pos)
+
+        dv[:, :, 2] = 0
+
+        npc_indices = self.npc_indices.reshape(-1)
+        self.all_root_states[npc_indices, 7:10] += dv.reshape(-1, 3)
+        self.all_root_states[npc_indices, 7:9] = torch.clip(self.all_root_states[npc_indices, 7:9], -2, 2)
+        self.all_root_states[npc_indices, 2] = torch.clip(self.all_root_states[npc_indices, 2], 0, 0.5)
+        self.all_root_states[npc_indices, 3:5] = 0
         self.gym.set_actor_root_state_tensor_indexed(self.sim,
                                                      gymtorch.unwrap_tensor(self.all_root_states),
-                                                     gymtorch.unwrap_tensor(actor_ids_int32), len(actor_ids_int32))
+                                                     gymtorch.unwrap_tensor(npc_indices), len(npc_indices))
 
     def _prepare_npc(self):
         

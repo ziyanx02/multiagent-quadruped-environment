@@ -97,7 +97,6 @@ class LeggedRobot(BaseTask):
             self.gym.refresh_dof_state_tensor(self.sim)
             self.post_decimation_step(dec_i)
         self.post_physics_step()
-        self._step_npc()
 
         # return clipped obs, clipped states (None), rewards, dones and infos
         clip_obs = self.cfg.normalization.clip_observations
@@ -144,6 +143,7 @@ class LeggedRobot(BaseTask):
         self.check_termination()
         self.compute_reward()
         env_ids = self.reset_buf.nonzero(as_tuple=False).flatten()
+        self._step_npc()
         self.reset_idx(env_ids)
         self.compute_observations() # in some cases a simulation step might be required to refresh some obs (for example body positions)
 
@@ -418,38 +418,34 @@ class LeggedRobot(BaseTask):
         # base position
         agent_ids = self.env_agent_indices[env_ids].reshape(-1)
         npc_ids = self.env_npc_indices[env_ids].reshape(-1)
-        root_states = copy(self.root_states)
-        root_states_npc = copy(self.root_states_npc)
-        all_root_states = copy(self.all_root_states)
-        root_states[agent_ids] = self.base_init_state[agent_ids]
-        root_states[agent_ids, :3] += self.agent_origins[env_ids].reshape(-1, 3)
+        self.root_states[agent_ids] = self.base_init_state[agent_ids]
+        self.root_states[agent_ids, :3] += self.agent_origins[env_ids].reshape(-1, 3)
         if self.num_npcs:
-            root_states_npc[npc_ids] = self.base_init_state_npc[npc_ids]
-            root_states_npc[npc_ids, :3] += self.env_origins[env_ids].unsqueeze(1).repeat(1, self.num_npcs, 1).reshape(-1, 3)
+            self.root_states_npc[npc_ids] = self.base_init_state_npc[npc_ids]
+            self.root_states_npc[npc_ids, :3] += self.env_origins[env_ids].unsqueeze(1).repeat(1, self.num_npcs, 1).reshape(-1, 3)
 
-        if self.custom_origins:
-            if hasattr(self.cfg.domain_rand, "init_base_pos_range"):
-                root_states[agent_ids, 0:1] += torch_rand_float(*self.cfg.domain_rand.init_base_pos_range["x"], (len(agent_ids), 1), device=self.device)
-                root_states[agent_ids, 1:2] += torch_rand_float(*self.cfg.domain_rand.init_base_pos_range["y"], (len(agent_ids), 1), device=self.device)
-            else:
-                root_states[agent_ids, :2] += torch_rand_float(-1., 1., (len(agent_ids), 2), device=self.device) # xy position within 1m of the center、
+        # if self.custom_origins:
+        #     if hasattr(self.cfg.domain_rand, "init_base_pos_range"):
+        #         self.root_states[agent_ids, 0:1] += torch_rand_float(*self.cfg.domain_rand.init_base_pos_range["x"], (len(agent_ids), 1), device=self.device)
+        #         self.root_states[agent_ids, 1:2] += torch_rand_float(*self.cfg.domain_rand.init_base_pos_range["y"], (len(agent_ids), 1), device=self.device)
+        #     else:
+        #         self.root_states[agent_ids, :2] += torch_rand_float(-1., 1., (len(agent_ids), 2), device=self.device) # xy position within 1m of the center、
 
         # base velocities
         if getattr(self.cfg.domain_rand, "init_base_vel_range", None) is None:
             base_vel_range = (-0.5, 0.5)
         else:
             base_vel_range = self.cfg.domain_rand.init_base_vel_range
-        root_states[agent_ids, 7:13] = torch_rand_float(
+        self.root_states[agent_ids, 7:13] = torch_rand_float(
             *base_vel_range,
             (len(agent_ids), 6),
             device=self.device, 
         ) # [7:10]: lin vel, [10:13]: ang vel
-        
-        all_root_states[self.agent_indices[env_ids].reshape(-1)] = root_states[agent_ids]
-        all_root_states[self.npc_indices[env_ids].reshape(-1)] = root_states_npc[npc_ids]
+        self.all_root_states[self.agent_indices[env_ids].reshape(-1)] = self.root_states[agent_ids]
+        self.all_root_states[self.npc_indices[env_ids].reshape(-1)] = self.root_states_npc[npc_ids]
         actor_ids_int32 = self.actor_indices[env_ids].view(-1)
         self.gym.set_actor_root_state_tensor_indexed(self.sim,
-                                                     gymtorch.unwrap_tensor(all_root_states),
+                                                     gymtorch.unwrap_tensor(self.all_root_states),
                                                      gymtorch.unwrap_tensor(actor_ids_int32), len(actor_ids_int32))
 
     def _push_robots(self):
@@ -934,7 +930,7 @@ class LeggedRobot(BaseTask):
                 terrain_agent_origins = torch.from_numpy(self.terrain.agent_origins).to(self.device).to(torch.float)
             else:
                 terrain_agent_origins = self.terrain_origins
-            self.env_origins[:] = self.terrain_origins[self.terrain_levels, self.terrain_types]
+            self.env_origins = self.terrain_origins[self.terrain_levels, self.terrain_types]
             self.env_origins_repeat = copy(self.env_origins).unsqueeze(1).repeat(1, self.num_agents, 1).reshape(-1, 3)
             self.agent_origins = terrain_agent_origins[self.terrain_levels, self.terrain_types]
         else:

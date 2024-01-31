@@ -27,7 +27,7 @@ def train(args):
     num_actions = env.num_actions
     import time
     while True:
-        obs, _, _, _ = env.step(torch.tensor([[[1.0, 0, 0],[0, 0, 1.0]],], dtype=torch.float32, device="cuda").repeat(env.num_envs, 1, 1))
+        obs, _, _, _ = env.step(torch.tensor([[[1.0, 0, 0],[1.0, 0, 0]],], dtype=torch.float32, device="cuda").repeat(env.num_envs, 1, 1))
     
 if __name__ == '__main__':
     args = get_args()

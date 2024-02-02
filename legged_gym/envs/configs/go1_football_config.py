@@ -22,24 +22,21 @@ class Go1FootballCfg(Go1Cfg):
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
                 "init",
-                "gate",
+                "plane",
                 "wall",
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
-            track_width = 2.6,
+            track_width = 4.0,
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
-                room_size = (1.0, 0.8),
+                room_size = (1.0, 1.5),
                 border_width = 0.00,
                 offset = (0, 0),
             ),
-            gate = dict(
+            plane = dict(
                 block_length = 3.0,
-                width = 0.6,
-                depth = 0.1, # size along the forward axis
-                offset = (0, 0),
             ),
             wall = dict(
                 block_length = 0.1

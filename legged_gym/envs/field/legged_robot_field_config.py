@@ -12,7 +12,7 @@ class LeggedRobotFieldCfg( LeggedRobotCfg ):
         border_size = 1
         slope_treshold = 100.
 
-        curriculum = True # for tilt, crawl, climb, leap
+        curriculum = False # for tilt, crawl, climb, leap
         # curriculum = False # for walk
         horizontal_scale = 0.025 # [m]
         pad_unavailable_info = True
@@ -80,6 +80,3 @@ class LeggedRobotFieldCfg( LeggedRobotCfg ):
             delay_action_obs = False
             latency_range = [0.0, 0.0]
             latency_resample_time = 2.0 # [s]
-
-    class curriculum:
-        pass

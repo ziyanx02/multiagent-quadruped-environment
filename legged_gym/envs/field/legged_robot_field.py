@@ -8,12 +8,13 @@ import torch
 from legged_gym.envs.base.legged_robot import LeggedRobot
 from legged_gym.utils.terrain import get_terrain_cls
 from ..base.legged_robot_config import LeggedRobotCfg
+from ..go1.go1_config import Go1Cfg
 
 class LeggedRobotField(LeggedRobot):
     """ NOTE: Most of this class implementation does not depend on the terrain. Check where
     `check_BarrierTrack_terrain` is called to remove the dependency of BarrierTrack terrain.
     """
-    def __init__(self, cfg: LeggedRobotCfg, sim_params, physics_engine, sim_device, headless):
+    def __init__(self, cfg: Go1Cfg, sim_params, physics_engine, sim_device, headless):
         print("Using LeggedRobotField.__init__, num_obs and num_privileged_obs will be computed instead of assigned.")
         # cfg.terrain.measure_heights = True # force height measurement that have full obs from parent class implementation.
         super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
@@ -24,9 +25,7 @@ class LeggedRobotField(LeggedRobot):
             env_handle= env_handle,
             actor_handle= actor_handle,
         )
-        all_obs_components = self.all_obs_components
-
-        if "forward_depth" in all_obs_components or "forward_color" in all_obs_components:
+        if self.cfg.obs.cfgs.depth_image or self.cfg.obs.cfgs.rgb_image:
             camera_handle = self._create_onboard_camera(env_handle, actor_handle, "forward_camera")
             sensor_handle_dict["forward_camera"] = camera_handle
 
@@ -290,13 +289,13 @@ class LeggedRobotField(LeggedRobot):
     ##### Dealing with observations #####
     def _init_buffers(self):
         # update obs_scales components incase there will be one-by-one scaling
-        for k in self.all_obs_components:
-            if isinstance(getattr(self.obs_scales, k, None), (tuple, list)):
-                setattr(
-                    self.obs_scales,
-                    k,
-                    torch.tensor(getattr(self.obs_scales, k, 1.), dtype= torch.float32, device= self.device)
-                )
+        # for k in self.all_obs_components:
+        #     if isinstance(getattr(self.obs_scales, k, None), (tuple, list)):
+        #         setattr(
+        #             self.obs_scales,
+        #             k,
+        #             torch.tensor(getattr(self.obs_scales, k, 1.), dtype= torch.float32, device= self.device)
+        #         )
         
         super()._init_buffers()
         rigid_body_state = self.gym.acquire_rigid_body_state_tensor(self.sim)
@@ -305,7 +304,7 @@ class LeggedRobotField(LeggedRobot):
         self.sensor_tensor_dict = defaultdict(list)
 
         for env_i, env_handle in enumerate(self.envs):
-            if "forward_depth" in self.all_obs_components:
+            if self.cfg.obs.cfgs.depth_image:
                 env_sensor_tensors = []
                 for agent_i in range(self.num_agents):
                     env_sensor_tensors.append(gymtorch.wrap_tensor(
@@ -316,7 +315,7 @@ class LeggedRobotField(LeggedRobot):
                             gymapi.IMAGE_DEPTH,
                     )))
                 self.sensor_tensor_dict["forward_depth"].append(torch.stack(env_sensor_tensors))
-            if "forward_color" in self.all_obs_components:
+            if self.cfg.obs.cfgs.rgb_image:
                 env_sensor_tensors = []
                 for agent_i in range(self.num_agents):
                     env_sensor_tensors.append(gymtorch.wrap_tensor(
@@ -327,146 +326,6 @@ class LeggedRobotField(LeggedRobot):
                             gymapi.IMAGE_COLOR,
                     )))
                 self.sensor_tensor_dict["forward_color"].append(torch.stack(env_sensor_tensors))
-
-    def _reset_buffers(self, env_ids):
-        return_ = super()._reset_buffers(env_ids)
-        if hasattr(self, "velocity_sample_points"): self.velocity_sample_points[env_ids] = 0.
-        return return_
-        
-    def _prepare_reward_function(self):
-        return_ = super()._prepare_reward_function()
-
-        # get the body indices within the simulation (for estimating robot state)
-        if "penetrate_volume" in self.reward_names or "penetrate_depth" in self.reward_names:
-            self._init_volume_sample_points()
-            print("Total number of volume estimation points for each robot is:", self.volume_sample_points.shape[1])
-
-        return return_
-
-    # def _init_volume_sample_points(self):
-    #     """ Build sample points for penetration volume estimation
-    #     NOTE: self.cfg.sim.body_measure_points must be a dict with
-    #         key: body name (or part of the body name) to estimate
-    #         value: dict(
-    #             x, y, z: sample points to form a meshgrid
-    #             transform: [x, y, z, roll, pitch, yaw] for transforming the meshgrid w.r.t body frame
-    #         )
-    #     """
-    #     # read and specify the order of which body to sample from and its relative sample points.
-    #     self.body_measure_name_order = [] # order specified
-    #     self.body_sample_indices = []
-    #     for idx in range(self.num_envs):
-    #         rigid_body_names = self.gym.get_actor_rigid_body_names(self.envs[idx], self.actor_handles[idx])
-    #         self.body_sample_indices.append([])
-    #         for name, measure_name in itertools.product(rigid_body_names, self.cfg.sim.body_measure_points.keys()):
-    #             if measure_name in name:
-    #                 self.body_sample_indices[-1].append(
-    #                     self.gym.find_actor_rigid_body_index(
-    #                         self.envs[idx],
-    #                         self.actor_handles[idx],
-    #                         name,
-    #                         gymapi.IndexDomain.DOMAIN_SIM,
-    #                 ))
-    #                 if idx == 0: # assuming all envs have the same actor configuration
-    #                     self.body_measure_name_order.append(measure_name) # order specified
-    #     self.body_sample_indices = torch.tensor(self.body_sample_indices, device= self.sim_device).flatten() # n_envs * num_bodies
-
-    #     # compute and store each sample points in body frame.
-    #     self.body_volume_points = dict()
-    #     for measure_name, points_cfg in self.cfg.sim.body_measure_points.items():
-    #         x = torch.tensor(points_cfg["x"], device= self.device, dtype= torch.float32, requires_grad= False)
-    #         y = torch.tensor(points_cfg["y"], device= self.device, dtype= torch.float32, requires_grad= False)
-    #         z = torch.tensor(points_cfg["z"], device= self.device, dtype= torch.float32, requires_grad= False)
-    #         t = torch.tensor(points_cfg["transform"][0:3], device= self.device, dtype= torch.float32, requires_grad= False)
-    #         grid_x, grid_y, grid_z = torch.meshgrid(x, y, z)
-    #         grid_points = torch.stack([
-    #             grid_x.flatten(),
-    #             grid_y.flatten(),
-    #             grid_z.flatten(),
-    #         ], dim= -1) # n_points, 3
-    #         q = quat_from_euler_xyz(
-    #             torch.tensor(points_cfg["transform"][3], device= self.sim_device, dtype= torch.float32),
-    #             torch.tensor(points_cfg["transform"][4], device= self.sim_device, dtype= torch.float32),
-    #             torch.tensor(points_cfg["transform"][5], device= self.sim_device, dtype= torch.float32),
-    #         )
-    #         self.body_volume_points[measure_name] = tf_apply(
-    #             q.expand(grid_points.shape[0], 4),
-    #             t.expand(grid_points.shape[0], 3),
-    #             grid_points,
-    #         )
-    #     num_sample_points_per_env = 0
-    #     for body_name in self.body_measure_name_order:
-    #         for measure_name in self.body_volume_points.keys():
-    #             if measure_name in body_name:
-    #                 num_sample_points_per_env += self.body_volume_points[measure_name].shape[0]
-    #     self.volume_sample_points = torch.zeros(
-    #         (self.num_envs, num_sample_points_per_env, 3),
-    #         device= self.device,
-    #         dtype= torch.float32,    
-    #     )
-    #     self.velocity_sample_points = torch.zeros(
-    #         (self.num_envs, num_sample_points_per_env, 3),
-    #         device= self.device,
-    #         dtype= torch.float32,    
-    #     )
-
-    # def _get_proprioception_obs(self, privileged= False):
-    #     return self.obs_super_impl[:, :48]
-    
-    # def _get_height_measurements_obs(self, privileged= False):
-    #     return self.obs_super_impl[:, 48:235]
-
-    # def _get_forward_depth_obs(self, privileged= False):
-    #     return torch.cat(self.sensor_tensor_dict["forward_depth"], dim=0).flatten(start_dim= 1)
-
-    # def _get_base_pose_obs(self, privileged= False):
-    #     roll, pitch, yaw = get_euler_xyz(self.root_states[:, 3:7])
-    #     roll[roll > np.pi] -= np.pi * 2 # to range (-pi, pi)
-    #     pitch[pitch > np.pi] -= np.pi * 2 # to range (-pi, pi)
-    #     yaw[yaw > np.pi] -= np.pi * 2 # to range (-pi, pi)
-    #     return torch.cat([
-    #         self.root_states[:, :3] - self.agent_origins.reshape(-1, 3),
-    #         torch.stack([roll, pitch, yaw], dim= -1),
-    #     ], dim= -1)
-    
-    # def _get_robot_config_obs(self, privileged= False):
-    #     return self.robot_config_buffer
-
-    # def _get_engaging_block_obs(self, privileged= False):
-    #     """ Compute the obstacle info for the robot """
-    #     if not self.check_BarrierTrack_terrain():
-    #         # This could be wrong, check BarrierTrack implementation to get the exact shape.
-    #         return torch.zeros((self.num_envs, (1 + (4 + 1) + 2)), device= self.sim_device)
-    #     base_positions = self.root_states[:, 0:3] # (n_envs, 3)
-    #     self.refresh_volume_sample_points()
-    #     return self.terrain.get_engaging_block_info(
-    #         base_positions,
-    #         self.volume_sample_points - base_positions.unsqueeze(-2), # (n_envs, n_points, 3)
-    #     )
-
-    # def _get_sidewall_distance_obs(self, privileged= False):
-    #     if not self.check_BarrierTrack_terrain():
-    #         return torch.zeros((self.num_envs, 2), device= self.sim_device)
-    #     base_positions = self.root_states[:, 0:3] # (n_envs, 3)
-    #     return self.terrain.get_sidewall_distance(base_positions)
-
-    # def _get_obs_from_components(self, components: list, privileged= False):
-    #     obs_segments = self.get_obs_segment_from_components(components)
-    #     obs = []
-    #     for k, v in obs_segments.items():
-    #         if k == "proprioception":
-    #             obs.append(self._get_proprioception_obs(privileged))
-    #         elif k == "height_measurements":
-    #             obs.append(self._get_height_measurements_obs(privileged))
-    #         else:
-    #             # get the observation from specific component name
-    #             # such as "_get_forward_depth_obs"
-    #             obs.append(
-    #                 getattr(self, "_get_" + k + "_obs")(privileged) * \
-    #                 getattr(self.obs_scales, k, 1.)
-    #             )
-    #     obs = torch.cat(obs, dim=1)
-    #     return obs
 
     def compute_observations(self):
         for key in self.sensor_handles[0][0].keys():
@@ -513,43 +372,8 @@ class LeggedRobotField(LeggedRobot):
         return return_
 
     def _get_noise_scale_vec(self, cfg):
-        noise_vec = torch.zeros_like(self.obs_buf[0])
-        self.add_noise = cfg.noise.add_noise
-        
-        segment_start_idx = 0
-        obs_segments = self.get_obs_segment_from_components(cfg.env.obs_components)
-        # write noise for each corresponding component.
-        for k, v in obs_segments.items():
-            segment_length = np.prod(v)
-            # write sensor scale to provided noise_vec
-            # for example "_write_forward_depth_noise"
-            getattr(self, "_write_" + k + "_noise")(noise_vec[segment_start_idx: segment_start_idx + segment_length])
-            segment_start_idx += segment_length
 
-        return noise_vec
-
-    def _write_forward_depth_noise(self, noise_vec):
-        noise_vec[:] = self.cfg.noise.noise_scales.forward_depth * self.cfg.noise.noise_level * self.obs_scales.forward_depth
-
-    def _write_base_pose_noise(self, noise_vec):
-        if not hasattr(self.cfg.noise.noise_scales, "base_pose"):
-            return
-        noise_vec[:] = self.cfg.noise.noise_scales.base_pose * self.cfg.noise.noise_level * self.obs_scales.base_pose
-    
-    def _write_robot_config_noise(self, noise_vec):
-        if not hasattr(self.cfg.noise.noise_scales, "robot_config"):
-            return
-        noise_vec[:] = self.cfg.noise.noise_scales.robot_config * self.cfg.noise.noise_level * self.obs_scales.robot_config
-
-    def _write_engaging_block_noise(self, noise_vec):
-        if not hasattr(self.cfg.noise.noise_scales, "engaging_block"):
-            return
-        noise_vec[:] = self.cfg.noise.noise_scales.engaging_block * self.cfg.noise.noise_level * self.obs_scales.engaging_block
-    
-    def _write_sidewall_distance_noise(self, noise_vec):
-        if not hasattr(self.cfg.noise.noise_scales, "sidewall_distance"):
-            return
-        noise_vec[:] = self.cfg.noise.noise_scales.sidewall_distance * self.cfg.noise.noise_level * self.obs_scales.sidewall_distance
+        raise NotImplementedError
 
     ##### adds-on with building the environment #####
     def _create_terrain(self):
@@ -571,21 +395,21 @@ class LeggedRobotField(LeggedRobot):
             )
         return super()._create_envs()
     
-    def _process_rigid_shape_props(self, props, env_id):
-        props = super()._process_rigid_shape_props(props, env_id)
-        if env_id == 0:
-            all_obs_components = self.all_obs_components
-            if "robot_config" in all_obs_components:
-                # all_obs_components
-                self.robot_config_buffer = torch.empty(
-                    self.num_envs * self.num_agents, 1 + 3 + 1 + 12,
-                    dtype= torch.float32,
-                    device= self.device,
-                )
+    # def _process_rigid_shape_props(self, props, env_id):
+    #     props = super()._process_rigid_shape_props(props, env_id)
+    #     if env_id == 0:
+    #         all_obs_components = self.all_obs_components
+    #         if "robot_config" in all_obs_components:
+    #             # all_obs_components
+    #             self.robot_config_buffer = torch.empty(
+    #                 self.num_envs * self.num_agents, 1 + 3 + 1 + 12,
+    #                 dtype= torch.float32,
+    #                 device= self.device,
+    #             )
         
-        if hasattr(self, "robot_config_buffer"):
-            self.robot_config_buffer[env_id, 0] = props[0].friction
-        return props
+    #     if hasattr(self, "robot_config_buffer"):
+    #         self.robot_config_buffer[env_id, 0] = props[0].friction
+    #     return props
 
     def _process_dof_props(self, props, env_id):
         props = super()._process_dof_props(props, env_id)
@@ -634,198 +458,21 @@ class LeggedRobotField(LeggedRobot):
                 cam_axes = gymutil.AxesGeometry(scale= 0.1)
                 gymutil.draw_lines(cam_axes, self.gym, self.viewer, env_h, camera_transform)
 
-    # def _draw_debug_vis(self):
-    #     if not "height_measurements" in self.all_obs_components:
-    #         measure_heights_tmp = self.terrain.cfg.measure_heights
-    #         self.terrain.cfg.measure_heights = False
-    #         return_ = super()._draw_debug_vis()
-    #         self.terrain.cfg.measure_heights = measure_heights_tmp
-    #     else:
-    #         return_ = super()._draw_debug_vis()
-    #     if self.cfg.terrain.selected == "BarrierTrack":
-    #         self.terrain.draw_virtual_terrain(self.viewer)
-    #     if hasattr(self, "volume_sample_points") and self.cfg.viewer.draw_volume_sample_points:
-    #         self.draw_volume_sample_points()
-    #     for env_h, sensor_hd in zip(self.envs, self.sensor_handles):
-    #         self._draw_sensor_vis(env_h, sensor_hd)
-    #     return return_
-
-    ##### defines observation segments, which tells the order of the entire flattened obs #####
-    def get_obs_segment_from_components(self, components):
-        """ Observation segment is defined as a list of lists/ints defining the tensor shape with
-        corresponding order.
-        """
-        segments = OrderedDict()
-        if "proprioception" in components:
-            segments["proprioception"] = (48,)
-        if "height_measurements" in components:
-            segments["height_measurements"] = (187,)
-        if "forward_depth" in components:
-            segments["forward_depth"] = (1, *self.cfg.sensor.forward_camera.resolution)
-        if "base_pose" in components:
-            segments["base_pose"] = (6,) # xyz + rpy
-        if "robot_config" in components:
-            """ Related to robot_config_buffer attribute, Be careful to change. """
-            # robot shape friction
-            # CoM (Center of Mass) x, y, z
-            # base mass (payload)
-            # motor strength for each joint
-            segments["robot_config"] = (1 + 3 + 1 + 12,)
-        if "engaging_block" in components:
-            if not self.check_BarrierTrack_terrain():
-                # This could be wrong, please check the implementation of BarrierTrack
-                segments["engaging_block"] = (1 + (4 + 1) + 2,)
-            else:
-                segments["engaging_block"] = get_terrain_cls("BarrierTrack").get_engaging_block_info_shape(self.cfg.terrain)
-        if "sidewall_distance" in components:
-            self.check_BarrierTrack_terrain()
-            segments["sidewall_distance"] = (2,)
-        return segments
-
-    def get_num_obs_from_components(self, components):
-        obs_segments = self.get_obs_segment_from_components(components)
-        num_obs = 0
-        for k, v in obs_segments.items():
-            num_obs += np.prod(v)
-        return num_obs
-
-    def refresh_volume_sample_points(self):
-        if self.volume_sample_points_refreshed:
-            return
-        sampled_body_pos = self.all_rigid_body_states[self.body_sample_indices, :3].view(self.num_envs, -1, 3)
-        sampled_body_quat = self.all_rigid_body_states[self.body_sample_indices, 3:7].view(self.num_envs, -1, 4)
-        sample_points_start_idx = 0
-        for body_idx, body_measure_name in enumerate(self.body_measure_name_order):
-            num_volume_points = self.body_volume_points[body_measure_name].shape[0]                
-            point_positions = tf_apply(
-                    sampled_body_quat[:, body_idx].unsqueeze(1).expand(-1, num_volume_points, -1),
-                    sampled_body_pos[:, body_idx].unsqueeze(1).expand(-1, num_volume_points, -1),
-                    self.body_volume_points[body_measure_name].unsqueeze(0).expand(self.num_envs, -1, -1),
-                ) # (num_envs, num_volume_points, 3)
-            valid_velocity_mask = self.episode_length_buf > 0
-            self.velocity_sample_points[valid_velocity_mask, sample_points_start_idx: sample_points_start_idx + num_volume_points] = \
-                (point_positions[valid_velocity_mask] - self.volume_sample_points[valid_velocity_mask, sample_points_start_idx: sample_points_start_idx + num_volume_points]) / self.dt
-            self.volume_sample_points[:, sample_points_start_idx: sample_points_start_idx + num_volume_points] = point_positions
-            sample_points_start_idx += num_volume_points
-        self.volume_sample_points_refreshed = True
-
-    def draw_volume_sample_points(self):
-        sphere_geom = gymutil.WireframeSphereGeometry(0.005, 4, 4, None, color=(1, 0.1, 0))
-        for env_idx in range(self.num_envs):
-            for point_idx in range(self.volume_sample_points.shape[1]):
-                sphere_pose = gymapi.Transform(gymapi.Vec3(*self.volume_sample_points[env_idx, point_idx]), r= None)
-                gymutil.draw_lines(sphere_geom, self.gym, self.viewer, self.envs[env_idx], sphere_pose)
-
-    ##### Additional rewards #####
-    # def _reward_lin_vel_l2norm(self):
-    #     return torch.norm((self.commands[:, :2] - self.base_lin_vel[:, :2]), dim= 1)
-
-    # def _reward_world_vel_l2norm(self):
-    #     return torch.norm((self.commands[:, :2] - self.root_states[:, 7:9]), dim= 1)
-
-    # def _reward_legs_energy(self):
-    #     return torch.sum(torch.square(self.torques * self.dof_vel), dim=1)
-
-    # def _reward_legs_energy_substeps(self):
-    #     # (n_envs, n_substeps, n_dof)
-    #     # reshape -> (n_agents, n_substeps, n_dofs)
-    #     # square sum -> (n_envs, n_substeps)
-    #     # mean -> (n_envs,)
-    #     return torch.mean(torch.sum(torch.square(
-    #             self.substep_torques.reshape([self.num_envs * self.num_agents, self.decimation, self.num_dof]) * \
-    #             self.substep_dof_vel.reshape([self.num_envs * self.num_agents, self.decimation, self.num_dof])
-    #         ), dim=-1), dim=-1)
-
-    # def _reward_legs_energy_abs(self):
-    #     return torch.sum(torch.abs(self.torques * self.dof_vel), dim=1)
-
-    # def _reward_alive(self):
-    #     return 1.
-
-    # def _reward_lin_cmd(self):
-    #     """ This reward term does not depend on the policy, depends on the command """
-    #     return torch.norm(self.commands[:, :2], dim= 1)
-
-    # def _reward_lin_vel_x(self):
-    #     return self.root_states[:, 7]
-    
-    # def _reward_lin_vel_y_abs(self):
-    #     return torch.abs(self.root_states[:, 8])
-    
-    # def _reward_lin_vel_y_square(self):
-    #     return torch.square(self.root_states[:, 8])
-
-    # def _reward_lin_pos_y(self):
-    #     return torch.abs((self.root_states[:, :3] - self.env_origins)[:, 1])
-    
-    # def _reward_yaw_abs(self):
-    #     """ Aiming for the robot yaw to be zero (pointing to the positive x-axis) """
-    #     yaw = get_euler_xyz(self.root_states[:, 3:7])[2]
-    #     yaw[yaw > np.pi] -= np.pi * 2 # to range (-pi, pi)
-    #     yaw[yaw < -np.pi] += np.pi * 2 # to range (-pi, pi)
-    #     return torch.abs(yaw)
-
-    # def _reward_penetrate_depth(self):
-    #     if not self.check_BarrierTrack_terrain(): return torch.zeros_like(self.root_states[:, 0])
-    #     self.refresh_volume_sample_points()
-    #     penetration_depths = self.terrain.get_penetration_depths(self.volume_sample_points.view(-1, 3)).view(self.num_envs, -1)
-    #     penetration_depths *= torch.norm(self.velocity_sample_points, dim= -1) + 1e-3
-    #     return torch.sum(penetration_depths, dim= -1)
-
-    # def _reward_penetrate_volume(self):
-    #     if not self.check_BarrierTrack_terrain(): return torch.zeros_like(self.root_states[:, 0])
-    #     self.refresh_volume_sample_points()
-    #     penetration_mask = self.terrain.get_penetration_mask(self.volume_sample_points.view(-1, 3)).view(self.num_envs, -1)
-    #     penetration_mask *= torch.norm(self.velocity_sample_points, dim= -1) + 1e-3
-    #     return torch.sum(penetration_mask, dim= -1)
-
-    ##### Some helper functions that override parent class attributes #####
-    @property
-    def all_obs_components(self):
-        components = set(self.cfg.env.obs_components)
-        if getattr(self.cfg.env, "privileged_obs_components", None):
-            components.update(self.cfg.env.privileged_obs_components)
-        return components
-    
-    @property
-    def obs_segments(self):
-        return self.get_obs_segment_from_components(self.cfg.env.obs_components)
-    @property
-    def privileged_obs_segments(self):
-        components = getattr(
-            self.cfg.env,
-            "privileged_obs_components",
-            None
-        )
-        if components is None:
-            return None
+    def _draw_debug_vis(self):
+        if not "height_measurements" in self.all_obs_components:
+            measure_heights_tmp = self.terrain.cfg.measure_heights
+            self.terrain.cfg.measure_heights = False
+            return_ = super()._draw_debug_vis()
+            self.terrain.cfg.measure_heights = measure_heights_tmp
         else:
-            return self.get_obs_segment_from_components(components)
-    @property
-    def num_obs(self):
-        """ get this value from self.cfg.env """
-        assert "proprioception" in self.cfg.env.obs_components, "missing critical observation component 'proprioception'"
-        return self.get_num_obs_from_components(self.cfg.env.obs_components)
-    @num_obs.setter
-    def num_obs(self, value):
-        """ avoid setting self.num_obs """
-        pass
-    @property
-    def num_privileged_obs(self):
-        """ get this value from self.cfg.env """
-        components = getattr(
-            self.cfg.env,
-            "privileged_obs_components",
-            None
-        )
-        if components is None:
-            return None
-        else:
-            return self.get_num_obs_from_components(components)
-    @num_privileged_obs.setter
-    def num_privileged_obs(self, value):
-        """ avoid setting self.num_privileged_obs """
-        pass
+            return_ = super()._draw_debug_vis()
+        if self.cfg.terrain.selected == "BarrierTrack":
+            self.terrain.draw_virtual_terrain(self.viewer)
+        if hasattr(self, "volume_sample_points") and self.cfg.viewer.draw_volume_sample_points:
+            self.draw_volume_sample_points()
+        for env_h, sensor_hd in zip(self.envs, self.sensor_handles):
+            self._draw_sensor_vis(env_h, sensor_hd)
+        return return_
 
     def check_BarrierTrack_terrain(self):
         if getattr(self.cfg.terrain, "pad_unavailable_info", False):

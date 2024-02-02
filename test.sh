@@ -1,6 +1,6 @@
 # python test.py --task a1_dualrun
 # python test.py --task go1_dualrun
-python test.py --task go1 --headless
+python test.py
 # python test.py --task go1_test_dualrun
 # python legged_gym/scripts/train.py --task a1
 # python legged_gym/scripts/train.py --task a1_dualrun

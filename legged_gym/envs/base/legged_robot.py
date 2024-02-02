@@ -422,6 +422,8 @@ class LeggedRobot(BaseTask):
         self.root_states[agent_ids, :3] += self.agent_origins[env_ids].reshape(-1, 3)
         if self.num_npcs:
             self.root_states_npc[npc_ids] = self.base_init_state_npc[npc_ids]
+            print(env_ids)
+            print(self.env_origins[env_ids])
             self.root_states_npc[npc_ids, :3] += self.env_origins[env_ids].unsqueeze(1).repeat(1, self.num_npcs, 1).reshape(-1, 3)
 
         # if self.custom_origins:
@@ -576,7 +578,7 @@ class LeggedRobot(BaseTask):
         self.common_step_counter = 0
         self.extras = {}
 
-        self.noise_scale_vec = self._get_noise_scale_vec(self.cfg)
+        # self.noise_scale_vec = self._get_noise_scale_vec(self.cfg)
         self.gravity_vec = to_torch(get_axis_params(-1., self.up_axis_idx), device=self.device).repeat((self.num_envs * self.num_agents, 1))
         self.forward_vec = to_torch([1., 0., 0.], device=self.device).repeat((self.num_envs, 1))             # TODO: multi-agent
 
@@ -945,6 +947,7 @@ class LeggedRobot(BaseTask):
             self.env_origins[:, 1] = spacing * yy.flatten()[:self.num_envs]
             self.env_origins[:, 2] = 0.
             self.agent_origins = self.env_origins
+            self.env_origins_repeat = copy(self.env_origins).unsqueeze(1).repeat(1, self.num_agents, 1).reshape(-1, 3)
 
     def _parse_cfg(self, cfg):
         self.dt = self.cfg.control.decimation * self.sim_params.dt
@@ -959,26 +962,26 @@ class LeggedRobot(BaseTask):
 
         self.cfg.domain_rand.push_interval = np.ceil(self.cfg.domain_rand.push_interval_s / self.dt)
 
-    # def _draw_debug_vis(self):
-    #     """ Draws visualizations for dubugging (slows down simulation a lot).
-    #         Default behaviour: draws height measurement points
-    #     """
-    #     # draw height lines
-    #     self.gym.clear_lines(self.viewer)
-    #     self.gym.refresh_rigid_body_state_tensor(self.sim)
-    #     if not self.terrain.cfg.measure_heights:
-    #         return
-    #     sphere_geom = gymutil.WireframeSphereGeometry(0.02, 4, 4, None, color=(1, 1, 0))
-    #     for i in range(self.num_envs):
-    #         base_pos = (self.root_states[i, :3]).cpu().numpy()
-    #         heights = self.measured_heights[i].cpu().numpy()
-    #         height_points = quat_apply_yaw(self.base_quat[i].repeat(heights.shape[0]), self.height_points[i]).cpu().numpy()
-    #         for j in range(heights.shape[0]):
-    #             x = height_points[j, 0] + base_pos[0]
-    #             y = height_points[j, 1] + base_pos[1]
-    #             z = heights[j]
-    #             sphere_pose = gymapi.Transform(gymapi.Vec3(x, y, z), r=None)
-    #             gymutil.draw_lines(sphere_geom, self.gym, self.viewer, self.envs[i], sphere_pose) 
+    def _draw_debug_vis(self):
+        """ Draws visualizations for dubugging (slows down simulation a lot).
+            Default behaviour: draws height measurement points
+        """
+        # draw height lines
+        self.gym.clear_lines(self.viewer)
+        self.gym.refresh_rigid_body_state_tensor(self.sim)
+        if not self.terrain.cfg.measure_heights:
+            return
+        sphere_geom = gymutil.WireframeSphereGeometry(0.02, 4, 4, None, color=(1, 1, 0))
+        for i in range(self.num_envs):
+            base_pos = (self.root_states[i, :3]).cpu().numpy()
+            heights = self.measured_heights[i].cpu().numpy()
+            height_points = quat_apply_yaw(self.base_quat[i].repeat(heights.shape[0]), self.height_points[i]).cpu().numpy()
+            for j in range(heights.shape[0]):
+                x = height_points[j, 0] + base_pos[0]
+                y = height_points[j, 1] + base_pos[1]
+                z = heights[j]
+                sphere_pose = gymapi.Transform(gymapi.Vec3(x, y, z), r=None)
+                gymutil.draw_lines(sphere_geom, self.gym, self.viewer, self.envs[i], sphere_pose) 
 
     def _init_height_points(self):
         """ Returns points at which the height measurments are sampled (in base frame)

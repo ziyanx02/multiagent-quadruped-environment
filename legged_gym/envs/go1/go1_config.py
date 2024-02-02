@@ -99,7 +99,7 @@ class Go1Cfg(LeggedRobotFieldCfg):
 
             lin_vel_x = 1.0
             lin_vel_y = -0.0
-            ang_vel = -0.2
+            ang_vel = -0.0
             body_height = 0.0
             gait_freq = 3.0
             gait = "trotting"
@@ -243,6 +243,10 @@ class Go1Cfg(LeggedRobotFieldCfg):
             last_action = True
             last_last_action = True
             imu = False
+
+            depth_image = False
+            rgb_image = False
+            closest_distance = True
         
         class scales:
             base_pos = 1.0

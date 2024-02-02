@@ -48,24 +48,5 @@ class Go1PlaneCfg(Go1Cfg):
         x_init_offset = 0.
         y_init_offset = 0.
 
-    class obs:
-
-        class cfgs:
-            base_pos = False
-            base_quat = False
-            dof_pos = True
-            dof_vel = True
-            lin_vel = True
-            ang_vel = True
-            projected_gravity = True
-            yaw = False
-            contact_states = False
-            command = True
-            height_command = False
-            gait_commands = False
-            timing_parameter = False
-            clock_inputs = False
-            last_action = True
-            last_last_action = True
-            imu = False
-        
+    # class obs(Go1Cfg):
+    #     pass

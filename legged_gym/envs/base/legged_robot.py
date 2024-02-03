@@ -71,7 +71,6 @@ class LeggedRobot(BaseTask):
         self.init_done = False
         self._parse_cfg(self.cfg)
         super().__init__(self.cfg, sim_params, physics_engine, sim_device, headless)
-
         if not self.headless:
             self.set_camera(self.cfg.viewer.pos, self.cfg.viewer.lookat)
         self._init_buffers()
@@ -422,8 +421,6 @@ class LeggedRobot(BaseTask):
         self.root_states[agent_ids, :3] += self.agent_origins[env_ids].reshape(-1, 3)
         if self.num_npcs:
             self.root_states_npc[npc_ids] = self.base_init_state_npc[npc_ids]
-            print(env_ids)
-            print(self.env_origins[env_ids])
             self.root_states_npc[npc_ids, :3] += self.env_origins[env_ids].unsqueeze(1).repeat(1, self.num_npcs, 1).reshape(-1, 3)
 
         # if self.custom_origins:
@@ -935,6 +932,11 @@ class LeggedRobot(BaseTask):
             self.env_origins = self.terrain_origins[self.terrain_levels, self.terrain_types]
             self.env_origins_repeat = copy(self.env_origins).unsqueeze(1).repeat(1, self.num_agents, 1).reshape(-1, 3)
             self.agent_origins = terrain_agent_origins[self.terrain_levels, self.terrain_types]
+            if getattr(self.terrain, "env_info", None):
+                self.env_info = {}
+                for key in self.terrain.env_info.keys():
+                    self.env_info[key] = self.terrain.env_info[key][self.terrain_levels, self.terrain_types]
+            
         else:
             self.custom_origins = False
             self.env_origins = torch.zeros(self.num_envs, 3, device=self.device, requires_grad=False)

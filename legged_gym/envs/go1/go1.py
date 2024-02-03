@@ -21,7 +21,6 @@ class Go1(LeggedRobotField):
 
         self.cfg = cfg
         self.env_name = cfg.env.env_name
-        headless = False
         super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
         
         self.obs_buf = copy(self.cfg.obs)
@@ -34,7 +33,7 @@ class Go1(LeggedRobotField):
             self._prepare_locomotion_policy()
 
     def step(self, action):
-
+        
         if self.cfg.control.control_type == "C":
             action = self.preprocess_action(action)
             # action = torch.zeros([self.num_envs, 12], device = "cuda")
@@ -204,6 +203,9 @@ class Go1(LeggedRobotField):
             heading = torch.atan2(forward[:, 1], forward[:, 0]).unsqueeze(1)
             # heading_error = torch.clip(0.5 * wrap_to_pi(heading), -1., 1.).unsqueeze(1)
             self.obs_buf.yaw = heading
+        
+        if self.cfg.obs.cfgs.env_info:
+            self.obs_buf.env_info = self.env_info
 
     def _post_physics_step_callback(self):
         """ Callback called before computing terminations, rewards, and observations

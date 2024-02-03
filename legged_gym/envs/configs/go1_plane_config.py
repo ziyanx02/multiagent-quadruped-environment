@@ -20,16 +20,6 @@ class Go1PlaneCfg(Go1Cfg):
         recording_mode = "COLOR"
         num_recording_envs = 1
 
-        obs_components = [
-            "proprioception", # 48
-            # "height_measurements", # 187
-            "base_pose",
-            "robot_config",
-            # "engaging_block",
-            # "sidewall_distance",
-            # "forward_depth",
-        ]
-
     class terrain:
         mesh_type = "plane"
         selected = False

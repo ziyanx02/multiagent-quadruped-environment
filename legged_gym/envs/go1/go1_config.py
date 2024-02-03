@@ -50,16 +50,6 @@ class Go1Cfg(LeggedRobotFieldCfg):
         recording_mode = "COLOR"
         num_recording_envs = 1
 
-        obs_components = [
-            "proprioception", # 48
-            # "height_measurements", # 187
-            "base_pose",
-            "robot_config",
-            # "engaging_block",
-            # "sidewall_distance",
-            # "forward_depth",
-        ]
-
     class init_state(LeggedRobotFieldCfg.init_state):
         pos = [0.0, 0.0, 0.34] # x,y,z [m]
         default_joint_angles = { # = target angles [rad] when action = 0.0
@@ -246,7 +236,7 @@ class Go1Cfg(LeggedRobotFieldCfg):
 
             depth_image = False
             rgb_image = False
-            closest_distance = True
+            env_info = True
         
         class scales:
             base_pos = 1.0
@@ -257,12 +247,11 @@ class Go1Cfg(LeggedRobotFieldCfg):
 
         def keys(self):
             key_dict = dir(self.cfgs)
-            print("===Available Obsevations Start===")
+            key_list = []
             for key in key_dict:
                 if getattr(self.cfgs, key) == True and key:
-                    print(key, end=" ")
-            print("\n====Available Obsevations End====")
-            return "================================="
+                    key_list.append(key)
+            return key_list
 
     class privileged_obs:
         

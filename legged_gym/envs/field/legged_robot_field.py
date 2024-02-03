@@ -468,8 +468,7 @@ class LeggedRobotField(LeggedRobot):
             return_ = super()._draw_debug_vis()
         if self.cfg.terrain.selected == "BarrierTrack":
             self.terrain.draw_virtual_terrain(self.viewer)
-        if hasattr(self, "volume_sample_points") and self.cfg.viewer.draw_volume_sample_points:
-            self.draw_volume_sample_points()
+
         for env_h, sensor_hd in zip(self.envs, self.sensor_handles):
             self._draw_sensor_vis(env_h, sensor_hd)
         return return_

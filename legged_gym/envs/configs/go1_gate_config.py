@@ -6,23 +6,12 @@ class Go1GateCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1gate"
-        num_envs = 25 # 4096
+        num_envs = 500 # 4096
         num_agents = 2
-        obs_components = [
-            "proprioception", # 48
-            # "height_measurements", # 187
-            "base_pose",
-            "robot_config",
-            # "engaging_block",
-            # "sidewall_distance",
-            # "forward_depth",
-        ]
         episode_length_s = 5 # episode length in seconds
 
     class terrain(Go1Cfg.terrain):
 
-        # mesh_type = "plane"
-        # selected = False
         mesh_type = "trimesh"
         selected = "BarrierTrack"
         num_rows = 5 # 20
@@ -40,7 +29,7 @@ class Go1GateCfg(Go1Cfg):
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
-            track_width = 2.6,
+            track_width = 3.0,
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
@@ -53,6 +42,7 @@ class Go1GateCfg(Go1Cfg):
                 width = 0.6,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
+                random = (0.5, 0.5),
             ),
             wall = dict(
                 block_length = 0.1
@@ -60,13 +50,12 @@ class Go1GateCfg(Go1Cfg):
             wall_height= 0.5,
             virtual_terrain = False, # Change this to False for real terrain
             no_perlin_threshold = 0.06,
-            add_perlin_noise = False
+            add_perlin_noise = False,
        ))
+        
+        x_limits = [5.0,]
+        y_limits = [-1.5, 1.5]
 
-        TerrainPerlin_kwargs = merge_dict(Go1Cfg.terrain.TerrainPerlin_kwargs, dict(
-            zScale = [0.05, 0.1],
-       ))
-    
     class command(Go1Cfg.command):
 
         class cfg(Go1Cfg.command.cfg):

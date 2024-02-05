@@ -21,7 +21,7 @@ def train(args):
         wandb_entity="ziyanx02",
         exp_name="test",
         log_path="./log",
-        use_wandb=False,
+        use_wandb=True,
         use_tensorboard=False,
     )
     agent = PPOAgent(net)  # Initialize the agent.

@@ -69,9 +69,16 @@ class mqe_openrl_wrapper(gym.Wrapper):
         return False
 
     def batch_rewards(self, buffer):
-        print(buffer)
-        exit()
-        return {}
+
+        step_count = self.env.reward_buffer["step count"]
+        reward_dict = {}
+        for k in self.env.reward_buffer.keys():
+            if k == "step count":
+                continue
+            reward_dict[k] = self.env.reward_buffer[k] / (self.num_envs * step_count)
+            self.env.reward_buffer[k] = 0
+        self.env.reward_buffer["step count"] = 0
+        return reward_dict
 
 def parse_arguments(parser, headless=False, no_graphics=False, custom_parameters=[]):
 

@@ -8,6 +8,8 @@ node_modules/
 dist/
 log/
 result/
+results/
+uuv/
 
 # Compiled Java class files
 *.class

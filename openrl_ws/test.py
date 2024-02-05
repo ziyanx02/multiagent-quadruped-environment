@@ -1,14 +1,18 @@
 import isaacgym
+from openrl_ws.utils import make_env, get_args
 
 from openrl.envs.common import make
 from openrl.modules.common import PPONet
 from openrl.runners.common import PPOAgent
-from utils import make_mqe_env
+from utils import make_env
 
-env = make_mqe_env("go1gate")
+args = get_args()
+args.num_envs = 1
+args.headless = False
+env = make_env(args)
 net = PPONet(env, device="cuda")  # Create neural network.
 agent = PPOAgent(net)  # Initialize the agent.
-agent.load("./result/module_20m.pt")
+agent.load("./result/module_30m.pt")
 
 agent.set_env(env)  # The agent requires an interactive environment.
 obs = env.reset()  # Initialize the environment to obtain initial observations and environmental information.

@@ -1,3 +1,6 @@
+
+from __future__ import print_function, division, absolute_import
+
 from typing import Any, Dict, Optional, Union
 import isaacgym
 
@@ -6,19 +9,26 @@ import torch
 import gym
 from gym import spaces
 
-from legged_gym.envs.base.base_task import BaseTask
-from legged_gym.utils import make_env
+from legged_gym.envs.utils import make_mqe_env
 
-def make_mqe_env(name, args=None, env_cfg=None):
+from openrl.configs.config import create_config_parser
+from isaacgym import gymutil
+from typing import List
+from openrl.configs.utils import ProcessYamlAction
+
+from abc import ABC, abstractmethod
+import math
+import numpy as np
+import argparse
+from bisect import bisect
+
+from isaacgym import gymapi
+from isaacgym.gymutil import parse_device_str
+
+
+def make_env(args):
     
-
-    from legged_gym.envs.go1.go1 import Go1
-    from legged_gym.envs.configs.go1_plane_config import Go1PlaneCfg
-    from legged_gym.envs.configs.go1_gate_config import Go1GateCfg
-    from legged_gym.envs.wrappers.go1_gate_wrapper import Go1GateWrapper
-
-    env, env_cfg = make_env(Go1, Go1GateCfg(), args)
-    env = Go1GateWrapper(env)
+    env, env_cfg = make_mqe_env(args.task, args)
 
     return mqe_openrl_wrapper(env)
 
@@ -59,4 +69,108 @@ class mqe_openrl_wrapper(gym.Wrapper):
         return False
 
     def batch_rewards(self, buffer):
+        print(buffer)
+        exit()
         return {}
+
+def parse_arguments(parser, headless=False, no_graphics=False, custom_parameters=[]):
+
+    if headless:
+        parser.add_argument('--headless', action='store_true', help='Run headless without creating a viewer window')
+    if no_graphics:
+        parser.add_argument('--nographics', action='store_true',
+                            help='Disable graphics context creation, no viewer window is created, and no headless rendering is available')
+    parser.add_argument('--sim_device', type=str, default="cuda:0", help='Physics Device in PyTorch-like syntax')
+    parser.add_argument('--pipeline', type=str, default="gpu", help='Tensor API pipeline (cpu/gpu)')
+    parser.add_argument('--graphics_device_id', type=int, default=0, help='Graphics Device ID')
+
+    physics_group = parser.add_mutually_exclusive_group()
+    physics_group.add_argument('--flex', action='store_true', help='Use FleX for physics')
+    physics_group.add_argument('--physx', action='store_true', help='Use PhysX for physics')
+
+    parser.add_argument('--num_threads', type=int, default=0, help='Number of cores used by PhysX')
+    parser.add_argument('--subscenes', type=int, default=0, help='Number of PhysX subscenes to simulate in parallel')
+    parser.add_argument('--slices', type=int, help='Number of client threads that process env slices')
+
+    for argument in custom_parameters:
+        if ("name" in argument) and ("type" in argument or "action" in argument):
+            help_str = ""
+            if "help" in argument:
+                help_str = argument["help"]
+
+            if "type" in argument:
+                if "default" in argument:
+                    parser.add_argument(argument["name"], type=argument["type"], default=argument["default"], help=help_str)
+                else:
+                    parser.add_argument(argument["name"], type=argument["type"], help=help_str)
+            elif "action" in argument:
+                parser.add_argument(argument["name"], action=argument["action"], help=help_str)
+
+        else:
+            print()
+            print("ERROR: command line argument name, type/action must be defined, argument not added to parser")
+            print("supported keys: name, type, default, action, help")
+            print()
+
+    args = parser.parse_args()
+
+    args.sim_device_type, args.compute_device_id = parse_device_str(args.sim_device)
+    pipeline = args.pipeline.lower()
+
+    assert (pipeline == 'cpu' or pipeline in ('gpu', 'cuda')), f"Invalid pipeline '{args.pipeline}'. Should be either cpu or gpu."
+    args.use_gpu_pipeline = (pipeline in ('gpu', 'cuda'))
+
+    if args.sim_device_type != 'cuda' and args.flex:
+        print("Can't use Flex with CPU. Changing sim device to 'cuda:0'")
+        args.sim_device = 'cuda:0'
+        args.sim_device_type, args.compute_device_id = parse_device_str(args.sim_device)
+
+    if (args.sim_device_type != 'cuda' and pipeline == 'gpu'):
+        print("Can't use GPU pipeline with CPU Physics. Changing pipeline to 'CPU'.")
+        args.pipeline = 'CPU'
+        args.use_gpu_pipeline = False
+
+    # Default to PhysX
+    args.physics_engine = gymapi.SIM_PHYSX
+    args.use_gpu = (args.sim_device_type == 'cuda')
+
+    if args.flex:
+        args.physics_engine = gymapi.SIM_FLEX
+
+    # Using --nographics implies --headless
+    if no_graphics and args.nographics:
+        args.headless = True
+
+    if args.slices is None:
+        args.slices = args.subscenes
+
+    return args
+
+def get_args():
+
+    openrl_parser = create_config_parser()
+    
+    custom_parameters = [
+        {"name": "--task", "type": str, "default": "go1gate", "help": "Resume training or start testing from a checkpoint. Overrides config file if provided."},
+        {"name": "--resume", "action": "store_true", "default": False,  "help": "Resume training from a checkpoint"},
+        {"name": "--run_name", "type": str,  "help": "Name of the run. Overrides config file if provided."},
+        {"name": "--load_run", "type": str,  "help": "Name of the run to load when resume=True. If -1: will load the last run. Overrides config file if provided."},
+        {"name": "--checkpoint", "type": int,  "help": "Saved model checkpoint number. If -1: will load the last checkpoint. Overrides config file if provided."},
+        
+        {"name": "--headless", "action": "store_true", "default": False, "help": "Force display off at all times"},
+        {"name": "--horovod", "action": "store_true", "default": False, "help": "Use horovod for multi-gpu training"},
+        {"name": "--rl_device", "type": str, "default": "cuda:0", "help": 'Device used by the RL algorithm, (cpu, gpu, cuda:0, cuda:1 etc..)'},
+        {"name": "--num_envs", "type": int, "help": "Number of environments to create. Overrides config file if provided."},
+        {"name": "--max_iterations", "type": int, "help": "Maximum number of training iterations. Overrides config file if provided."},
+    ]
+    # parse arguments
+    args = parse_arguments(
+        openrl_parser,
+        custom_parameters=custom_parameters)
+
+    # name allignment
+    args.sim_device_id = args.compute_device_id
+    args.sim_device = args.sim_device_type
+    if args.sim_device=='cuda':
+        args.sim_device += f":{args.sim_device_id}"
+    return args

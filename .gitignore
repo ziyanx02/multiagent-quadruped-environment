@@ -7,7 +7,6 @@
 node_modules/
 dist/
 log/
-result/
 results/
 uuv/
 checkpoints/

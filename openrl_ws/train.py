@@ -4,7 +4,7 @@ from openrl.modules.common import PPONet
 from openrl.runners.common import PPOAgent
 from openrl.utils.logger import Logger
 
-import datetime
+from datetime import datetime
 
 # import argparse
 
@@ -23,10 +23,10 @@ def train(args):
         project_name="MQE",
         scenario_name=args.task,
         wandb_entity="ziyanx02",
-        exp_name="test",
+        exp_name=args.exp_name,
         log_path="./log",
-        use_wandb=True,
-        use_tensorboard=False,
+        use_wandb=args.use_wandb,
+        use_tensorboard=args.use_tensorboard,
     )
     agent = PPOAgent(net)  # Initialize the agent.
     agent.train(

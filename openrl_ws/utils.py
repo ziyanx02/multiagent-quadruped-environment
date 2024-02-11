@@ -159,17 +159,21 @@ def get_args():
     openrl_parser = create_config_parser()
     
     custom_parameters = [
-        {"name": "--task", "type": str, "default": "go1gate", "help": "Resume training or start testing from a checkpoint. Overrides config file if provided."},
+        {"name": "--task", "type": str, "default": "go1gate", "help": "Select task via name"},
         {"name": "--resume", "action": "store_true", "default": False,  "help": "Resume training from a checkpoint"},
         {"name": "--run_name", "type": str,  "help": "Name of the run. Overrides config file if provided."},
         {"name": "--load_run", "type": str,  "help": "Name of the run to load when resume=True. If -1: will load the last run. Overrides config file if provided."},
-        {"name": "--checkpoint", "type": int,  "help": "Saved model checkpoint number. If -1: will load the last checkpoint. Overrides config file if provided."},
+        {"name": "--checkpoint", "type": str,  "help": "Saved model checkpoint path. Overrides config file if provided."},
         
-        {"name": "--headless", "action": "store_true", "default": False, "help": "Force display off at all times"},
+        {"name": "--headless", "action": "store_true", "default": True, "help": "Force display off at all times"},
         {"name": "--horovod", "action": "store_true", "default": False, "help": "Use horovod for multi-gpu training"},
         {"name": "--rl_device", "type": str, "default": "cuda:0", "help": 'Device used by the RL algorithm, (cpu, gpu, cuda:0, cuda:1 etc..)'},
         {"name": "--num_envs", "type": int, "help": "Number of environments to create. Overrides config file if provided."},
         {"name": "--max_iterations", "type": int, "help": "Maximum number of training iterations. Overrides config file if provided."},
+
+        {"name": "--use_wandb", "action": "store_true", "default": False, "help": "Use wandb for record"},
+        {"name": "--use_tensorboard", "action": "store_true", "default": False, "help": "Use tensorboard for record"},
+        {"name": "--exp_name", "type": str, "default": "default"},
     ]
     # parse arguments
     args = parse_arguments(
@@ -187,7 +191,8 @@ def custom_cfg(args):
 
     def fn(cfg:Go1Cfg):
         
-        cfg.env.num_envs = getattr(args, "num_envs", cfg.env.num_envs)
+        if getattr(args, "num_envs", None) is not None:
+            cfg.env.num_envs = args.num_envs
 
         return cfg
     

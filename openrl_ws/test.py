@@ -4,15 +4,13 @@ from openrl_ws.utils import make_env, get_args
 from openrl.envs.common import make
 from openrl.modules.common import PPONet
 from openrl.runners.common import PPOAgent
-from utils import make_env
 
 args = get_args()
-args.num_envs = 5
-args.headless = False
-env = make_env(args)
+env, _ = make_env(args)
 net = PPONet(env, device="cuda")  # Create neural network.
 agent = PPOAgent(net)  # Initialize the agent.
-agent.load("/home/ziyanx/python/multiagent-quadruped-environments/checkpoints/go1gate_10_0_-0.004_-0.25_-0.01/module.pt")
+if getattr(args, "checkpoint") is not None:
+    agent.load(args.checkpoint)
 
 agent.set_env(env)  # The agent requires an interactive environment.
 obs = env.reset()  # Initialize the environment to obtain initial observations and environmental information.

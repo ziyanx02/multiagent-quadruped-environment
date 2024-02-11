@@ -10,6 +10,7 @@ log/
 result/
 results/
 uuv/
+checkpoints/
 
 # Compiled Java class files
 *.class

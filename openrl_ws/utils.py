@@ -25,12 +25,13 @@ from bisect import bisect
 from isaacgym import gymapi
 from isaacgym.gymutil import parse_device_str
 
+from legged_gym.envs.go1.go1_config import Go1Cfg
 
-def make_env(args):
+def make_env(args, custom_cfg=None):
     
-    env, env_cfg = make_mqe_env(args.task, args)
+    env, env_cfg = make_mqe_env(args.task, args, custom_cfg=custom_cfg)
 
-    return mqe_openrl_wrapper(env)
+    return mqe_openrl_wrapper(env), env_cfg
 
 class mqe_openrl_wrapper(gym.Wrapper):
     def __init__(self, env):
@@ -181,3 +182,13 @@ def get_args():
     if args.sim_device=='cuda':
         args.sim_device += f":{args.sim_device_id}"
     return args
+
+def custom_cfg(args):
+
+    def fn(cfg:Go1Cfg):
+        
+        cfg.env.num_envs = getattr(args, "num_envs", cfg.env.num_envs)
+
+        return cfg
+    
+    return fn

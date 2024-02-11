@@ -6,7 +6,7 @@ class Go1GateCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1gate"
-        num_envs = 500 # 4096
+        num_envs = 5 # 4096
         num_agents = 2
         episode_length_s = 5 # episode length in seconds
 
@@ -15,7 +15,7 @@ class Go1GateCfg(Go1Cfg):
         mesh_type = "trimesh"
         selected = "BarrierTrack"
         num_rows = 5 # 20
-        num_cols = 5 # 50
+        num_cols = 10 # 50
         max_init_terrain_level = 2
         border_size = 1
         slope_treshold = 20.
@@ -25,6 +25,7 @@ class Go1GateCfg(Go1Cfg):
             options = [
                 "init",
                 "gate",
+                "plane",
                 "wall",
             ],
             randomize_obstacle_order = False,
@@ -42,7 +43,10 @@ class Go1GateCfg(Go1Cfg):
                 width = 0.8,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
-                random = (0., 0.),
+                random = (0.5, 0.5),
+            ),
+            plane = dict(
+                block_length = 1.0,
             ),
             wall = dict(
                 block_length = 0.1
@@ -104,16 +108,15 @@ class Go1GateCfg(Go1Cfg):
 
     class rewards(Go1Cfg.rewards):
         class scales:
-            pass
-            # tracking_ang_vel = 0.05
-            # world_vel_l2norm = -1.
-            # legs_energy_substeps = -1e-5
-            # alive = 2.
-            # penetrate_depth = -3e-3
-            # penetrate_volume = -3e-3
-            # exceed_dof_pos_limits = -1e-1
-            # exceed_torque_limits_i = -2e-1
+
+            target_reward_scale = 1
+            success_reward_scale = 0
+            lin_vel_x_reward_scale = 0
+            approach_frame_punishment_scale = 0
+            agent_distance_punishment_scale = -0.25
+            lin_vel_y_punishment_scale = 0
+            command_value_punishment_scale = 0
 
     class viewer(Go1Cfg.viewer):
-        pos = [0., 11., 5.]  # [m]
-        lookat = [4., 11., 0.]  # [m]
+        pos = [12., 20., 20.]  # [m]
+        lookat = [13., 20., 0.]  # [m]

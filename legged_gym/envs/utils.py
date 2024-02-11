@@ -38,9 +38,12 @@ ENV_DICT = {
     },
 }
 
-def make_mqe_env(env_name, args):
+def make_mqe_env(env_name, args=None, custom_cfg=None):
     
     env_dict = ENV_DICT[env_name]
+
+    if callable(custom_cfg):
+        env_dict["config"] = custom_cfg(env_dict["config"])
 
     env, env_cfg = make_env(env_dict["class"], env_dict["config"], args)
     env = env_dict["wrapper"](env)

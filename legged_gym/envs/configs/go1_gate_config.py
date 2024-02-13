@@ -100,10 +100,9 @@ class Go1GateCfg(Go1Cfg):
     class domain_rand(Go1Cfg.domain_rand):
         # push_robots = True # use for virtual training
         push_robots = False # use for non-virtual training
-        init_dof_pos_ratio_range = None
         init_base_pos_range = dict(
-            x= [-0.1, 0.1],
-            y= [-0.1, 0.1],
+            x= [-0.2, 0.2],
+            y= [-0.2, 0.2],
         )
 
     class rewards(Go1Cfg.rewards):

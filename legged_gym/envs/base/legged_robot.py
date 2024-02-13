@@ -398,9 +398,11 @@ class LeggedRobot(BaseTask):
         else:
             self.dof_pos[env_ids] = self.default_dof_pos
         self.dof_vel[env_ids] = 0.
-        # if self.num_npcs  and  self.type_npc:
-        #     self.dof_pos_npc = self.default_dof_pos
-        #     self.dof_vel_npc[env_ids] = 0.
+
+        if self.num_actions_npc > 0:
+            self.dof_pos_npc[env_ids] = self.default_dof_pos_npc
+            self.dof_vel_npc[env_ids] *= 0.
+        
         # Find actor indices according to env_ids
         actor_ids_int32 = self.actor_indices[env_ids].view(-1) if self.num_actions_npc != 0 else self.agent_indices[env_ids].view(-1)
         self.gym.set_dof_state_tensor_indexed(self.sim,
@@ -423,12 +425,16 @@ class LeggedRobot(BaseTask):
             self.root_states_npc[npc_ids] = self.base_init_state_npc[npc_ids]
             self.root_states_npc[npc_ids, :3] += self.env_origins[env_ids].unsqueeze(1).repeat(1, self.num_npcs, 1).reshape(-1, 3)
 
-        # if self.custom_origins:
-        #     if hasattr(self.cfg.domain_rand, "init_base_pos_range"):
-        #         self.root_states[agent_ids, 0:1] += torch_rand_float(*self.cfg.domain_rand.init_base_pos_range["x"], (len(agent_ids), 1), device=self.device)
-        #         self.root_states[agent_ids, 1:2] += torch_rand_float(*self.cfg.domain_rand.init_base_pos_range["y"], (len(agent_ids), 1), device=self.device)
-        #     else:
-        #         self.root_states[agent_ids, :2] += torch_rand_float(-1., 1., (len(agent_ids), 2), device=self.device) # xy position within 1m of the center、
+        if self.custom_origins:
+            if hasattr(self.cfg.domain_rand, "init_base_pos_range"):
+                self.root_states[agent_ids, 0:1] += torch_rand_float(*self.cfg.domain_rand.init_base_pos_range["x"], (len(agent_ids), 1), device=self.device)
+                self.root_states[agent_ids, 1:2] += torch_rand_float(*self.cfg.domain_rand.init_base_pos_range["y"], (len(agent_ids), 1), device=self.device)
+            else:
+                self.root_states[agent_ids, :2] += torch_rand_float(-1., 1., (len(agent_ids), 2), device=self.device) # xy position within 1m of the center、
+
+            if getattr(self.cfg.domain_rand, "init_npc_base_pos_range", None) is not None:
+                self.root_states_npc[npc_ids, 0:1] += torch_rand_float(*self.cfg.domain_rand.init_npc_base_pos_range["x"], (len(npc_ids), 1), device=self.device)
+                self.root_states_npc[npc_ids, 1:2] += torch_rand_float(*self.cfg.domain_rand.init_npc_base_pos_range["y"], (len(npc_ids), 1), device=self.device)
 
         # base velocities
         if getattr(self.cfg.domain_rand, "init_base_vel_range", None) is None:
@@ -557,10 +563,11 @@ class LeggedRobot(BaseTask):
         self.dof_pos = self.dof_state[:, :, 0]
         self.dof_vel = self.dof_state[:, :, 1]
 
-        # if self.type_npc: 
-        #     self.dof_state_npc = self.all_dof_states.view(self.num_envs, -1, 2)[:, self.num_actuated_dof:, :]
-        #     self.dof_pos_npc = self.dof_state_npc[:, :, 0]
-        #     self.dof_vel_npc = self.dof_state_npc[:, :, 1]
+        if self.num_actions_npc > 0: 
+            self.dof_state_npc = self.all_dof_states.view(self.num_envs, -1, 2)[:, self.num_actuated_dof:, :]
+            self.dof_pos_npc = self.dof_state_npc[:, :, 0]
+            self.dof_vel_npc = self.dof_state_npc[:, :, 1]
+
 
         # rigid_body_state
         # self.rigid_body_state = gymtorch.wrap_tensor(rigid_body_state)[:self.num_envs * self.num_bodies, :]

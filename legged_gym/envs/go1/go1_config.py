@@ -51,7 +51,7 @@ class Go1Cfg(LeggedRobotFieldCfg):
         num_recording_envs = 1
 
     class init_state(LeggedRobotFieldCfg.init_state):
-        pos = [0.0, 0.0, 0.34] # x,y,z [m]
+        pos = [0.0, 0.0, 0.42] # x,y,z [m]
         default_joint_angles = { # = target angles [rad] when action = 0.0
             'FR_hip_joint': -0.1 ,  # [rad]
             'FL_hip_joint': 0.1,   # [rad]
@@ -207,8 +207,15 @@ class Go1Cfg(LeggedRobotFieldCfg):
         lag_timesteps = 6
 
         init_base_pos_range = dict(
-            x= [0.2, 0.6],
-            y= [-0.25, 0.25],
+            x= [0.1, 0.1],
+            y= [-0.1, 0.1],
+        )
+
+        init_dof_pos_ratio_range = [0.7, 1.3]
+
+        init_npc_base_pos_range = dict(
+            x= [-0.2, 0.2],
+            y= [-0.2, 0.2],
         )
 
         push_robots = False

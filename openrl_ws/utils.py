@@ -48,7 +48,7 @@ class mqe_openrl_wrapper(gym.Wrapper):
 
     def step(self, actions, extra_data: Optional[Dict[str, Any]] = None):
         """Step all environments."""
-        actions = torch.from_numpy(actions).cuda()
+        actions = torch.from_numpy(actions).cuda().clip(-1, 1)
 
         obs, reward, termination, info = self.env.step(actions)
 

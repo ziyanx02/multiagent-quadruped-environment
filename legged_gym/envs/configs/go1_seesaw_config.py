@@ -2,51 +2,42 @@ import numpy as np
 from legged_gym.utils.helpers import merge_dict
 from legged_gym.envs.go1.go1 import Go1Cfg
 
-class Go1SheepCfg(Go1Cfg):
+class Go1SeesawCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
-        env_name = "go1sheep"
-        num_envs = 4 # 4096
+        env_name = "go1seesaw"
+        num_envs = 1 # 4096
         num_agents = 2
-        num_npcs = 25
-        episode_length_s = 5
+        num_npcs = 1
+        num_actions_npc = 1
     
     class asset(Go1Cfg.asset):
-        file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/sheep.urdf"
-        name_npc = "sheep"
+        file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/seesaw.urdf"
+        name_npc = "seesaw"
     
     class terrain(Go1Cfg.terrain):
 
-        num_rows = 2 # 20
+        num_rows = 1 # 20
         num_cols = 1 # 50
 
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
                 "init",
                 "plane",
-                "gate",
-                "plane",
                 "wall",
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
-            track_width = 10.,
+            track_width = 3.0,
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
-                room_size = (1.0, 3.0),
+                room_size = (1.0, 1.45),
                 border_width = 0.00,
                 offset = (0, 0),
             ),
-            gate = dict(
-                block_length = 3.0,
-                width = 1.,
-                depth = 0.1, # size along the forward axis
-                offset = (0, 0),
-                random = (0, 3)
-            ),
             plane = dict(
-                block_length = 3.0,
+                block_length = 8.0,
             ),
             wall = dict(
                 block_length = 0.1
@@ -79,6 +70,17 @@ class Go1SheepCfg(Go1Cfg):
                 ang_vel = [0.0, 0.0, 0.0],
             ),
         ]
+        init_states_npc = [
+            init_state_class(
+                pos = [8.0, .0, 1.0],
+                rot = [0.0, 0.0, 0.0, 1.0],
+                lin_vel = [0.0, 0.0, 0.0],
+                ang_vel = [0.0, 0.0, 0.0],
+            ),
+        ]
+
+    class control(Go1Cfg.control):
+        control_type = 'C'
 
     class termination(Go1Cfg.termination):
         # additional factors that determines whether to terminates the episode
@@ -96,15 +98,18 @@ class Go1SheepCfg(Go1Cfg):
             x= [-0.1, 0.1],
             y= [-0.1, 0.1],
         )
-        init_npc_base_pos_range = dict(
-            x= [-0.3, 0.3],
-            y= [-0.3, 0.3],
-        )
+        init_npc_base_pos_range = None
 
+    class obs(Go1Cfg.obs):
+
+        class cfgs(Go1Cfg.obs.cfgs):
+
+            env_info = False
 
     class rewards(Go1Cfg.rewards):
         class scales:
-            success_reward_scale = 1
+            
+            height_reward_scale = 1
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.
             # legs_energy_substeps = -1e-5
@@ -115,5 +120,5 @@ class Go1SheepCfg(Go1Cfg):
             # exceed_torque_limits_i = -2e-1
 
     class viewer(Go1Cfg.viewer):
-        pos = [0., 3., 5.]  # [m]
-        lookat = [4., 3., 0.]  # [m]
+        pos = [0., 2., 5.]  # [m]
+        lookat = [4., 2., 0.]  # [m]

@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot name="sheep">
+
+  <material name="white">    
+      <color rgba="0.7 0.7 0.7 0.0"/>  
+  </material>
+  <material name="black">    
+      <color rgba="0.1 0.1 0.1 0.0"/>  
+  
+  </material>
+  <link name="base">
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="1 1 0.05"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="1 1 0.05"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <link name="seesaw">
+    <visual>
+      <origin xyz="-0.1031 0 0"/>
+      <geometry>
+        <box size="4.123 1 0.05"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.1031 0 0"/>
+      <geometry>
+        <box size="4.123 1 0.05"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="10"/>
+      <inertia ixx="10" ixy="0.0" ixz="0.0" iyy="10" iyz="0.0" izz="10"/>
+    </inertial>
+  </link>
+
+  <joint name="link" type="revolute">
+    <origin xyz="-2.42 0 -0.45" rpy="0 0 0"/>
+    <parent link="base"/>
+    <child link="seesaw"/>
+    <axis xyz="0.0 1.0 0.0"/>
+    <limit effort="33.5" velocity="28"/>
+  </joint>
+  
+</robot>

@@ -12,7 +12,7 @@ from legged_gym import LEGGED_GYM_ROOT_DIR
 from legged_gym.envs.go1.go1 import Go1
 
 def relative_pos_to_dv(relative_pos):
-    dv = relative_pos / (torch.sum(relative_pos ** 2, dim=2) ** 0.8).unsqueeze(-1).repeat(1, 1, 3)
+    dv = 2 * relative_pos / (torch.sum(relative_pos ** 2, dim=2) ** 0.8).unsqueeze(-1).repeat(1, 1, 3)
     return dv
 
 class Go1Sheep(Go1):
@@ -34,8 +34,12 @@ class Go1Sheep(Go1):
 
         dog_pos = self.root_states[:, :3].reshape(self.num_envs, -1, 3)
         sheep_pos = self.root_states_npc[:, :3].reshape(self.num_envs, -1, 3)
+        sheep_avg_pos = torch.mean(sheep_pos, dim=1, keepdim=True).repeat(1, 25, 1)
 
-        dv = self.sheep_movement_randomness * torch.randn_like(sheep_pos, device=self.device)
+        dv = self.sheep_movement_randomness * torch.randn_like(sheep_pos, device=self.device) * 2
+
+        relative_pos = sheep_avg_pos - sheep_pos
+        dv += self.sheep_movement_randomness * relative_pos / 2
 
         for i in range(self.num_agents):
 
@@ -83,7 +87,7 @@ class Go1Sheep(Go1):
             for j in range(num_cols):
                 
                 init_state = np.concatenate((
-                    pos + np.random.randn(3) * np.array([0.2, 0.2, 0]),
+                    pos,
                     rot + np.random.randn(4) * np.array([0, 0, np.pi, 1]),
                     lin_vel,
                     ang_vel

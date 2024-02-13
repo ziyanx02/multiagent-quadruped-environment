@@ -45,6 +45,7 @@ class LeggedRobotFieldCfg( LeggedRobotCfg ):
                 width = 0.5,
                 depth = 0.1, # size along the forward axis
                 offset = (0.4, 0),
+                random = (0., 0.),
             ),
             wall_height= 0.5,
             virtual_terrain = False, # Change this to False for real terrain

@@ -2,17 +2,17 @@ import numpy as np
 from legged_gym.utils.helpers import merge_dict
 from legged_gym.envs.go1.go1 import Go1Cfg
 
-class Go1FootballCfg(Go1Cfg):
+class Go1PushboxCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
-        env_name = "go1football"
+        env_name = "go1pushbox"
         num_envs = 2 # 4096
         num_agents = 2
         num_npcs = 1
     
     class asset(Go1Cfg.asset):
-        file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/ball.urdf"
-        name_npc = "ball"
+        file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/box.urdf"
+        name_npc = "box"
         npc_collision = True
         fix_npc_base_link = False
         npc_gravity = True
@@ -25,12 +25,12 @@ class Go1FootballCfg(Go1Cfg):
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
                 "init",
-                "plane",
+                "gate",
                 "wall",
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
-            track_width = 4.0,
+            track_width = 5.0,
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
@@ -38,8 +38,12 @@ class Go1FootballCfg(Go1Cfg):
                 border_width = 0.00,
                 offset = (0, 0),
             ),
-            plane = dict(
-                block_length = 3.0,
+            gate = dict(
+                block_length = 5.0,
+                width = 1.2,
+                depth = 0.1, # size along the forward axis
+                offset = (0, 0),
+                random = (0.5, 0.5),
             ),
             wall = dict(
                 block_length = 0.1
@@ -47,9 +51,11 @@ class Go1FootballCfg(Go1Cfg):
             wall_height= 0.5,
             virtual_terrain = False, # Change this to False for real terrain
             no_perlin_threshold = 0.06,
-            add_perlin_noise = False
+            add_perlin_noise = False,
        ))
-
+        
+        x_limits = [5.0,]
+        y_limits = [-1.5, 1.5]
     class command(Go1Cfg.command):
 
         class cfg(Go1Cfg.command.cfg):
@@ -74,7 +80,7 @@ class Go1FootballCfg(Go1Cfg):
         ]
         init_states_npc = [
             init_state_class(
-                pos = [2.0, 1.0, 0.3],
+                pos = [3.0, 0.0, 0.6],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
@@ -96,9 +102,15 @@ class Go1FootballCfg(Go1Cfg):
         ]
 
     class domain_rand(Go1Cfg.domain_rand):
+        # push_robots = True # use for virtual training
+        push_robots = False # use for non-virtual training
         init_base_pos_range = dict(
             x= [-0.1, 0.1],
             y= [-0.1, 0.1],
+        )
+        init_npc_base_pos_range = dict(
+            x= [-0.5, 0.5],
+            y= [-0.5, 0.5],
         )
 
     class rewards(Go1Cfg.rewards):

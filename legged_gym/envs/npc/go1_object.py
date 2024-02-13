@@ -11,13 +11,13 @@ from legged_gym import LEGGED_GYM_ROOT_DIR
 
 from legged_gym.envs.go1.go1 import Go1
 
-class Go1Football(Go1):
+class Go1Object(Go1):
 
     def __init__(self, cfg, sim_params, physics_engine, sim_device, headless):
 
-        self.npc_collision = True
-        self.fix_npc_base_link = False
-        self.npc_gravity = True
+        self.npc_collision = getattr(cfg.asset, "npc_collision", True)
+        self.fix_npc_base_link = getattr(cfg.asset, "fix_npc_base_link", False)
+        self.npc_gravity = getattr(cfg.asset, "npc_gravity", True)
 
         super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
 
@@ -27,6 +27,10 @@ class Go1Football(Go1):
     def _prepare_npc(self):
     
         self.init_state_npc = getattr(self.cfg.init_state, "init_states_npc")
+        if hasattr(self.cfg.init_state, "default_npc_joint_angles"):
+            self.default_dof_pos_npc = torch.tensor(self.cfg.asset.default_npc_joint_angles, dtype=torch.float, device=self.device, requires_grad=False).reshape(1, -1)
+        else:
+            self.default_dof_pos_npc = torch.zeros(self.num_actions_npc, dtype=torch.float, device=self.device, requires_grad=False).unsqueeze(0)
         
         #creat npc asset
         asset_path_npc = self.cfg.asset.file_npc.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR)
@@ -54,6 +58,6 @@ class Go1Football(Go1):
         for i in range(self.num_npcs):
             pos = self.env_origins[i].clone()
             self.start_pose_npc.p = gymapi.Vec3(*pos)
-            npc_handle = self.gym.create_actor(env_handle, self.asset_npc, self.start_pose_npc, self.cfg.asset.name_npc, env_id, self.npc_collision, 0)
+            npc_handle = self.gym.create_actor(env_handle, self.asset_npc, self.start_pose_npc, self.cfg.asset.name_npc, env_id, not self.npc_collision, 0)
             npc_handles.append(npc_handle)
         return npc_handles

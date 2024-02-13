@@ -1,7 +1,7 @@
 # environments
 from legged_gym.envs.go1.go1 import Go1
 from legged_gym.envs.npc.go1_sheep import Go1Sheep
-from legged_gym.envs.npc.go1_football import Go1Football
+from legged_gym.envs.npc.go1_object import Go1Object
 from legged_gym.envs.npc.go1_seesaw import Go1Seesaw
 
 # configs
@@ -10,12 +10,15 @@ from legged_gym.envs.configs.go1_gate_config import Go1GateCfg
 from legged_gym.envs.configs.go1_sheep_config import Go1SheepCfg
 from legged_gym.envs.configs.go1_football_config import Go1FootballCfg
 from legged_gym.envs.configs.go1_seesaw_config import Go1SeesawCfg
+from legged_gym.envs.configs.go1_pushbox_config import Go1PushboxCfg
 
 # wrappers
 from legged_gym.envs.wrappers.empty_wrapper import EmptyWrapper
 from legged_gym.envs.wrappers.go1_gate_wrapper import Go1GateWrapper
+from legged_gym.envs.wrappers.go1_pushbox_wrapper import Go1PushboxWrapper
 from legged_gym.envs.wrappers.go1_sheep_wrapper import Go1SheepWrapper
 from legged_gym.envs.wrappers.go1_seesaw_wrapper import Go1SeesawWrapper
+from legged_gym.envs.wrappers.go1_football_wrapper import Go1FootballWrapper
 
 from legged_gym.utils import get_args, make_env
 
@@ -36,14 +39,19 @@ ENV_DICT = {
         "wrapper": Go1SheepWrapper
     },
     "go1football": {
-        "class": Go1Football,
+        "class": Go1Object,
         "config": Go1FootballCfg,
-        "wrapper": Go1GateWrapper
+        "wrapper": Go1FootballWrapper
     },
     "go1seesaw": {
-        "class": Go1Seesaw,
+        "class": Go1Object,
         "config": Go1SeesawCfg,
         "wrapper": Go1SeesawWrapper
+    },
+    "go1pushbox": {
+        "class": Go1Object,
+        "config": Go1PushboxCfg,
+        "wrapper": Go1PushboxWrapper
     },
 }
 

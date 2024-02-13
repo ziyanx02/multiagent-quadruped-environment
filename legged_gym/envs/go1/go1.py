@@ -204,7 +204,7 @@ class Go1(LeggedRobotField):
             # heading_error = torch.clip(0.5 * wrap_to_pi(heading), -1., 1.).unsqueeze(1)
             self.obs_buf.yaw = heading
         
-        if self.cfg.obs.cfgs.env_info:
+        if self.cfg.obs.cfgs.env_info and hasattr(self, "env_info"):
             self.obs_buf.env_info = self.env_info
 
     def _prepare_reward_function(self):

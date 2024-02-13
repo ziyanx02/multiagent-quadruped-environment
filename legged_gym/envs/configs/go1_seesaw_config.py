@@ -14,6 +14,9 @@ class Go1SeesawCfg(Go1Cfg):
     class asset(Go1Cfg.asset):
         file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/seesaw.urdf"
         name_npc = "seesaw"
+        npc_collision = True
+        fix_npc_base_link = True
+        npc_gravity = True
     
     class terrain(Go1Cfg.terrain):
 

@@ -170,6 +170,7 @@ class LeggedRobot(BaseTask):
         Args:
             env_ids (list[int]): List of environment ids which must be reset
         """
+        self.reset_ids = env_ids
         if len(env_ids) == 0:
             return
         # update curriculum

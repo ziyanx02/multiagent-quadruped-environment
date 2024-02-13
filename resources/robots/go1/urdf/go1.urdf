@@ -62,6 +62,25 @@
       <inertia ixx="0.016130741919" ixy="0.000593180607" ixz="7.324662e-06" iyy="0.036507810812" iyz="2.0969537e-05" izz="0.044693872053"/>
     </inertial>
   </link>
+  <joint name="head_collision" type="fixed">
+    <parent link="base"/>
+    <child link="additional_collision_box"/>
+    <origin rpy="0 0 0" xyz="0.27 0 0"/>
+  </joint>
+  <link name="additional_collision_box">
+    <!-- <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.04 0.1 0.1"/>
+      </geometry>
+    </visual> -->
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.04 0.1 0.1"/>
+      </geometry>
+    </collision>
+  </link>
   <joint name="imu_joint" type="fixed">
     <parent link="trunk"/>
     <child link="imu_link"/>

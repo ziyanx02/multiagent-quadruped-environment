@@ -39,7 +39,7 @@ class Go1Sheep(Go1):
         dv = self.sheep_movement_randomness * torch.randn_like(sheep_pos, device=self.device) * 2
 
         relative_pos = sheep_avg_pos - sheep_pos
-        dv += self.sheep_movement_randomness * relative_pos / 1.5
+        dv += self.sheep_movement_randomness * relative_pos / torch.norm(relative_pos, p=2, dim=2, keepdim=True).repeat(1, 1, 3) / 1.5
 
         for i in range(self.num_agents):
 

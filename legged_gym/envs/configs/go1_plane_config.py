@@ -6,11 +6,8 @@ class Go1PlaneCfg(Go1Cfg):
         env_name = "go1plane"
         use_lin_vel = True
         num_envs = 25
-        num_observations = 235
         use_lin_vel = True
-        num_privileged_obs = None # if not None a priviledge_obs_buf will be returned by step() (critic obs for assymetric training). None is returned otherwise 
         num_actions = 12
-        env_spacing = 3.  # not used with heightfields/trimeshes 
         send_timeouts = True # send time out information to the algorithm
         episode_length_s = 20 # episode length in seconds
 
@@ -23,11 +20,6 @@ class Go1PlaneCfg(Go1Cfg):
     class terrain:
         mesh_type = "plane"
         selected = False
-        # mesh_type = 'trimesh' # "heightfield" # none, plane, heightfield or trimesh
-        # horizontal_scale = 0.1 # [m]
-        # vertical_scale = 0.005 # [m]
-        # border_size = 0 # [m]
-        # curriculum = True
         static_friction = 1.0
         dynamic_friction = 1.0
         restitution = 0.

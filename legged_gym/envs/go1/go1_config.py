@@ -32,6 +32,7 @@ from legged_gym.envs.base.legged_robot_config import LeggedRobotCfg
 from legged_gym.envs.field.legged_robot_field_config import LeggedRobotFieldCfg
 
 class Go1Cfg(LeggedRobotFieldCfg):
+
     class env(LeggedRobotFieldCfg.env):
         use_lin_vel = True
         num_envs = 256
@@ -49,6 +50,31 @@ class Go1Cfg(LeggedRobotFieldCfg):
         recording_height_px = 240
         recording_mode = "COLOR"
         num_recording_envs = 1
+
+    class asset:
+
+        file = "{LEGGED_GYM_ROOT_DIR}/resources/robots/go1/urdf/go1.urdf"
+        name = "go1"
+        foot_name = "foot"  # name of the feet bodies, used to index body state and contact force tensors
+        penalize_contacts_on = ["base", "thigh"]
+        terminate_after_contacts_on = ["base", "imu"]
+        disable_gravity = False
+        # merge bodies connected by fixed joints. Specific fixed joints can be kept by adding " <... dont_collapse="true">
+        collapse_fixed_joints = True
+        fix_base_link = False  # fixe the base of the robot
+        default_dof_drive_mode = 3  # see GymDofDriveModeFlags (0 is none, 1 is pos tgt, 2 is vel tgt, 3 effort)
+        self_collisions = 0  # 1 to disable, 0 to enable...bitwise filter
+        # replace collision cylinders with capsules, leads to faster/more stable simulation
+        replace_cylinder_with_capsule = True
+        flip_visual_attachments = False  # Some .obj meshes must be flipped from y-up to z-up
+
+        density = 0.001
+        angular_damping = 0.
+        linear_damping = 0.
+        max_angular_velocity = 1000.
+        max_linear_velocity = 1000.
+        armature = 0.
+        thickness = 0.01
 
     class init_state(LeggedRobotFieldCfg.init_state):
         pos = [0.0, 0.0, 0.42] # x,y,z [m]
@@ -69,6 +95,9 @@ class Go1Cfg(LeggedRobotFieldCfg):
             'RR_calf_joint': -1.5,    # [rad]
         }
 
+    class normalization(LeggedRobotFieldCfg.normalization):
+        clip_actions = 10.
+
     class control(LeggedRobotFieldCfg.control):
         control_type = 'C' # P: position, V: velocity, T: torques, C: command
         stiffness = {'joint': 20.}
@@ -81,6 +110,7 @@ class Go1Cfg(LeggedRobotFieldCfg):
         motor_clip_torque = False
         # decimation: Number of control action updates @ sim DT per policy DT
         decimation = 4
+        hip_scale_reduction = 0.5
 
         locomotion_policy_dir = "./legged_gym/utils/locomotion_checkpoints/walk_these_ways"
         actuator_network_path = "./resources/actuator_nets"
@@ -147,16 +177,6 @@ class Go1Cfg(LeggedRobotFieldCfg):
             ang_vel_yaw = [-1, 1]    # min max [rad/s]
             heading = [-3.14, 3.14]
 
-    class asset(LeggedRobotFieldCfg.asset):
-        file = "{LEGGED_GYM_ROOT_DIR}/resources/robots/go1/urdf/go1.urdf"
-        name = "go1"
-        foot_name = "foot"
-        penalize_contacts_on = ["base", "thigh"]
-        terminate_after_contacts_on = ["base", "imu"]
-        self_collisions = 0 # 1 to disable, 0 to enable...bitwise filter
-        flip_visual_attachments = False
-        fix_base_link = False
-  
     class termination:
         # additional factors that determines whether to terminates the episode
         termination_terms = [

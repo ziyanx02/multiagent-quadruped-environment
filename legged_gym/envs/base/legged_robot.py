@@ -810,6 +810,10 @@ class LeggedRobot(BaseTask):
         self.actor_handles = []
         self.envs = []
 
+        self.default_friction = rigid_shape_props_asset[1].friction
+        self.default_restitution = rigid_shape_props_asset[1].restitution
+        self._init_custom_buffers__() # for go1
+
         self.env_agent_indices = torch.zeros(self.num_envs, self.num_agents, dtype=torch.long, device=self.device, requires_grad=False)
         self.env_npc_indices = torch.zeros(self.num_envs, self.num_npcs, dtype=torch.long, device=self.device, requires_grad=False)
         for i in range(self.num_envs):
@@ -1061,6 +1065,9 @@ class LeggedRobot(BaseTask):
         # send timeout info to the algorithm
         if self.cfg.env.send_timeouts:
             self.extras["time_outs"] = self.time_out_buf
+    
+    def _init_custom_buffers__(self):
+        return
 
     #------------ reward functions----------------
     def _reward_lin_vel_z(self):

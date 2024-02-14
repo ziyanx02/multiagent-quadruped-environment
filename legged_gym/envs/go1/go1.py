@@ -46,10 +46,6 @@ class Go1(LeggedRobotField):
         self.render()
         for dec_i in range(self.decimation):
             self.torques = self._compute_torques(self.actions).view(self.torques.shape)
-            # print(self._compute_torques(self.actions))
-            # print("torques")
-            # input()
-            # self.torques = torch.ones_like(self.torques, device=self.torques.device)
             torques = torch.cat((self.torques, torch.zeros((self.num_envs, self.num_actions_npc), dtype=torch.long, device=self.device)), dim=1) if self.num_actions_npc != 0 else self.torques
 
             self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(torques))
@@ -102,20 +98,9 @@ class Go1(LeggedRobotField):
         self.locomotion_obs[:, 54 : 66] = self.last_two_locomotion_action
         self.locomotion_obs[:, 66 : 70] = self.obs_buf.clock_inputs
         obs = self.locomotion_obs
-        # print("projected_gravity", obs[:, 0:3])
-        # print("command", obs[:, 3:18])
-        # print("dof_pos", obs[:, 18:30])
-        # print("dof_vel", obs[:, 30:42])
-        # print("5", obs[:, 42:54])
-        # print("6", obs[:, 54:66])
-        # print("clock_inputs", obs[:, 66:70])
-        # print("dof_state", self.dof_state)
-
         self.history_locomotion_obs = torch.cat((self.history_locomotion_obs[:, 70:], self.locomotion_obs), dim=-1)
 
         locomotion_action = self.locomotion_policy(self.history_locomotion_obs)
-        # print("action", locomotion_action)
-        # input()
 
         self.last_two_locomotion_action = self.last_locomotion_action
         self.last_locomotion_action = locomotion_action

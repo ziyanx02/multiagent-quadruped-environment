@@ -346,14 +346,6 @@ class Go1(LeggedRobotField):
 
         if control_type == "C" or control_type == "control_net":
             
-            # import pickle
-            # with open("/home/ziyanx/walk-these-ways/actuator_network_input_wtw", "rb") as f:
-            #     input_wtw = pickle.load(f)
-            # torques = self.actuator_network(*input_wtw)
-            # with open("/home/ziyanx/walk-these-ways/torques_wtw", "rb") as f:
-            #     torques_wtw = pickle.load(f)
-            # print("torques", torch.sum(torques-torques_wtw))
-
             if self.cfg.domain_rand.randomize_lag_timesteps:
                 self.lag_buffer = self.lag_buffer[1:] + [actions_scaled.clone()]
                 self.joint_pos_target = self.lag_buffer[0] + self.default_dof_pos
@@ -532,29 +524,9 @@ class Go1(LeggedRobotField):
         def policy(obs, info={}):
             with torch.no_grad():
                 
-                # import pickle
-                # with open("/home/ziyanx/walk-these-ways/obs_history_wtw", "rb") as f:
-                #     obs_history_wtw = pickle.load(f)
-                # latent = adaptation_module.forward(obs_history_wtw)
-                # with open("/home/ziyanx/walk-these-ways/latent_wtw", "rb") as f:
-                #     latent_wtw = pickle.load(f)
-                # print("latent", torch.sum(latent-latent_wtw))
-                # action = body.forward(torch.cat((obs_history_wtw, latent), dim=-1))
-                # with open("/home/ziyanx/walk-these-ways/action_wtw", "rb") as f:
-                #     action_wtw = pickle.load(f)
-                # print("action", torch.sum(action-action_wtw))
-                # obs[:, -70] = 0
-                # obs[:, -69] = 0
-                # obs[:, -68] = -1
-                # print(torch.sum(obs[:, :-70]))
-                # print(obs[:, -70:])
-                # print("obs in policy")
-
                 latent = adaptation_module.forward(obs.to('cpu'))
                 action = body.forward(torch.cat((obs.to('cpu'), latent), dim=-1))
-                # print(action)
-                # print("policy here")
-                # input()
+
             info['latent'] = latent
             return action
         

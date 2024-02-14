@@ -13,9 +13,9 @@ from legged_gym.envs.utils import make_mqe_env
 def train(args):
 
     # task_name = "go1plane"
-    task_name = "go1gate"
+    # task_name = "go1gate"
     # task_name = "go1football"
-    # task_name = "go1sheep"
+    task_name = "go1sheep"
     # task_name = "go1seesaw"
     # task_name = "go1pushbox"
 

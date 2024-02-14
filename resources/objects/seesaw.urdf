@@ -47,13 +47,32 @@
       <inertia ixx="10" ixy="0.0" ixz="0.0" iyy="10" iyz="0.0" izz="10"/>
     </inertial>
   </link>
-
   <joint name="link" type="revolute">
     <origin xyz="-2.4 0 -0.46" rpy="0 0 0"/>
     <parent link="base"/>
     <child link="seesaw"/>
     <axis xyz="0.0 1.0 0.0"/>
     <limit effort="33.5" velocity="28"/>
+  </joint>
+  
+  <link name="column">
+    <visual>
+      <origin xyz="0 0 -0.5"/>
+      <geometry>
+        <cylinder radius="0.15" length="1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.5"/>
+      <geometry>
+        <cylinder radius="0.2" length="1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="column_mount" type="fixed">
+    <parent link="base"/>
+    <child link="column"/>
   </joint>
   
 </robot>

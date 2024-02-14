@@ -2,7 +2,6 @@
 from legged_gym.envs.go1.go1 import Go1
 from legged_gym.envs.npc.go1_sheep import Go1Sheep
 from legged_gym.envs.npc.go1_object import Go1Object
-from legged_gym.envs.npc.go1_seesaw import Go1Seesaw
 
 # configs
 from legged_gym.envs.configs.go1_plane_config import Go1PlaneCfg

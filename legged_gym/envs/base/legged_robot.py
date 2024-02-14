@@ -427,11 +427,9 @@ class LeggedRobot(BaseTask):
             self.root_states_npc[npc_ids, :3] += self.env_origins[env_ids].unsqueeze(1).repeat(1, self.num_npcs, 1).reshape(-1, 3)
 
         if self.custom_origins:
-            if hasattr(self.cfg.domain_rand, "init_base_pos_range"):
+            if getattr(self.cfg.domain_rand, "init_base_pos_range", None) is not None:
                 self.root_states[agent_ids, 0:1] += torch_rand_float(*self.cfg.domain_rand.init_base_pos_range["x"], (len(agent_ids), 1), device=self.device)
                 self.root_states[agent_ids, 1:2] += torch_rand_float(*self.cfg.domain_rand.init_base_pos_range["y"], (len(agent_ids), 1), device=self.device)
-            else:
-                self.root_states[agent_ids, :2] += torch_rand_float(-1., 1., (len(agent_ids), 2), device=self.device) # xy position within 1m of the center、
 
             if getattr(self.cfg.domain_rand, "init_npc_base_pos_range", None) is not None:
                 self.root_states_npc[npc_ids, 0:1] += torch_rand_float(*self.cfg.domain_rand.init_npc_base_pos_range["x"], (len(npc_ids), 1), device=self.device)

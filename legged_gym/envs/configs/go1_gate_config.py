@@ -40,7 +40,7 @@ class Go1GateCfg(Go1Cfg):
             ),
             gate = dict(
                 block_length = 3.0,
-                width = 0.8,
+                width = 0.6,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
                 random = (0.5, 0.5),
@@ -70,13 +70,13 @@ class Go1GateCfg(Go1Cfg):
         init_state_class = Go1Cfg.init_state
         init_states = [
             init_state_class(
-                pos = [0.0, 0.0, 0.34],
+                pos = [0.0, 0.0, 0.42],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
             init_state_class(
-                pos = [0.0, 0.0, 0.34],
+                pos = [0.0, 0.0, 0.42],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
@@ -98,12 +98,7 @@ class Go1GateCfg(Go1Cfg):
         ]
 
     class domain_rand(Go1Cfg.domain_rand):
-        # push_robots = True # use for virtual training
-        push_robots = False # use for non-virtual training
-        init_base_pos_range = dict(
-            x= [-0.2, 0.2],
-            y= [-0.2, 0.2],
-        )
+        init_base_pos_range = None
 
     class rewards(Go1Cfg.rewards):
         class scales:

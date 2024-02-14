@@ -66,7 +66,6 @@ class Go1GateWrapper(EmptyWrapper):
         return obs
 
     def step(self, action):
-        action = torch.clip(action, -1, 1)
         obs_buf, _, termination, info = self.env.step((action * self.action_scale).reshape(-1, self.action_space.shape[0]))
 
         if getattr(self, "gate_pos", None) is None:

@@ -35,9 +35,10 @@ class Go1(LeggedRobotField):
     def step(self, action):
         
         if self.cfg.control.control_type == "C":
+            action = torch.clip(action, -1, 1)
             action = self.preprocess_action(action)
             clip_actions = self.cfg.normalization.clip_actions
-            self.actions = torch.clip(action, -clip_actions, clip_actions).to(self.device)
+            self.actions = torch.clip(action, -clip_actions, clip_actions).reshape(self.num_envs, -1).to(self.device)
             # action = torch.zeros([self.num_envs, 12], device = "cuda")
         else:
             actions = action.reshape(self.num_envs, -1)
@@ -326,7 +327,9 @@ class Go1(LeggedRobotField):
         if isinstance(self.cfg.control.action_scale, (tuple, list)):
             self.cfg.control.action_scale = torch.tensor(self.cfg.control.action_scale, device= self.sim_device)
         actions_scaled = actions * self.cfg.control.action_scale
+        actions_scaled = actions_scaled.reshape(-1, 12)
         actions_scaled[:, [0, 3, 6, 9]] *= self.cfg.control.hip_scale_reduction
+        actions_scaled = actions_scaled.reshape(self.num_envs, -1)
         control_type = self.cfg.control.control_type
 
         if control_type == "C" or control_type == "control_net":
@@ -382,118 +385,6 @@ class Go1(LeggedRobotField):
             self.joint_pos_err_last = torch.zeros((self.num_envs * self.num_agents, 12), device=self.device)
             self.joint_vel_last_last = torch.zeros((self.num_envs * self.num_agents, 12), device=self.device)
             self.joint_vel_last = torch.zeros((self.num_envs * self.num_agents, 12), device=self.device)
-
-    def _process_rigid_shape_props(self, props, env_id):
-        """ Callback allowing to store/change/randomize the rigid shape properties of each environment.
-            Called During environment creation.
-            Base behavior: randomizes the friction of each environment
-
-        Args:
-            props (List[gymapi.RigidShapeProperties]): Properties of each shape of the asset
-            env_id (int): Environment id
-
-        Returns:
-            [List[gymapi.RigidShapeProperties]]: Modified rigid shape properties
-        """
-        for s in range(len(props)):
-            props[s].friction = self.friction_coeffs[env_id, 0]
-            props[s].restitution = self.restitutions[env_id, 0]
-
-        return props
-
-    def _process_dof_props(self, props, env_id):
-        """ Callback allowing to store/change/randomize the DOF properties of each environment.
-            Called During environment creation.
-            Base behavior: stores position, velocity and torques limits defined in the URDF
-
-        Args:
-            props (numpy.array): Properties of each DOF of the asset
-            env_id (int): Environment id
-
-        Returns:
-            [numpy.array]: Modified DOF properties
-        """
-        if env_id == 0:
-            self.dof_pos_limits = torch.zeros(self.num_dof, 2, dtype=torch.float, device=self.device,
-                                              requires_grad=False)
-            self.dof_vel_limits = torch.zeros(self.num_dof, dtype=torch.float, device=self.device, requires_grad=False)
-            self.torque_limits = torch.zeros(self.num_dof, dtype=torch.float, device=self.device, requires_grad=False)
-            for i in range(len(props)):
-                self.dof_pos_limits[i, 0] = props["lower"][i].item()
-                self.dof_pos_limits[i, 1] = props["upper"][i].item()
-                self.dof_vel_limits[i] = props["velocity"][i].item()
-                self.torque_limits[i] = props["effort"][i].item()
-                # soft limits
-                m = (self.dof_pos_limits[i, 0] + self.dof_pos_limits[i, 1]) / 2
-                r = self.dof_pos_limits[i, 1] - self.dof_pos_limits[i, 0]
-                self.dof_pos_limits[i, 0] = m - 0.5 * r * self.cfg.rewards.soft_dof_pos_limit
-                self.dof_pos_limits[i, 1] = m + 0.5 * r * self.cfg.rewards.soft_dof_pos_limit
-
-        return props
-
-    def _randomize_rigid_body_props(self, env_ids, cfg):
-        if cfg.domain_rand.randomize_base_mass:
-            min_payload, max_payload = cfg.domain_rand.added_mass_range
-            # self.payloads[env_ids] = -1.0
-            self.payloads[env_ids] = torch.rand(len(env_ids), dtype=torch.float, device=self.device,
-                                                requires_grad=False) * (max_payload - min_payload) + min_payload
-        if cfg.domain_rand.randomize_com_displacement:
-            min_com_displacement, max_com_displacement = cfg.domain_rand.com_displacement_range
-            self.com_displacements[env_ids, :] = torch.rand(len(env_ids), 3, dtype=torch.float, device=self.device,
-                                                            requires_grad=False) * (
-                                                         max_com_displacement - min_com_displacement) + min_com_displacement
-
-        if cfg.domain_rand.randomize_friction:
-            min_friction, max_friction = cfg.domain_rand.friction_range
-            self.friction_coeffs[env_ids, :] = torch.rand(len(env_ids), 1, dtype=torch.float, device=self.device,
-                                                          requires_grad=False) * (
-                                                       max_friction - min_friction) + min_friction
-
-        if cfg.domain_rand.randomize_restitution:
-            min_restitution, max_restitution = cfg.domain_rand.restitution_range
-            self.restitutions[env_ids] = torch.rand(len(env_ids), 1, dtype=torch.float, device=self.device,
-                                                    requires_grad=False) * (
-                                                 max_restitution - min_restitution) + min_restitution
-
-    def refresh_actor_rigid_shape_props(self, env_ids, cfg):
-        for env_id in env_ids:
-            rigid_shape_props = self.gym.get_actor_rigid_shape_properties(self.envs[env_id], 0)
-
-            for i in range(self.num_dof):
-                rigid_shape_props[i].friction = self.friction_coeffs[env_id, 0]
-                rigid_shape_props[i].restitution = self.restitutions[env_id, 0]
-
-            self.gym.set_actor_rigid_shape_properties(self.envs[env_id], 0, rigid_shape_props)
-
-    def _randomize_dof_props(self, env_ids, cfg):
-        if cfg.domain_rand.randomize_motor_strength:
-            min_strength, max_strength = cfg.domain_rand.motor_strength_range
-            self.motor_strengths[env_ids, :] = torch.rand(len(env_ids), dtype=torch.float, device=self.device,
-                                                     requires_grad=False).unsqueeze(1) * (
-                                                  max_strength - min_strength) + min_strength
-        if cfg.domain_rand.randomize_motor_offset:
-            min_offset, max_offset = cfg.domain_rand.motor_offset_range
-            self.motor_offsets[env_ids, :] = torch.rand(len(env_ids), self.num_dof, dtype=torch.float,
-                                                        device=self.device, requires_grad=False) * (
-                                                     max_offset - min_offset) + min_offset
-        if cfg.domain_rand.randomize_Kp_factor:
-            min_Kp_factor, max_Kp_factor = cfg.domain_rand.Kp_factor_range
-            self.Kp_factors[env_ids, :] = torch.rand(len(env_ids), dtype=torch.float, device=self.device,
-                                                     requires_grad=False).unsqueeze(1) * (
-                                                  max_Kp_factor - min_Kp_factor) + min_Kp_factor
-        if cfg.domain_rand.randomize_Kd_factor:
-            min_Kd_factor, max_Kd_factor = cfg.domain_rand.Kd_factor_range
-            self.Kd_factors[env_ids, :] = torch.rand(len(env_ids), dtype=torch.float, device=self.device,
-                                                     requires_grad=False).unsqueeze(1) * (
-                                                  max_Kd_factor - min_Kd_factor) + min_Kd_factor
-
-    def _process_rigid_body_props(self, props, env_id):
-        self.default_body_mass = props[0].mass
-
-        props[0].mass = self.default_body_mass + self.payloads[env_id]
-        props[0].com = gymapi.Vec3(self.com_displacements[env_id, 0], self.com_displacements[env_id, 1],
-                                   self.com_displacements[env_id, 2])
-        return props
 
     def _prepare_locomotion_policy(self):
         # currently only support walk_these_ways

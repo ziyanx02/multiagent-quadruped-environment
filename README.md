@@ -4,9 +4,9 @@ Multiagent-Quadruped-Environments(MQE) is a multi-functional and easy-to-use qua
 
 * Interaction between multiple quadrupeds and articulated objects.
 * Train high-level planning policy only with built-in walk policy.
-* Build your terrain from blocks like LEGO.
-* Pre-defined cooperative and competitive tasks.
-* Click-to-use RL pipeline through [OpenRL](https://github.com/OpenRL-Lab/openrl).
+* Train locomotion policy with pre-implemented locomotion rewards.
+* Build your terrain from blocks like LEGO and your task through a wrapper.
+* Click-to-use RL pipeline through [OpenRL](https://github.com/OpenRL-Lab/openrl) on pre-defined cooperative and competitive tasks.
 
 ## Installation ##
 1. Create a new Python virtual env or conda environment with Python 3.6, 3.7, or 3.8 (3.8 recommended)

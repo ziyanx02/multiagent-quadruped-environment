@@ -1,7 +1,7 @@
-python ./openrl_ws/train.py --headless --num_envs 1000\
+python ./openrl_ws/train.py --headless --num_envs 500 --train_timesteps 30000000\
     --task go1gate \
-    --algo mat \
-    --sim_device cuda:1 \
+    --algo ppo \
+    --sim_device cuda:0 \
     --rl_device cuda:0 \
     --use_wandb \
     --exp_name test

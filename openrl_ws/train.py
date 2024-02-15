@@ -51,11 +51,11 @@ def train(args):
             use_tensorboard=args.use_tensorboard,
         )
         agent.train(
-            total_time_steps=20000000,
+            total_time_steps=args.train_timesteps,
             logger=logger
         )
     else:
-        agent.train(total_time_steps=20000000)
+        agent.train(total_time_steps=args.train_timesteps)
     dir_name = "./checkpoints/" + args.task
     agent.save(dir_name)
 

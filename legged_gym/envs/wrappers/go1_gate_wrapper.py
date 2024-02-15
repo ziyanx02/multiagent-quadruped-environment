@@ -25,7 +25,7 @@ class Go1GateWrapper(EmptyWrapper):
 
         self.reward_buffer = {
             "target reward": 0,
-            # "success reward": 0,
+            "success reward": 0,
             # "approach frame punishment": 0,
             "agent distance punishment": 0,
             # "command lin_vel.y punishment": 0,

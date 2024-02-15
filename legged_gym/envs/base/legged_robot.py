@@ -445,8 +445,10 @@ class LeggedRobot(BaseTask):
             (len(agent_ids), 6),
             device=self.device, 
         ) # [7:10]: lin vel, [10:13]: ang vel
-        self.all_root_states[self.agent_indices[env_ids].reshape(-1)] = self.root_states[agent_ids]
-        self.all_root_states[self.npc_indices[env_ids].reshape(-1)] = self.root_states_npc[npc_ids]
+        agent_indices_long = self.agent_indices[env_ids].reshape(-1).long()
+        npc_indices_long = self.npc_indices[env_ids].reshape(-1).long()
+        self.all_root_states[agent_indices_long] = self.root_states[agent_ids]
+        self.all_root_states[npc_indices_long] = self.root_states_npc[npc_ids]
         actor_ids_int32 = self.actor_indices[env_ids].view(-1)
         self.gym.set_actor_root_state_tensor_indexed(self.sim,
                                                      gymtorch.unwrap_tensor(self.all_root_states),

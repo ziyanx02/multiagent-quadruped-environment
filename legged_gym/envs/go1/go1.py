@@ -39,7 +39,6 @@ class Go1(LeggedRobotField):
             action = self.preprocess_action(action)
             clip_actions = self.cfg.normalization.clip_actions
             self.actions = torch.clip(action, -clip_actions, clip_actions).reshape(self.num_envs, -1).to(self.device)
-            # action = torch.zeros([self.num_envs, 12], device = "cuda")
         else:
             actions = action.reshape(self.num_envs, -1)
             self.pre_physics_step(actions)

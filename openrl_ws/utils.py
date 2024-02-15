@@ -26,6 +26,7 @@ from isaacgym import gymapi
 from isaacgym.gymutil import parse_device_str
 
 from legged_gym.envs.go1.go1_config import Go1Cfg
+from openrl.envs.vec_env import BaseVecEnv
 
 def make_env(args, custom_cfg=None):
     
@@ -80,6 +81,45 @@ class mqe_openrl_wrapper(gym.Wrapper):
             self.env.reward_buffer[k] = 0
         self.env.reward_buffer["step count"] = 0
         return reward_dict
+
+class MATWrapper(gym.Wrapper):
+    @property
+    def observation_space(
+        self,
+    ):
+        """Return the :attr:`Env` :attr:`observation_space` unless overwritten then the wrapper :attr:`observation_space` is used."""
+        if self._observation_space is None:
+            observation_space = self.env.observation_space
+        else:
+            observation_space = self._observation_space
+
+        if (
+            "critic" in observation_space.spaces.keys()
+            and "policy" in observation_space.spaces.keys()
+        ):
+            observation_space = observation_space["policy"]
+        return observation_space
+
+    def observation(self, observation):
+        if self._observation_space is None:
+            observation_space = self.env.observation_space
+        else:
+            observation_space = self._observation_space
+
+        if (
+            "critic" in observation_space.spaces.keys()
+            and "policy" in observation_space.spaces.keys()
+        ):
+            observation = observation["policy"]
+        return observation
+    
+    def reset(self, **kwargs):
+        """Reset all environments."""
+        return self.env.reset(**kwargs)
+
+    def step(self, actions, extra_data: Optional[Dict[str, Any]] = None):
+        """Step all environments."""
+        return self.env.step(actions, extra_data)
 
 def parse_arguments(parser, headless=False, no_graphics=False, custom_parameters=[]):
 
@@ -160,6 +200,7 @@ def get_args():
     
     custom_parameters = [
         {"name": "--task", "type": str, "default": "go1gate", "help": "Select task via name"},
+        {"name": "--algo", "type": str, "default": "ppo", "help": "Select pipeline via name"},
         {"name": "--resume", "action": "store_true", "default": False,  "help": "Resume training from a checkpoint"},
         {"name": "--run_name", "type": str,  "help": "Name of the run. Overrides config file if provided."},
         {"name": "--load_run", "type": str,  "help": "Name of the run to load when resume=True. If -1: will load the last run. Overrides config file if provided."},

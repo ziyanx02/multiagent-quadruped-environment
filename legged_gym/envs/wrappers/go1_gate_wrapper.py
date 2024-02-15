@@ -11,7 +11,7 @@ class Go1GateWrapper(EmptyWrapper):
 
         self.observation_space = spaces.Box(low=-float('inf'), high=float('inf'), shape=(16,), dtype=float)
         self.action_space = spaces.Box(low=-1, high=1, shape=(3,), dtype=float)
-        self.action_scale = torch.tensor([[[2, 0.5, 0.5],],], device="cuda").repeat(self.num_envs, self.num_agents, 1)
+        self.action_scale = torch.tensor([[[2, 0.5, 0.5],],], device=self.env.device).repeat(self.num_envs, self.num_agents, 1)
 
         # for hard setting of reward scales (not recommended)
         
@@ -94,7 +94,7 @@ class Go1GateWrapper(EmptyWrapper):
 
         # success reward
         if self.success_reward_scale != 0:
-            success_reward = torch.zeros([self.env.num_envs * self.env.num_agents], device="cuda")
+            success_reward = torch.zeros([self.env.num_envs * self.env.num_agents], device=self.env.device)
             success_reward[base_pos[:, 0] > self.gate_distance + 0.25] = self.success_reward_scale
             reward += success_reward.reshape([self.env.num_envs, self.env.num_agents])
             self.reward_buffer["success reward"] += torch.sum(success_reward).cpu()

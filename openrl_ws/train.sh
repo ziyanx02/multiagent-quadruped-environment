@@ -1,4 +1,7 @@
-python /home/ziyanx/python/multiagent-quadruped-environments/openrl_ws/train.py \
-    --config /home/ziyanx/python/multiagent-quadruped-environments/openrl_ws/cfgs/mqe_ppo.yaml \
+python ./openrl_ws/train.py --headless --num_envs 1000\
     --task go1gate \
-    --num_envs 500 --headless --use_wandb
+    --algo mat \
+    --sim_device cuda:1 \
+    --rl_device cuda:0 \
+    --use_wandb \
+    --exp_name test

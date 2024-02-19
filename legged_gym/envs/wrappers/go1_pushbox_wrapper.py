@@ -9,7 +9,7 @@ class Go1PushboxWrapper(EmptyWrapper):
     def __init__(self, env):
         super().__init__(env)
 
-        self.observation_space = spaces.Box(low=-float('inf'), high=float('inf'), shape=(18,), dtype=float)
+        self.observation_space = spaces.Box(low=-float('inf'), high=float('inf'), shape=(22,), dtype=float)
         self.action_space = spaces.Box(low=-1, high=1, shape=(3,), dtype=float)
         self.action_scale = torch.tensor([[[2, 0.5, 0.5],],], device="cuda").repeat(self.num_envs, self.num_agents, 1)
 
@@ -40,7 +40,9 @@ class Go1PushboxWrapper(EmptyWrapper):
         base_pos = obs_buf.base_pos
         base_quat = obs_buf.base_quat
         base_info = torch.cat([base_pos, base_quat], dim=1).reshape([self.env.num_envs, self.env.num_agents, -1])
-        obs = torch.cat([base_info, torch.flip(base_info, [1]), self.gate_pos, box_pos[:, :2].unsqueeze(1).repeat(1, self.num_agents, 1)], dim=2)
+        obs = torch.cat([base_info, torch.flip(base_info, [1]),
+                         self.gate_pos, box_pos[:, :2].unsqueeze(1).repeat(1, self.num_agents, 1),
+                         self.root_states_npc[:, 3:7].unsqueeze(1).repeat(1, self.num_agents, 1)], dim=2)
 
         self.last_box_pos = None
 
@@ -58,7 +60,9 @@ class Go1PushboxWrapper(EmptyWrapper):
         base_pos = obs_buf.base_pos
         base_quat = obs_buf.base_quat
         base_info = torch.cat([base_pos, base_quat], dim=1).reshape([self.env.num_envs, self.env.num_agents, -1])
-        obs = torch.cat([base_info, torch.flip(base_info, [1]), self.gate_pos, box_pos[:, :2].unsqueeze(1).repeat(1, self.num_agents, 1)], dim=2)
+        obs = torch.cat([base_info, torch.flip(base_info, [1]),
+                         self.gate_pos, box_pos[:, :2].unsqueeze(1).repeat(1, self.num_agents, 1),
+                         self.root_states_npc[:, 3:7].unsqueeze(1).repeat(1, self.num_agents, 1)], dim=2)
 
         self.reward_buffer["step count"] += 1
         reward = torch.zeros([self.env.num_envs, 1], device=self.env.device)
@@ -66,6 +70,7 @@ class Go1PushboxWrapper(EmptyWrapper):
         if self.box_x_movement_reward_scale != 0:
             if self.last_box_pos != None:
                 x_movement = (box_pos - self.last_box_pos)[:, 0]
+                x_movement[self.env.reset_ids] = 0
                 box_x_movement_reward = self.box_x_movement_reward_scale * x_movement
                 reward[:, 0] += box_x_movement_reward
                 self.reward_buffer["box movement reward"] += torch.sum(box_x_movement_reward).cpu()

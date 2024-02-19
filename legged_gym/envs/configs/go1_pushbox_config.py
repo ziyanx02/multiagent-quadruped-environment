@@ -35,16 +35,16 @@ class Go1PushboxCfg(Go1Cfg):
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
-                room_size = (1.0, 1.5),
-                border_width = 0.00,
+                room_size = (1.0, 0.5),
+                border_width = 0.0,
                 offset = (0, 0),
             ),
             gate = dict(
                 block_length = 5.0,
-                width = 1.2,
+                width = 1.5,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
-                random = (0.5, 0.5),
+                random = (0, 0.5),
             ),
             wall = dict(
                 block_length = 0.1
@@ -116,7 +116,6 @@ class Go1PushboxCfg(Go1Cfg):
 
     class rewards(Go1Cfg.rewards):
         class scales:
-            agent_distance_punishment_scale = -0.25
             box_x_movement_reward_scale = 1
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.

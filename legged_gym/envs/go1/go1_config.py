@@ -180,11 +180,10 @@ class Go1Cfg(LeggedRobotFieldCfg):
     class termination:
         # additional factors that determines whether to terminates the episode
         termination_terms = [
-            "roll", # for tilt
+            "roll",
             "pitch",
             "z_low",
             "z_high",
-            # "out_of_track", # for leap, walk
         ]
 
         roll_kwargs = dict(

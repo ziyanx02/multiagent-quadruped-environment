@@ -20,7 +20,12 @@ class Go1SeesawWrapper(EmptyWrapper):
 
         self.reward_buffer = {
             "height reward": 0,
+            "contact punishment": 0,
+            "x movement reward": 0,
+            "y punishment": 0,
+            "agent distance punishment": 0,
             "success reward": 0,
+            "fall punishment": 0,
             "step count": 0
         }
 
@@ -55,11 +60,48 @@ class Go1SeesawWrapper(EmptyWrapper):
         self.reward_buffer["step count"] += 1
         reward = torch.zeros([self.env.num_envs, 1], device=self.env.device)
 
+        # x movement reward
+        if self.x_movement_reward_scale != 0:
+            x_pos = base_pos[:, 0].reshape(self.num_envs, -1)
+
+            if not hasattr(self, "last_distance_to_taget"):
+                self.last_x_pos = copy(x_pos)
+            
+            x_reward = (x_pos - self.last_x_pos).sum(dim=1, keepdim=True)
+            x_reward[self.env.reset_ids] = 0
+
+            x_reward *= self.x_movement_reward_scale
+            reward += x_reward
+
+            self.last_x_pos = copy(x_pos)
+
+            self.reward_buffer["x movement reward"] += torch.sum(x_reward).cpu()
+
         # height reward
         if self.height_reward_scale != 0:
             height_reward = self.height_reward_scale * (base_pos[:, 2].reshape(self.num_envs, -1).sum(dim=1) - 0.56)
             reward[:, 0] += height_reward
             self.reward_buffer["height reward"] += torch.sum(height_reward).cpu()
+
+        # y punishment
+        if self.y_punishment_scale != 0:
+            y_punishment = self.y_punishment_scale * ((base_pos[:, 1].reshape(self.num_envs, -1) ** 2).sum(dim=1) - 0.5)
+            reward[:, 0] += y_punishment
+            self.reward_buffer["y punishment"] += torch.sum(y_punishment).cpu()
+
+        # contact punishment
+        if self.contact_punishment_scale != 0:
+            collide_reward = self.contact_punishment_scale * self.env.collide_buf
+            reward += collide_reward.unsqueeze(1)
+            self.reward_buffer["contact punishment"] += torch.sum(collide_reward).cpu()
+
+        # agent distance punishment
+        if self.agent_distance_punishment_scale != 0:
+            agent_dis = (base_pos[:, :2] - torch.flip(base_pos[:, :2].reshape(self.num_envs, self.num_agents, 2), dims=[1,]).reshape(-1, 2)) ** 2
+            agent_dis = agent_dis.sum(dim=1).reshape(self.num_envs, -1)[:, :1]
+            agent_distance_punishment = self.agent_distance_punishment_scale  / agent_dis[agent_dis < 0.25]
+            reward[agent_dis < 0.25] += agent_distance_punishment
+            self.reward_buffer["agent distance punishment"] += torch.sum(agent_distance_punishment).cpu()
 
         # success reward
         if self.success_reward_scale != 0:
@@ -68,6 +110,11 @@ class Go1SeesawWrapper(EmptyWrapper):
             reward[:, 0] += success_reward
             self.reward_buffer["success reward"] += torch.sum(success_reward).cpu()
 
+        if self.fall_punishment_scale != 0:
+            fall = self.env.r_term_buff | self.env.p_term_buff
+            reward[fall, 0] += self.fall_punishment_scale
+            self.reward_buffer["fall punishment"] += self.fall_punishment_scale * torch.sum(fall).cpu()
+        
         reward = reward.repeat(1, self.num_agents)
 
         return obs, reward, termination, info

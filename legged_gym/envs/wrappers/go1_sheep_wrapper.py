@@ -72,6 +72,12 @@ class Go1SheepWrapper(EmptyWrapper):
             reward[:, 0] = success_reward
             self.reward_buffer["success reward"] += torch.sum(success_reward).cpu()
             
+        # contact punishment
+        if self.contact_punishment_scale != 0:
+            collide_reward = self.contact_punishment_scale * self.env.collide_buf
+            reward += collide_reward.unsqueeze(1).repeat(1, self.num_agents)
+            self.reward_buffer["contact punishment"] += torch.sum(collide_reward).cpu()
+
         reward = reward.repeat(1, self.num_agents)
 
         return obs, reward, termination, info

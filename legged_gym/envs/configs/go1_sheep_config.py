@@ -86,9 +86,6 @@ class Go1SheepCfg(Go1Cfg):
         termination_terms = [
             "roll",
             "pitch",
-            "z_low",
-            "z_high",
-            "out_of_track",
         ]
 
     class domain_rand(Go1Cfg.domain_rand):
@@ -105,6 +102,7 @@ class Go1SheepCfg(Go1Cfg):
     class rewards(Go1Cfg.rewards):
         class scales:
             success_reward_scale = 1
+            contact_punishment_scale = -10
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.
             # legs_energy_substeps = -1e-5

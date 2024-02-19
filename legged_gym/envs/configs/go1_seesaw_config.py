@@ -6,7 +6,7 @@ class Go1SeesawCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1seesaw"
-        num_envs = 1 # 4096
+        num_envs = 2 # 4096
         num_agents = 2
         num_npcs = 1
         num_actions_npc = 1
@@ -62,13 +62,13 @@ class Go1SeesawCfg(Go1Cfg):
         init_state_class = Go1Cfg.init_state
         init_states = [
             init_state_class(
-                pos = [0.0, 0.5, 0.42],
+                pos = [0.0, 0.0, 0.42],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
             init_state_class(
-                pos = [1.0, -0.5, 0.42],
+                pos = [0.0, 0.0, 0.42],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
@@ -93,8 +93,6 @@ class Go1SeesawCfg(Go1Cfg):
             "roll",
             "pitch",
             "z_low",
-            "z_high",
-            "out_of_track",
         ]
 
     class domain_rand(Go1Cfg.domain_rand):
@@ -113,8 +111,13 @@ class Go1SeesawCfg(Go1Cfg):
     class rewards(Go1Cfg.rewards):
         class scales:
             
-            height_reward_scale = 0.5
+            height_reward_scale = 1
             success_reward_scale = 10
+            contact_punishment_scale = -10
+            agent_distance_punishment_scale = -0.25
+            x_movement_reward_scale = 0.1
+            fall_punishment_scale = -10
+            y_punishment_scale = -0.5
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.
             # legs_energy_substeps = -1e-5

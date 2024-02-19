@@ -116,7 +116,8 @@ class Go1PushboxCfg(Go1Cfg):
 
     class rewards(Go1Cfg.rewards):
         class scales:
-            pass
+            agent_distance_punishment_scale = -0.25
+            box_x_movement_reward_scale = 1
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.
             # legs_energy_substeps = -1e-5

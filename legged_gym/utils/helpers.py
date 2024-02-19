@@ -176,7 +176,7 @@ def get_args():
         {"name": "--headless", "action": "store_true", "default": False, "help": "Force display off at all times"},
         {"name": "--horovod", "action": "store_true", "default": False, "help": "Use horovod for multi-gpu training"},
         {"name": "--rl_device", "type": str, "default": "cuda:0", "help": 'Device used by the RL algorithm, (cpu, gpu, cuda:0, cuda:1 etc..)'},
-        {"name": "--num_envs", "type": int, "help": "Number of environments to create. Overrides config file if provided."},
+        {"name": "--num_envs", "type": int, "default": 0, "help": "Number of environments to create. Overrides config file if provided."},
         {"name": "--seed", "type": int, "help": "Random seed. Overrides config file if provided."},
         {"name": "--max_iterations", "type": int, "help": "Maximum number of training iterations. Overrides config file if provided."},
     ]
@@ -247,8 +247,7 @@ def make_env(task_class, env_cfg, args=None):
     # check if there is a registered env with that name
     # override cfg from args (if specified)
     env_cfg, _ = update_cfg_from_args(env_cfg, None, args)
-    set_seed(getattr(env_cfg, "seed", 0))
-    # set_seed(env_cfg.seed)
+    set_seed(args.seed)
     # parse sim params (convert to dict first)
     sim_params = {"sim": class_to_dict(env_cfg.sim)}
     sim_params = parse_sim_params(args, sim_params)

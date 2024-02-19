@@ -57,7 +57,7 @@ class Go1Cfg(LeggedRobotFieldCfg):
         name = "go1"
         foot_name = "foot"  # name of the feet bodies, used to index body state and contact force tensors
         penalize_contacts_on = ["base", "thigh"]
-        terminate_after_contacts_on = ["base", "imu"]
+        terminate_after_contacts_on = ["base"]
         disable_gravity = False
         # merge bodies connected by fixed joints. Specific fixed joints can be kept by adding " <... dont_collapse="true">
         collapse_fixed_joints = True

@@ -143,6 +143,7 @@ class LeggedRobot(BaseTask):
         self.compute_reward()
         env_ids = self.reset_buf.nonzero(as_tuple=False).flatten()
         self._step_npc()
+        self.reset_ids = env_ids
         self.reset_idx(env_ids)
         self.compute_observations() # in some cases a simulation step might be required to refresh some obs (for example body positions)
 
@@ -156,7 +157,12 @@ class LeggedRobot(BaseTask):
     def check_termination(self):
         """ Check if environments need to be reset
         """
-        self.reset_buf = torch.any(torch.norm(self.contact_forces[:, self.termination_contact_indices, :], dim=-1) > 1., dim=1)
+        if len(self.termination_contact_indices):
+            contact_forces = self.contact_forces[:, : self.num_agents * self.num_bodies, :].reshape(self.num_envs, self.num_agents, self.num_bodies, -1)
+            self.collide_buf = torch.any(torch.norm(contact_forces[:, :, self.termination_contact_indices, :], dim=-1).reshape(self.num_envs, -1) > 1., dim=1)
+            self.reset_buf = self.collide_buf
+        else:
+            self.reset_buf = False
         self.time_out_buf = self.episode_length_buf > self.max_episode_length # no terminal reward for time-outs
         self.reset_buf |= self.time_out_buf
 
@@ -877,7 +883,7 @@ class LeggedRobot(BaseTask):
 
         self.termination_contact_indices = torch.zeros(len(termination_contact_names), dtype=torch.long, device=self.device, requires_grad=False)
         for i in range(len(termination_contact_names)):
-            self.termination_contact_indices[i] = self.gym.find_actor_rigid_body_handle(self.envs[0], self.actor_handles[0][0], termination_contact_names[i]) # TODO: chenck its utility
+            self.termination_contact_indices[i] = self.gym.find_actor_rigid_body_handle(self.envs[0], self.actor_handles[0][0], termination_contact_names[i])
 
     def start_recording(self):
         self.complete_video_frames = None

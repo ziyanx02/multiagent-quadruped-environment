@@ -11,6 +11,7 @@ class Go1PushboxCfg(Go1Cfg):
         num_npcs = 1
     
     class asset(Go1Cfg.asset):
+        terminate_after_contacts_on = []
         file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/box.urdf"
         name_npc = "box"
         npc_collision = True

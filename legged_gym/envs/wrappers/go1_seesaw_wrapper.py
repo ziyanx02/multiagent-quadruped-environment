@@ -16,9 +16,11 @@ class Go1SeesawWrapper(EmptyWrapper):
         # for hard setting of reward scales (not recommended)
         
         # self.height_reward_scale = 0
+        # self.success_reward_scale = 0
 
         self.reward_buffer = {
             "height reward": 0,
+            "success reward": 0,
             "step count": 0
         }
 
@@ -55,9 +57,16 @@ class Go1SeesawWrapper(EmptyWrapper):
 
         # height reward
         if self.height_reward_scale != 0:
-            height_reward = self.height_reward_scale * base_pos[:, 2].reshape(self.num_envs, -1).sum(dim=1)
+            height_reward = self.height_reward_scale * (base_pos[:, 2].reshape(self.num_envs, -1).sum(dim=1) - 0.56)
             reward[:, 0] += height_reward
             self.reward_buffer["height reward"] += torch.sum(height_reward).cpu()
+
+        # success reward
+        if self.success_reward_scale != 0:
+            success = (base_pos[:, 0] > 7.7) * (base_pos[:, 2] > 1.3)
+            success_reward = self.success_reward_scale * success.reshape(self.num_envs, -1).sum(dim=1)
+            reward[:, 0] += success_reward
+            self.reward_buffer["success reward"] += torch.sum(success_reward).cpu()
 
         reward = reward.repeat(1, self.num_agents)
 

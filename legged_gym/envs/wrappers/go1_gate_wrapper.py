@@ -20,16 +20,18 @@ class Go1GateWrapper(EmptyWrapper):
         # self.lin_vel_x_reward_scale = 0
         # self.approach_frame_punishment_scale = 0
         # self.agent_distance_punishment_scale = 0
+        # self.contact_punishment_scale = -10
         # self.lin_vel_y_punishment_scale = 0
         # self.command_value_punishment_scale = 0
 
         self.reward_buffer = {
             "target reward": 0,
-            # "success reward": 0,
+            "success reward": 0,
             # "approach frame punishment": 0,
             "agent distance punishment": 0,
             # "command lin_vel.y punishment": 0,
             # "command value punishment": 0,
+            "contact punishment": 0,
             # "lin_vel.x reward": 0,
             "step count": 0
         }
@@ -83,14 +85,25 @@ class Go1GateWrapper(EmptyWrapper):
         # approach reward
         if self.target_reward_scale != 0:
             distance_to_taget = torch.norm(base_pos[:, :2] - self.target_pos, p=2, dim=1)
+
+            if not hasattr(self, "last_distance_to_taget"):
+                self.last_distance_to_taget = copy(distance_to_taget)
             
-            target_reward = torch.sum(obs_buf.lin_vel[:, :2] * (self.target_pos - base_pos[:, :2]), dim=1) / distance_to_taget
-            target_reward[distance_to_taget < 0.5] = 10
+            target_reward = (self.last_distance_to_taget - distance_to_taget).reshape(self.num_envs, -1).sum(dim=1, keepdim=True)
+            target_reward[self.env.reset_ids] = 0
 
             target_reward *= self.target_reward_scale
-            reward += target_reward.reshape([self.env.num_envs, self.env.num_agents])
+            reward += target_reward.repeat(1, self.env.num_agents)
+
+            self.last_distance_to_taget = copy(distance_to_taget)
 
             self.reward_buffer["target reward"] += torch.sum(target_reward).cpu()
+
+        # contact punishment
+        if self.contact_punishment_scale != 0:
+            collide_reward = self.contact_punishment_scale * self.env.collide_buf
+            reward += collide_reward.unsqueeze(1).repeat(1, self.num_agents)
+            self.reward_buffer["contact punishment"] += torch.sum(collide_reward).cpu()
 
         # success reward
         if self.success_reward_scale != 0:

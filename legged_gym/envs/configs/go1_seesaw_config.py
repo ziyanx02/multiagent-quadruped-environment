@@ -10,6 +10,7 @@ class Go1SeesawCfg(Go1Cfg):
         num_agents = 2
         num_npcs = 1
         num_actions_npc = 1
+        episode_length_s = 10 # episode length in seconds
     
     class asset(Go1Cfg.asset):
         file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/seesaw.urdf"
@@ -61,13 +62,13 @@ class Go1SeesawCfg(Go1Cfg):
         init_state_class = Go1Cfg.init_state
         init_states = [
             init_state_class(
-                pos = [0.0, 0.0, 0.42],
+                pos = [0.0, 0.5, 0.42],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
             init_state_class(
-                pos = [0.0, 0.0, 0.42],
+                pos = [1.0, -0.5, 0.42],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
@@ -112,7 +113,8 @@ class Go1SeesawCfg(Go1Cfg):
     class rewards(Go1Cfg.rewards):
         class scales:
             
-            height_reward_scale = 1
+            height_reward_scale = 0.5
+            success_reward_scale = 10
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.
             # legs_energy_substeps = -1e-5

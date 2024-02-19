@@ -40,7 +40,7 @@ class Go1SheepCfg(Go1Cfg):
             ),
             gate = dict(
                 block_length = 3.0,
-                width = 1.,
+                width = 1.5,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
                 random = (0, 3)

@@ -16,8 +16,8 @@ def train(args):
     # task_name = "go1gate"
     # task_name = "go1football"
     # task_name = "go1sheep"
-    task_name = "go1seesaw"
-    # task_name = "go1pushbox"
+    # task_name = "go1seesaw"
+    task_name = "go1pushbox"
 
     env, env_cfg = make_mqe_env(task_name, args)
     # env, env_cfg = make_env(Go1, Go1PlaneCfg(), args)

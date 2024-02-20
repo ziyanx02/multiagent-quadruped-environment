@@ -49,10 +49,11 @@ class Go1Sheep(Go1):
         dv[:, :, 2] = 0
 
         npc_indices = self.npc_indices.reshape(-1)
-        self.all_root_states[npc_indices, 7:10] += dv.reshape(-1, 3)
-        self.all_root_states[npc_indices, 7:9] = torch.clip(self.all_root_states[npc_indices, 7:9], -2, 2)
-        self.all_root_states[npc_indices, 2] = torch.clip(self.all_root_states[npc_indices, 2], 0, 0.5)
-        self.all_root_states[npc_indices, 3:5] = 0
+        npc_indices_long = npc_indices.long()
+        self.all_root_states[npc_indices_long, 7:10] += dv.reshape(-1, 3)
+        self.all_root_states[npc_indices_long, 7:9] = torch.clip(self.all_root_states[npc_indices_long, 7:9], -2, 2)
+        self.all_root_states[npc_indices_long, 2] = torch.clip(self.all_root_states[npc_indices_long, 2], 0, 0.5)
+        self.all_root_states[npc_indices_long, 3:5] = 0
         self.gym.set_actor_root_state_tensor_indexed(self.sim,
                                                      gymtorch.unwrap_tensor(self.all_root_states),
                                                      gymtorch.unwrap_tensor(npc_indices), len(npc_indices))

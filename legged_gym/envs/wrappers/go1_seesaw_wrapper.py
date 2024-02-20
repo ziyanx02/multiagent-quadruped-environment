@@ -64,7 +64,7 @@ class Go1SeesawWrapper(EmptyWrapper):
         if self.x_movement_reward_scale != 0:
             x_pos = base_pos[:, 0].reshape(self.num_envs, -1)
 
-            if not hasattr(self, "last_distance_to_taget"):
+            if not hasattr(self, "last_x_pos"):
                 self.last_x_pos = copy(x_pos)
             
             x_reward = (x_pos - self.last_x_pos).sum(dim=1, keepdim=True)

@@ -115,7 +115,7 @@ class Go1SeesawCfg(Go1Cfg):
             success_reward_scale = 10
             contact_punishment_scale = -10
             agent_distance_punishment_scale = -0.25
-            x_movement_reward_scale = 0.1
+            x_movement_reward_scale = 5
             fall_punishment_scale = -10
             y_punishment_scale = -0.5
             # tracking_ang_vel = 0.05

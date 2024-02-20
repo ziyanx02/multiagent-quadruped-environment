@@ -104,7 +104,7 @@ class Go1GateCfg(Go1Cfg):
         class scales:
 
             target_reward_scale = 1
-            success_reward_scale = 1
+            success_reward_scale = 3
             lin_vel_x_reward_scale = 0
             approach_frame_punishment_scale = 0
             agent_distance_punishment_scale = -0.025

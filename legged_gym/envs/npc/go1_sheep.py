@@ -34,7 +34,7 @@ class Go1Sheep(Go1):
 
         dog_pos = self.root_states[:, :3].reshape(self.num_envs, -1, 3)
         sheep_pos = self.root_states_npc[:, :3].reshape(self.num_envs, -1, 3)
-        sheep_avg_pos = torch.mean(sheep_pos, dim=1, keepdim=True).repeat(1, 25, 1)
+        sheep_avg_pos = torch.mean(sheep_pos, dim=1, keepdim=True).repeat(1, 9, 1)
 
         dv = self.sheep_movement_randomness * torch.randn_like(sheep_pos, device=self.device) * 2
 
@@ -70,9 +70,9 @@ class Go1Sheep(Go1):
         self.asset_npc = self.gym.load_asset(self.sim, asset_root_npc, asset_file_npc, asset_options_npc)
 
         #init npc state
-        num_rols = 5
-        num_cols = 5
-        dis_sheep = (0.8, 0.8)
+        num_rols = 3
+        num_cols = 3
+        dis_sheep = (1.5, 1.5)
 
         sheep_origin = np.array([4.0 - num_rols // 2 * dis_sheep[0], - (num_cols // 2) * dis_sheep[1], 0.3])
         pos = sheep_origin.copy()

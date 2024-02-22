@@ -8,7 +8,7 @@ class Go1SheepCfg(Go1Cfg):
         env_name = "go1sheep"
         num_envs = 4 # 4096
         num_agents = 2
-        num_npcs = 25
+        num_npcs = 9
         episode_length_s = 5
     
     class asset(Go1Cfg.asset):
@@ -102,7 +102,7 @@ class Go1SheepCfg(Go1Cfg):
     class rewards(Go1Cfg.rewards):
         class scales:
             success_reward_scale = 1
-            contact_punishment_scale = -10
+            contact_punishment_scale = -2
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.
             # legs_energy_substeps = -1e-5

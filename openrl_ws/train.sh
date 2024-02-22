@@ -1,7 +1,7 @@
-task="go1sheep"
-num_envs=100
-num_steps=10000000
-random_seed=4
+task="go1gate"
+num_envs=500
+num_steps=20000000
+random_seed=0
 algo="ppo"
 sim_device=0
 rl_device=0
@@ -15,4 +15,82 @@ python ./openrl_ws/train.py --headless --num_envs $num_envs --train_timesteps $n
     --seed $random_seed \
     --exp_name test \
     --config $cfg \
-    # --use_wandb
+    --use_wandb
+
+python ./openrl_ws/train.py --headless --num_envs $num_envs --train_timesteps $num_steps\
+    --task $task \
+    --algo $algo \
+    --sim_device cuda:$sim_device \
+    --rl_device cuda:$rl_device \
+    --seed $random_seed \
+    --exp_name test \
+    --config $cfg \
+    --use_wandb
+
+python ./openrl_ws/train.py --headless --num_envs $num_envs --train_timesteps $num_steps\
+    --task $task \
+    --algo $algo \
+    --sim_device cuda:$sim_device \
+    --rl_device cuda:$rl_device \
+    --seed $random_seed \
+    --exp_name test \
+    --config $cfg \
+    --use_wandb
+
+task="go1seesaw"
+
+python ./openrl_ws/train.py --headless --num_envs $num_envs --train_timesteps $num_steps\
+    --task $task \
+    --algo $algo \
+    --sim_device cuda:$sim_device \
+    --rl_device cuda:$rl_device \
+    --seed $random_seed \
+    --exp_name test \
+    --config $cfg \
+    --use_wandb
+
+task="go1push"
+
+python ./openrl_ws/train.py --headless --num_envs $num_envs --train_timesteps $num_steps\
+    --task $task \
+    --algo $algo \
+    --sim_device cuda:$sim_device \
+    --rl_device cuda:$rl_device \
+    --seed $random_seed \
+    --exp_name test \
+    --config $cfg \
+    --use_wandb
+
+task="go1sheep"
+num_envs=300
+num_steps=15000000
+
+python ./openrl_ws/train.py --headless --num_envs $num_envs --train_timesteps $num_steps\
+    --task $task \
+    --algo $algo \
+    --sim_device cuda:$sim_device \
+    --rl_device cuda:$rl_device \
+    --seed $random_seed \
+    --exp_name test \
+    --config $cfg \
+    --use_wandb
+
+python ./openrl_ws/train.py --headless --num_envs $num_envs --train_timesteps $num_steps\
+    --task $task \
+    --algo $algo \
+    --sim_device cuda:$sim_device \
+    --rl_device cuda:$rl_device \
+    --seed $random_seed \
+    --exp_name test \
+    --config $cfg \
+    --use_wandb
+
+python ./openrl_ws/train.py --headless --num_envs $num_envs --train_timesteps $num_steps\
+    --task $task \
+    --algo $algo \
+    --sim_device cuda:$sim_device \
+    --rl_device cuda:$rl_device \
+    --seed $random_seed \
+    --exp_name test \
+    --config $cfg \
+    --use_wandb

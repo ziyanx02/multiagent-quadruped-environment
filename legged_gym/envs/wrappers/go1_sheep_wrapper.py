@@ -9,7 +9,7 @@ class Go1SheepWrapper(EmptyWrapper):
     def __init__(self, env):
         super().__init__(env)
 
-        self.observation_space = spaces.Box(low=-float('inf'), high=float('inf'), shape=(66,), dtype=float)
+        self.observation_space = spaces.Box(low=-float('inf'), high=float('inf'), shape=(34 + self.num_agents,), dtype=float)
         self.action_space = spaces.Box(low=-1, high=1, shape=(3,), dtype=float)
         self.action_scale = torch.tensor([[[2, 0.5, 0.5],],], device="cuda").repeat(self.num_envs, self.num_agents, 1)
 
@@ -30,7 +30,7 @@ class Go1SheepWrapper(EmptyWrapper):
         self.gate_pos = gate_pos.unsqueeze(1).repeat(1, self.num_agents, 1)
         self.gate_distance = gate_pos[:, 0].unsqueeze(1).repeat(1, self.num_npcs)
 
-        self.npc_env_origins = self.env.env_origins.unsqueeze(1).repeat(1, 25, 1)
+        self.npc_env_origins = self.env.env_origins.unsqueeze(1).repeat(1, 9, 1)
 
     def reset(self):
         obs_buf = self.env.reset()
@@ -44,7 +44,7 @@ class Go1SheepWrapper(EmptyWrapper):
         base_pos = obs_buf.base_pos
         base_quat = obs_buf.base_quat
         base_info = torch.cat([base_pos, base_quat], dim=1).reshape([self.env.num_envs, self.env.num_agents, -1])
-        obs = torch.cat([base_info, torch.flip(base_info, [1]), self.gate_pos, sheep_pos_flatten], dim=2)
+        obs = torch.cat([self.obs_ids, base_info, torch.flip(base_info, [1]), self.gate_pos, sheep_pos_flatten], dim=2)
 
         return obs
 
@@ -61,7 +61,7 @@ class Go1SheepWrapper(EmptyWrapper):
         base_pos = obs_buf.base_pos
         base_quat = obs_buf.base_quat
         base_info = torch.cat([base_pos, base_quat], dim=1).reshape([self.env.num_envs, self.env.num_agents, -1])
-        obs = torch.cat([base_info, torch.flip(base_info, [1]), self.gate_pos, sheep_pos_flatten], dim=2)
+        obs = torch.cat([self.obs_ids, base_info, torch.flip(base_info, [1]), self.gate_pos, sheep_pos_flatten], dim=2)
 
         self.reward_buffer["step count"] += 1
         reward = torch.zeros([self.env.num_envs, 1], device=self.env.device)

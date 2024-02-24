@@ -35,7 +35,7 @@ class Go1PushboxCfg(Go1Cfg):
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
-                room_size = (1.0, 0.5),
+                room_size = (1.0, 1.0),
                 border_width = 0.0,
                 offset = (0, 0),
             ),

@@ -6,7 +6,7 @@ class Go1SeesawCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1seesaw"
-        num_envs = 2 # 4096
+        num_envs = 1 # 4096
         num_agents = 2
         num_npcs = 1
         num_actions_npc = 1
@@ -62,13 +62,13 @@ class Go1SeesawCfg(Go1Cfg):
         init_state_class = Go1Cfg.init_state
         init_states = [
             init_state_class(
-                pos = [0.0, 0.0, 0.42],
+                pos = [1.5, 0.5, 0.42],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
             init_state_class(
-                pos = [0.0, 0.0, 0.42],
+                pos = [0.5, -0.5, 0.42],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],

@@ -12,14 +12,14 @@
     <visual>
       <origin xyz="0 0 0"/>
       <geometry>
-        <box size="1 1 0.02"/>
+        <box size="1 1 0.03"/>
       </geometry>
       <material name="white"/>
     </visual>
     <collision>
       <origin xyz="0 0 0"/>
       <geometry>
-        <box size="1 1 0.02"/>
+        <box size="1 1 0.03"/>
       </geometry>
     </collision>
     <inertial>
@@ -32,14 +32,14 @@
     <visual>
       <origin xyz="-0.1031 0 0"/>
       <geometry>
-        <box size="4.123 1 0.02"/>
+        <box size="4.123 1 0.03"/>
       </geometry>
       <material name="white"/>
     </visual>
     <collision>
       <origin xyz="-0.1031 0 0"/>
       <geometry>
-        <box size="4.123 1 0.02"/>
+        <box size="4.123 1 0.03"/>
       </geometry>
     </collision>
     <inertial>
@@ -48,11 +48,11 @@
     </inertial>
   </link>
   <joint name="link" type="revolute">
-    <origin xyz="-2.4 0 -0.46" rpy="0 0 0"/>
+    <origin xyz="-2.4 0 -0.455" rpy="0 0 0"/>
     <parent link="base"/>
     <child link="seesaw"/>
     <axis xyz="0.0 1.0 0.0"/>
-    <limit effort="33.5" velocity="28"/>
+    <limit effort="33.5" velocity="1"/>
   </joint>
   
   <link name="column">

@@ -6,9 +6,9 @@ class Go1GateCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1gate"
-        num_envs = 5 # 4096
+        num_envs = 100 # 4096
         num_agents = 2
-        episode_length_s = 5 # episode length in seconds
+        episode_length_s = 10 # episode length in seconds
 
     class terrain(Go1Cfg.terrain):
 
@@ -34,7 +34,7 @@ class Go1GateCfg(Go1Cfg):
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
-                room_size = (1.0, 0.8),
+                room_size = (1.0, 1.45),
                 border_width = 0.00,
                 offset = (0, 0),
             ),
@@ -99,15 +99,15 @@ class Go1GateCfg(Go1Cfg):
 
     class domain_rand(Go1Cfg.domain_rand):
         init_base_pos_range = None
-
+ 
     class rewards(Go1Cfg.rewards):
         class scales:
 
             target_reward_scale = 1
-            success_reward_scale = 3
+            success_reward_scale = 5
             lin_vel_x_reward_scale = 0
             approach_frame_punishment_scale = 0
-            agent_distance_punishment_scale = -0.025
+            agent_distance_punishment_scale = -0. #025
             contact_punishment_scale = -2
             lin_vel_y_punishment_scale = 0
             command_value_punishment_scale = 0

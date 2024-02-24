@@ -30,11 +30,11 @@ class Go1SheepCfg(Go1Cfg):
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
-            track_width = 10.,
+            track_width = 6.,
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
-                room_size = (1.0, 3.0),
+                room_size = (1.0, 2.0),
                 border_width = 0.00,
                 offset = (0, 0),
             ),
@@ -43,7 +43,7 @@ class Go1SheepCfg(Go1Cfg):
                 width = 1.5,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
-                random = (0, 3)
+                random = (0, 1.5)
             ),
             plane = dict(
                 block_length = 3.0,
@@ -102,7 +102,7 @@ class Go1SheepCfg(Go1Cfg):
     class rewards(Go1Cfg.rewards):
         class scales:
             success_reward_scale = 1
-            contact_punishment_scale = -2
+            contact_punishment_scale = -0
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.
             # legs_energy_substeps = -1e-5

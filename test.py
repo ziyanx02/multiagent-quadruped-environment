@@ -18,7 +18,7 @@ def train(args):
     task_name = "go1sheep"
     # task_name = "go1seesaw"
     # task_name = "go1pushbox"
-    args.headless = True
+    args.headless = False
 
     env, env_cfg = make_mqe_env(task_name, args)
     # env, env_cfg = make_env(Go1, Go1PlaneCfg(), args)
@@ -30,7 +30,7 @@ def train(args):
     num_actions = env.num_actions
     import time
     while True:
-        obs, _, _, _ = env.step(torch.tensor([[[2.0, 0, 0],[1.0, 0, 0]],], dtype=torch.float32, device="cuda").repeat(env.num_envs, 1, 1))
+        obs, _, _, _ = env.step((1 + torch.randn(1, 2, 3, device="cuda")) * torch.tensor([[[1.0, 0.1, 0],[1.0, 0.1, 0]],], dtype=torch.float32, device="cuda").repeat(env.num_envs, 1, 1))
     
 if __name__ == '__main__':
     args = get_args()

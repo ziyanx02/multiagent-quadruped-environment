@@ -20,6 +20,7 @@ class Go1SheepWrapper(EmptyWrapper):
         self.reward_buffer = {
             "success reward": 0,
             "contact punishment": 0,
+            "sheep movement reward": 0,
             "step count": 0
         }
 
@@ -45,6 +46,8 @@ class Go1SheepWrapper(EmptyWrapper):
         base_quat = obs_buf.base_quat
         base_info = torch.cat([base_pos, base_quat], dim=1).reshape([self.env.num_envs, self.env.num_agents, -1])
         obs = torch.cat([self.obs_ids, base_info, torch.flip(base_info, [1]), self.gate_pos, sheep_pos_flatten], dim=2)
+
+        self.last_sheep_pos_avg = None
 
         return obs
 
@@ -78,6 +81,18 @@ class Go1SheepWrapper(EmptyWrapper):
             collide_reward = self.contact_punishment_scale * self.env.collide_buf
             reward += collide_reward.unsqueeze(1)
             self.reward_buffer["contact punishment"] += torch.sum(collide_reward).cpu()
+        
+        # sheep movement reward
+        if self.sheep_movement_reward_scale != 0:
+
+            if self.last_sheep_pos_avg != None:
+                x_movement = (self.sheep_pos_avg - self.last_sheep_pos_avg)[:, 0]
+                x_movement[self.env.reset_ids] = 0
+                sheep_movement_reward = self.sheep_movement_reward_scale * x_movement
+                reward[:, 0] += sheep_movement_reward
+                self.reward_buffer["sheep movement reward"] += torch.sum(sheep_movement_reward).cpu()
+
+            self.last_sheep_pos_avg = copy(self.sheep_pos_avg)
 
         reward = reward.repeat(1, self.num_agents)
 

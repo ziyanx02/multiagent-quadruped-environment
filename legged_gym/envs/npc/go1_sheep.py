@@ -37,6 +37,8 @@ class Go1Sheep(Go1):
         dog_pos = self.root_states[:, :3].reshape(self.num_envs, -1, 3)
         sheep_pos = self.root_states_npc[:, :3].reshape(self.num_envs, -1, 3)
         sheep_avg_pos = torch.mean(sheep_pos, dim=1, keepdim=True).repeat(1, 9, 1)
+        self.sheep_pos_avg = sheep_avg_pos[:, 0, :2]
+        self.sheep_pos_var = torch.var(sheep_pos, dim=1)[..., :2]
 
         dv = self.sheep_movement_randomness * torch.randn_like(sheep_pos, device=self.device) * 2
 

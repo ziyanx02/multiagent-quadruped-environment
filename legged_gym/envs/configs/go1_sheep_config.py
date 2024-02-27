@@ -9,7 +9,7 @@ class Go1SheepCfg(Go1Cfg):
         num_envs = 4 # 4096
         num_agents = 2
         num_npcs = 9
-        episode_length_s = 5
+        episode_length_s = 15
     
     class asset(Go1Cfg.asset):
         file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/sheep.urdf"
@@ -103,6 +103,8 @@ class Go1SheepCfg(Go1Cfg):
         class scales:
             success_reward_scale = 1
             contact_punishment_scale = -0
+            sheep_movement_reward_scale = 20
+            # sheep_variance_reward_scale = 1
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.
             # legs_energy_substeps = -1e-5

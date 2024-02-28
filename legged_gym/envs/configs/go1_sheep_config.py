@@ -52,10 +52,10 @@ class SingleSheepCfg(Go1Cfg):
                 width = 1.,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
-                random = (0, 0)
+                random = (0, 0.5)
             ),
             plane = dict(
-                block_length = 1.0,
+                block_length = 3.0,
             ),
             wall = dict(
                 block_length = 0.1
@@ -236,7 +236,7 @@ class NineSheepCfg(Go1Cfg):
         class scales:
             success_reward_scale = 1
             contact_punishment_scale = -0
-            sheep_movement_reward_scale = 20
+            sheep_movement_reward_scale = 100
             # sheep_variance_reward_scale = 1
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.

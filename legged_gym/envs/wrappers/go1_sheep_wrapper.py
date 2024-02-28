@@ -9,7 +9,7 @@ class Go1SheepWrapper(EmptyWrapper):
     def __init__(self, env):
         super().__init__(env)
 
-        self.observation_space = spaces.Box(low=-float('inf'), high=float('inf'), shape=(18 + 2 * self.cfg.env.num_npcs + self.num_agents,), dtype=float)
+        self.observation_space = spaces.Box(low=-float('inf'), high=float('inf'), shape=(16 + 2 * self.cfg.env.num_npcs + self.num_agents,), dtype=float)
         self.action_space = spaces.Box(low=-1, high=1, shape=(3,), dtype=float)
         self.action_scale = torch.tensor([[[2, 0.5, 0.5],],], device="cuda").repeat(self.num_envs, self.num_agents, 1)
 
@@ -46,6 +46,8 @@ class Go1SheepWrapper(EmptyWrapper):
         base_quat = obs_buf.base_quat
         base_info = torch.cat([base_pos, base_quat], dim=1).reshape([self.env.num_envs, self.env.num_agents, -1])
         obs = torch.cat([self.obs_ids, base_info, torch.flip(base_info, [1]), self.gate_pos, sheep_pos_flatten], dim=2)
+
+        print(obs.shape)
 
         self.last_sheep_pos_avg = None
 
@@ -91,6 +93,7 @@ class Go1SheepWrapper(EmptyWrapper):
                 sheep_movement_reward = self.sheep_movement_reward_scale * x_movement
                 reward[:, 0] += sheep_movement_reward
                 self.reward_buffer["sheep movement reward"] += torch.sum(sheep_movement_reward).cpu()
+                print(sheep_movement_reward)
 
             self.last_sheep_pos_avg = copy(self.sheep_pos_avg)
 

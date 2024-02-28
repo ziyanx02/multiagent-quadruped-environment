@@ -89,14 +89,15 @@ class Go1SheepWrapper(EmptyWrapper):
 
             if self.last_sheep_pos_avg != None:
                 x_movement = (self.sheep_pos_avg - self.last_sheep_pos_avg)[:, 0]
-                x_movement[self.env.reset_ids] = 0
+                x_movement[self.delayed_reset_buf] = 0
                 sheep_movement_reward = self.sheep_movement_reward_scale * x_movement
                 reward[:, 0] += sheep_movement_reward
                 self.reward_buffer["sheep movement reward"] += torch.sum(sheep_movement_reward).cpu()
-                print(sheep_movement_reward)
 
             self.last_sheep_pos_avg = copy(self.sheep_pos_avg)
 
         reward = reward.repeat(1, self.num_agents)
+
+        self.delayed_reset_buf = copy(self.env.reset_ids)
 
         return obs, reward, termination, info

@@ -6,7 +6,7 @@ class SingleSheepCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1sheep"
-        num_envs = 4 # 4096
+        num_envs = 1 # 4096
         num_agents = 2
         num_npcs = 1
         episode_length_s = 15
@@ -112,7 +112,7 @@ class SingleSheepCfg(Go1Cfg):
         class scales:
             success_reward_scale = 1
             contact_punishment_scale = -0
-            sheep_movement_reward_scale = 20
+            sheep_movement_reward_scale = 2
             # sheep_variance_reward_scale = 1
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.
@@ -173,7 +173,7 @@ class NineSheepCfg(Go1Cfg):
             ),
             gate = dict(
                 block_length = 1.0,
-                width = 1.,
+                width = 1.5,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
                 random = (0, 0)
@@ -236,7 +236,7 @@ class NineSheepCfg(Go1Cfg):
         class scales:
             success_reward_scale = 1
             contact_punishment_scale = -0
-            sheep_movement_reward_scale = 100
+            sheep_movement_reward_scale = 20
             # sheep_variance_reward_scale = 1
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.

@@ -14,7 +14,7 @@ from legged_gym.envs.go1.go1 import Go1
 def relative_pos_to_dv(relative_pos):
     dis = torch.norm(relative_pos ** 2, dim=2)
     dv = relative_pos / (dis ** 1.4).unsqueeze(-1).repeat(1, 1, 3)
-    dv[dis > 4, ...] = 0
+    dv[dis > 9, ...] = 0
     return dv
 
 class Go1Sheep(Go1):

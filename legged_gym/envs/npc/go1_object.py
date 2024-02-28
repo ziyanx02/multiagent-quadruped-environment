@@ -28,7 +28,7 @@ class Go1Object(Go1):
     
         self.init_state_npc = getattr(self.cfg.init_state, "init_states_npc")
         if hasattr(self.cfg.init_state, "default_npc_joint_angles"):
-            self.default_dof_pos_npc = torch.tensor(self.cfg.asset.default_npc_joint_angles, dtype=torch.float, device=self.device, requires_grad=False).reshape(1, -1)
+            self.default_dof_pos_npc = torch.tensor(self.cfg.init_state.default_npc_joint_angles, dtype=torch.float, device=self.device, requires_grad=False).reshape(1, -1)
         else:
             self.default_dof_pos_npc = torch.zeros(self.num_actions_npc, dtype=torch.float, device=self.device, requires_grad=False).unsqueeze(0)
         

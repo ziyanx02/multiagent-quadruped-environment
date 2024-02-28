@@ -6,7 +6,7 @@ class Go1SeesawCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1seesaw"
-        num_envs = 1 # 4096
+        num_envs = 5 # 4096
         num_agents = 2
         num_npcs = 1
         num_actions_npc = 1
@@ -82,9 +82,14 @@ class Go1SeesawCfg(Go1Cfg):
                 ang_vel = [0.0, 0.0, 0.0],
             ),
         ]
+        default_npc_joint_angles = [-0.2]
 
     class control(Go1Cfg.control):
         control_type = 'C'
+
+        class default_command(Go1Cfg.control.default_command):
+
+            gait = "pacing"
 
     class termination(Go1Cfg.termination):
         # additional factors that determines whether to terminates the episode

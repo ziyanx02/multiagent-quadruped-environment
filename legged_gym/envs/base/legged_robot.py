@@ -441,6 +441,11 @@ class LeggedRobot(BaseTask):
                 self.root_states_npc[npc_ids, 0:1] += torch_rand_float(*self.cfg.domain_rand.init_npc_base_pos_range["x"], (len(npc_ids), 1), device=self.device)
                 self.root_states_npc[npc_ids, 1:2] += torch_rand_float(*self.cfg.domain_rand.init_npc_base_pos_range["y"], (len(npc_ids), 1), device=self.device)
 
+            if getattr(self.cfg.domain_rand, "init_npc_base_rpy_range", None) is not None:
+                self.root_states_npc[npc_ids, 3:7] = quat_from_euler_xyz(torch_rand_float(*self.cfg.domain_rand.init_npc_base_rpy_range["r"], (len(npc_ids), 1), device=self.device),
+                                                                         torch_rand_float(*self.cfg.domain_rand.init_npc_base_rpy_range["p"], (len(npc_ids), 1), device=self.device),
+                                                                         torch_rand_float(*self.cfg.domain_rand.init_npc_base_rpy_range["y"], (len(npc_ids), 1), device=self.device)).squeeze()
+
         # base velocities
         if getattr(self.cfg.domain_rand, "init_base_vel_range", None) is None:
             base_vel_range = (-0.5, 0.5)

@@ -249,7 +249,7 @@ class Go1Cfg(LeggedRobotFieldCfg):
             lin_vel = True
             ang_vel = True
             projected_gravity = True
-            yaw = False
+            base_rpy = True
             contact_states = False
             command = True
             height_command = False

@@ -1,4 +1,3 @@
-seed: 0
 lr: 7e-4
 critic_lr: 7e-4
 episode_length: 200

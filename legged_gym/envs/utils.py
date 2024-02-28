@@ -9,12 +9,12 @@ from legged_gym.envs.configs.go1_gate_config import Go1GateCfg
 from legged_gym.envs.configs.go1_sheep_config import SingleSheepCfg, NineSheepCfg
 from legged_gym.envs.configs.go1_football_config import Go1FootballCfg
 from legged_gym.envs.configs.go1_seesaw_config import Go1SeesawCfg
-from legged_gym.envs.configs.go1_pushbox_config import Go1PushboxCfg
+from legged_gym.envs.configs.go1_pushbox_config import Go1PushboxPlaneCfg, Go1PushboxGateCfg
 
 # wrappers
 from legged_gym.envs.wrappers.empty_wrapper import EmptyWrapper
 from legged_gym.envs.wrappers.go1_gate_wrapper import Go1GateWrapper
-from legged_gym.envs.wrappers.go1_pushbox_wrapper import Go1PushboxWrapper
+from legged_gym.envs.wrappers.go1_pushbox_wrapper import Go1PushboxPlaneWrapper, Go1PushboxGateWrapper
 from legged_gym.envs.wrappers.go1_sheep_wrapper import Go1SheepWrapper
 from legged_gym.envs.wrappers.go1_seesaw_wrapper import Go1SeesawWrapper
 from legged_gym.envs.wrappers.go1_football_wrapper import Go1FootballWrapper
@@ -52,10 +52,15 @@ ENV_DICT = {
         "config": Go1SeesawCfg,
         "wrapper": Go1SeesawWrapper
     },
-    "go1pushbox": {
+    "go1pushbox-plane": {
         "class": Go1Object,
-        "config": Go1PushboxCfg,
-        "wrapper": Go1PushboxWrapper
+        "config": Go1PushboxPlaneCfg,
+        "wrapper": Go1PushboxPlaneWrapper
+    },
+    "go1pushbox-gate": {
+        "class": Go1Object,
+        "config": Go1PushboxGateCfg,
+        "wrapper": Go1PushboxGateWrapper
     },
 }
 

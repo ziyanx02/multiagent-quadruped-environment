@@ -187,11 +187,8 @@ class Go1(LeggedRobotField):
             assert self.cfg.control.control_type == "C", "To active clock_inputs, control_type should be set to \"C\" instead of \"{}\"".format(self.cfg.control.control_type)
             self.obs_buf.clock_inputs = copy(self.clock_inputs)
         
-        if self.cfg.obs.cfgs.yaw:
-            forward = quat_apply(self.base_quat, self.forward_vec)
-            heading = torch.atan2(forward[:, 1], forward[:, 0]).unsqueeze(1)
-            # heading_error = torch.clip(0.5 * wrap_to_pi(heading), -1., 1.).unsqueeze(1)
-            self.obs_buf.yaw = heading
+        if self.cfg.obs.cfgs.base_rpy:
+            self.obs_buf.base_rpy = torch.stack(get_euler_xyz(self.base_quat), dim=1)
         
         if self.cfg.obs.cfgs.env_info and hasattr(self, "env_info"):
             self.obs_buf.env_info = self.env_info

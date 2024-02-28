@@ -40,7 +40,7 @@ class Go1GateCfg(Go1Cfg):
             ),
             gate = dict(
                 block_length = 3.0,
-                width = 0.6,
+                width = 0.8,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
                 random = (0.5, 0.5),
@@ -107,7 +107,7 @@ class Go1GateCfg(Go1Cfg):
             success_reward_scale = 5
             lin_vel_x_reward_scale = 0
             approach_frame_punishment_scale = 0
-            agent_distance_punishment_scale = -0. #025
+            agent_distance_punishment_scale = -0.025
             contact_punishment_scale = -2
             lin_vel_y_punishment_scale = 0
             command_value_punishment_scale = 0

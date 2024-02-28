@@ -135,6 +135,8 @@ class Go1(LeggedRobotField):
 
         # self._resample_commands(env_ids)
         self._reset_buffers(env_ids)
+
+        self.store_recording(env_ids)
     
     def _reset_buffers(self, env_ids):
         super()._reset_buffers(env_ids)

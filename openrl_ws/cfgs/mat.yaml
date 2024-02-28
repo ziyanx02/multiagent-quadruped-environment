@@ -1,4 +1,3 @@
-seed: 0
 lr: 7e-4
 episode_length: 200
 run_dir: ./results/

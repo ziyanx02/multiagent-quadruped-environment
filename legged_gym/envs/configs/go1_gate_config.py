@@ -57,9 +57,6 @@ class Go1GateCfg(Go1Cfg):
             add_perlin_noise = False,
        ))
         
-        x_limits = [5.0,]
-        y_limits = [-1.5, 1.5]
-
     class command(Go1Cfg.command):
 
         class cfg(Go1Cfg.command.cfg):

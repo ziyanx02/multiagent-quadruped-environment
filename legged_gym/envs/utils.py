@@ -6,7 +6,7 @@ from legged_gym.envs.npc.go1_object import Go1Object
 # configs
 from legged_gym.envs.configs.go1_plane_config import Go1PlaneCfg
 from legged_gym.envs.configs.go1_gate_config import Go1GateCfg
-from legged_gym.envs.configs.go1_sheep_config import Go1SheepCfg
+from legged_gym.envs.configs.go1_sheep_config import SingleSheepCfg, NineSheepCfg
 from legged_gym.envs.configs.go1_football_config import Go1FootballCfg
 from legged_gym.envs.configs.go1_seesaw_config import Go1SeesawCfg
 from legged_gym.envs.configs.go1_pushbox_config import Go1PushboxCfg
@@ -32,9 +32,14 @@ ENV_DICT = {
         "config": Go1GateCfg,
         "wrapper": Go1GateWrapper
     },
-    "go1sheep": {
+    "go1sheep-easy": {
         "class": Go1Sheep,
-        "config": Go1SheepCfg,
+        "config": SingleSheepCfg,
+        "wrapper": Go1SheepWrapper
+    },
+    "go1sheep-hard": {
+        "class": Go1Sheep,
+        "config": NineSheepCfg,
         "wrapper": Go1SheepWrapper
     },
     "go1football": {

@@ -9,7 +9,7 @@ class Go1SheepWrapper(EmptyWrapper):
     def __init__(self, env):
         super().__init__(env)
 
-        self.observation_space = spaces.Box(low=-float('inf'), high=float('inf'), shape=(34 + self.num_agents,), dtype=float)
+        self.observation_space = spaces.Box(low=-float('inf'), high=float('inf'), shape=(18 + 2 * self.cfg.env.num_npcs + self.num_agents,), dtype=float)
         self.action_space = spaces.Box(low=-1, high=1, shape=(3,), dtype=float)
         self.action_scale = torch.tensor([[[2, 0.5, 0.5],],], device="cuda").repeat(self.num_envs, self.num_agents, 1)
 
@@ -31,7 +31,7 @@ class Go1SheepWrapper(EmptyWrapper):
         self.gate_pos = gate_pos.unsqueeze(1).repeat(1, self.num_agents, 1)
         self.gate_distance = gate_pos[:, 0].unsqueeze(1).repeat(1, self.num_npcs)
 
-        self.npc_env_origins = self.env.env_origins.unsqueeze(1).repeat(1, 9, 1)
+        self.npc_env_origins = self.env.env_origins.unsqueeze(1).repeat(1, self.cfg.env.num_npcs, 1)
 
     def reset(self):
         obs_buf = self.env.reset()

@@ -9,6 +9,7 @@ class Go1PushboxCfg(Go1Cfg):
         num_envs = 2 # 4096
         num_agents = 2
         num_npcs = 1
+        episode_length_s = 15
     
     class asset(Go1Cfg.asset):
         terminate_after_contacts_on = []
@@ -32,7 +33,6 @@ class Go1PushboxCfg(Go1Cfg):
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
             track_width = 5.0,
-            # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
                 room_size = (1.0, 1.0),

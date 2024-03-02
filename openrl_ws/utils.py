@@ -73,11 +73,13 @@ class mqe_openrl_wrapper(gym.Wrapper):
     def batch_rewards(self, buffer):
 
         step_count = self.env.reward_buffer["step count"]
-        reward_dict = {}
+        reward_dict = {"average step reward": 0}
         for k in self.env.reward_buffer.keys():
             if k == "step count":
                 continue
             reward_dict[k] = self.env.reward_buffer[k] / (self.num_envs * step_count)
+            if "reward" in k:
+                reward_dict["average step reward"] += reward_dict[k]
             self.env.reward_buffer[k] = 0
         self.env.reward_buffer["step count"] = 0
         return reward_dict
@@ -216,6 +218,7 @@ def get_args():
         {"name": "--use_wandb", "action": "store_true", "default": False, "help": "Use wandb for record"},
         {"name": "--use_tensorboard", "action": "store_true", "default": False, "help": "Use tensorboard for record"},
         {"name": "--exp_name", "type": str, "default": "default"},
+        {"name": "--record_video", "action": "store_true", "default": False},
     ]
     # parse arguments
     args = parse_arguments(
@@ -235,6 +238,8 @@ def custom_cfg(args):
         
         if getattr(args, "num_envs", None) is not None:
             cfg.env.num_envs = args.num_envs
+        
+        cfg.env.record_video = args.record_video
 
         return cfg
     

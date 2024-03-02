@@ -26,8 +26,8 @@ class SingleSheepCfg(Go1Cfg):
     
     class terrain(Go1Cfg.terrain):
 
-        num_rows = 2 # 20
-        num_cols = 1 # 50
+        num_rows = 5 # 20
+        num_cols = 10 # 50
 
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
@@ -176,7 +176,7 @@ class NineSheepCfg(Go1Cfg):
                 width = 1.5,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
-                random = (0, 0)
+                random = (0, 1)
             ),
             plane = dict(
                 block_length = 6.0,
@@ -234,9 +234,12 @@ class NineSheepCfg(Go1Cfg):
 
     class rewards(Go1Cfg.rewards):
         class scales:
-            success_reward_scale = 1
+            success_reward_scale = 0
             contact_punishment_scale = -0
-            sheep_movement_reward_scale = 20
+            sheep_movement_reward_scale = 0
+            mixed_sheep_reward_scale = 1
+            sheep_pos_var_exp_punishment_scale = -0
+            sheep_pos_var_lin_punishment_scale = -0
             # sheep_variance_reward_scale = 1
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.

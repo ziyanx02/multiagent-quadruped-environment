@@ -46,7 +46,7 @@ class Go1Cfg(LeggedRobotFieldCfg):
 
 
         # recording cfgs
-        record_video = True
+        record_video = False
         record_actor_id = 0
         recording_width_px = 360
         recording_height_px = 240

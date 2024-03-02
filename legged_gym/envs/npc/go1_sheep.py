@@ -38,7 +38,7 @@ class Go1Sheep(Go1):
         sheep_pos = self.root_states_npc[:, :3].reshape(self.num_envs, -1, 3)
         sheep_avg_pos = torch.mean(sheep_pos, dim=1, keepdim=True).repeat(1, self.cfg.env.num_npcs, 1)
         self.sheep_pos_avg = sheep_avg_pos[:, 0, :2]
-        self.sheep_pos_var = torch.var(sheep_pos, dim=1)[..., :2]
+        self.sheep_pos_var = torch.var(sheep_pos, dim=1, unbiased=False)[..., :2].sum(dim=-1)
 
         dv = self.sheep_movement_randomness * torch.randn_like(sheep_pos, device=self.device) * 2
 
@@ -116,4 +116,7 @@ class Go1Sheep(Go1):
         for i in range(self.num_npcs):
             npc_handle = self.gym.create_actor(env_handle, self.asset_npc, self.start_pose_npc, self.cfg.asset.name_npc, env_id, not self.npc_collision)
             npc_handles.append(npc_handle)
+    
+        self.npc_env_origins = self.env_origins.unsqueeze(1).repeat(1, self.cfg.env.num_npcs, 1)
+
         return npc_handles

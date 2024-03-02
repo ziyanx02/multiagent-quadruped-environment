@@ -1,5 +1,5 @@
 import isaacgym
-from openrl_ws.utils import make_env, get_args
+from openrl_ws.utils import make_env, get_args, custom_cfg, MATWrapper
 
 from openrl.envs.common import make
 from openrl.modules.common import PPONet
@@ -65,9 +65,22 @@ def save_gif(frames, fps):
     print("GIF created successfully.")
 
 args = get_args()
-env, _ = make_env(args)
+env, _ = make_env(args, custom_cfg(args))
 net = PPONet(env, device="cuda")  # Create neural network.
 agent = PPOAgent(net)  # Initialize the agent.
+
+if args.algo == "jrpo" or args.algo == "ppo":
+    from openrl.modules.common import PPONet
+    from openrl.runners.common import PPOAgent
+    net = PPONet(env, cfg=args, device=args.rl_device)
+    agent = PPOAgent(net)
+else:
+    from openrl.modules.common import MATNet
+    from openrl.runners.common import MATAgent
+    env = MATWrapper(env)
+    net = MATNet(env, cfg=args, device=args.rl_device)
+    agent = MATAgent(net, use_wandb=args.use_wandb)
+
 if getattr(args, "checkpoint") is not None:
     agent.load(args.checkpoint)
 

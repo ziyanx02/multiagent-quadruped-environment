@@ -20,7 +20,7 @@ def train(args):
     # task_name = "go1seesaw"
     # task_name = "go1pushbox-plane"
     # task_name = "go1pushbox-gate"
-    args.headless = False
+    args.headless = True
 
     env, env_cfg = make_mqe_env(task_name, args)
     # env, env_cfg = make_env(Go1, Go1PlaneCfg(), args)

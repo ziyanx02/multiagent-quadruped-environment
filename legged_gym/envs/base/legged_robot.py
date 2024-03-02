@@ -68,6 +68,7 @@ class LeggedRobot(BaseTask):
         self.sim_params = sim_params
         self.height_samples = None
         self.debug_viz = getattr(self.cfg.viewer, "debug_viz", False)
+        self.record_now = False
         self.init_done = False
         self._parse_cfg(self.cfg)
         super().__init__(self.cfg, sim_params, physics_engine, sim_device, headless)
@@ -897,7 +898,7 @@ class LeggedRobot(BaseTask):
 
         # if recording video, set up camera
         if self.cfg.env.record_video:
-            from dribblebot.sensors.floating_camera_sensor import FloatingCameraSensor
+            from legged_gym.utils.helpers import FloatingCameraSensor
             self.rendering_camera = FloatingCameraSensor(self)
 
         self.video_writer = None
@@ -929,11 +930,11 @@ class LeggedRobot(BaseTask):
         return self.complete_video_frames
     
     def store_recording(self, env_ids):
-        print("reset video frames")
         if self.cfg.env.record_video and 0 in env_ids:
             if self.complete_video_frames is None:
                 self.complete_video_frames = []
             else:
+                print("Successfully store the video of last episode")
                 self.complete_video_frames = self.video_frames[:]
             self.video_frames = []
 

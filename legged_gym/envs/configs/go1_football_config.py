@@ -90,9 +90,6 @@ class Go1FootballCfg(Go1Cfg):
         termination_terms = [
             "roll",
             "pitch",
-            "z_low",
-            "z_high",
-            "out_of_track",
         ]
 
     class domain_rand(Go1Cfg.domain_rand):

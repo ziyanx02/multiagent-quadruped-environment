@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<robot name="circular">
+    <link name="circular">
+        <visual>
+            <geometry>
+                <cylinder radius="1.3" length="1"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0"/>
+            <geometry>
+                <cylinder radius="1.3" length="1"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.03"/>
+            <inertia ixx="0.532" ixy="0.0" ixz="0.0" iyy="0.532" iyz="0.0" izz="0.1521"/>
+        </inertial>
+    </link>
+</robot>

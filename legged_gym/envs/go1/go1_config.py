@@ -46,10 +46,11 @@ class Go1Cfg(LeggedRobotFieldCfg):
 
 
         # recording cfgs
+        record_video = False
+        record_actor_id = 0
         recording_width_px = 360
         recording_height_px = 240
         recording_mode = "COLOR"
-        num_recording_envs = 1
 
     class asset:
 
@@ -57,7 +58,7 @@ class Go1Cfg(LeggedRobotFieldCfg):
         name = "go1"
         foot_name = "foot"  # name of the feet bodies, used to index body state and contact force tensors
         penalize_contacts_on = ["base", "thigh"]
-        terminate_after_contacts_on = ["base", "imu"]
+        terminate_after_contacts_on = ["base"]
         disable_gravity = False
         # merge bodies connected by fixed joints. Specific fixed joints can be kept by adding " <... dont_collapse="true">
         collapse_fixed_joints = True
@@ -112,9 +113,9 @@ class Go1Cfg(LeggedRobotFieldCfg):
         decimation = 4
         hip_scale_reduction = 0.5
 
-        locomotion_policy_dir = "./legged_gym/utils/locomotion_checkpoints/walk_these_ways"
-        actuator_network_path = "./resources/actuator_nets"
-
+        locomotion_policy_dir = "{LEGGED_GYM_ROOT_DIR}/legged_gym/utils/locomotion_checkpoints/walk_these_ways"
+        actuator_network_path = "{LEGGED_GYM_ROOT_DIR}/resources/actuator_nets"
+        
         class default_command:
 
             lin_vel_x = 1.0
@@ -180,11 +181,10 @@ class Go1Cfg(LeggedRobotFieldCfg):
     class termination:
         # additional factors that determines whether to terminates the episode
         termination_terms = [
-            "roll", # for tilt
+            "roll",
             "pitch",
             "z_low",
             "z_high",
-            # "out_of_track", # for leap, walk
         ]
 
         roll_kwargs = dict(
@@ -250,7 +250,7 @@ class Go1Cfg(LeggedRobotFieldCfg):
             lin_vel = True
             ang_vel = True
             projected_gravity = True
-            yaw = False
+            base_rpy = True
             contact_states = False
             command = True
             height_command = False

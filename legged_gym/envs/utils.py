@@ -2,22 +2,31 @@
 from legged_gym.envs.go1.go1 import Go1
 from legged_gym.envs.npc.go1_sheep import Go1Sheep
 from legged_gym.envs.npc.go1_object import Go1Object
+from legged_gym.envs.npc.go1_tug import Go1Tug
 
 # configs
 from legged_gym.envs.configs.go1_plane_config import Go1PlaneCfg
 from legged_gym.envs.configs.go1_gate_config import Go1GateCfg
-from legged_gym.envs.configs.go1_sheep_config import Go1SheepCfg
+from legged_gym.envs.configs.go1_sheep_config import SingleSheepCfg, NineSheepCfg
 from legged_gym.envs.configs.go1_football_config import Go1FootballCfg
 from legged_gym.envs.configs.go1_seesaw_config import Go1SeesawCfg
-from legged_gym.envs.configs.go1_pushbox_config import Go1PushboxCfg
+from legged_gym.envs.configs.go1_pushbox_config import Go1PushboxPlaneCfg, Go1PushboxGateCfg
+from legged_gym.envs.configs.go1_bridge_config import Go1BridgeCfg
+from legged_gym.envs.configs.go1_race_config import Go1RaceCfg
+from legged_gym.envs.configs.go1_wrestling_config import Go1WrestlingCfg
+from legged_gym.envs.configs.go1_tug_config import Go1TugCfg
 
 # wrappers
 from legged_gym.envs.wrappers.empty_wrapper import EmptyWrapper
 from legged_gym.envs.wrappers.go1_gate_wrapper import Go1GateWrapper
-from legged_gym.envs.wrappers.go1_pushbox_wrapper import Go1PushboxWrapper
+from legged_gym.envs.wrappers.go1_pushbox_wrapper import Go1PushboxPlaneWrapper, Go1PushboxGateWrapper
 from legged_gym.envs.wrappers.go1_sheep_wrapper import Go1SheepWrapper
 from legged_gym.envs.wrappers.go1_seesaw_wrapper import Go1SeesawWrapper
 from legged_gym.envs.wrappers.go1_football_wrapper import Go1FootballWrapper
+from legged_gym.envs.wrappers.go1_bridge_wrapper import Go1BridgeWrapper
+from legged_gym.envs.wrappers.go1_race_wrapper import Go1RaceWrapper
+from legged_gym.envs.wrappers.go1_wrestling_wrapper import Go1WrestlingWrapper
+from legged_gym.envs.wrappers.go1_tug_wrapper import Go1TugWrapper
 
 from legged_gym.utils import get_args, make_env
 
@@ -32,9 +41,14 @@ ENV_DICT = {
         "config": Go1GateCfg,
         "wrapper": Go1GateWrapper
     },
-    "go1sheep": {
+    "go1sheep-easy": {
         "class": Go1Sheep,
-        "config": Go1SheepCfg,
+        "config": SingleSheepCfg,
+        "wrapper": Go1SheepWrapper
+    },
+    "go1sheep-hard": {
+        "class": Go1Sheep,
+        "config": NineSheepCfg,
         "wrapper": Go1SheepWrapper
     },
     "go1football": {
@@ -47,10 +61,35 @@ ENV_DICT = {
         "config": Go1SeesawCfg,
         "wrapper": Go1SeesawWrapper
     },
-    "go1pushbox": {
+    "go1pushbox-plane": {
         "class": Go1Object,
-        "config": Go1PushboxCfg,
-        "wrapper": Go1PushboxWrapper
+        "config": Go1PushboxPlaneCfg,
+        "wrapper": Go1PushboxPlaneWrapper
+    },
+    "go1pushbox-gate": {
+        "class": Go1Object,
+        "config": Go1PushboxGateCfg,
+        "wrapper": Go1PushboxGateWrapper
+    },
+    "go1race": {
+        "class": Go1Object,
+        "config": Go1RaceCfg,
+        "wrapper": Go1RaceWrapper
+    },
+    "go1bridge": {
+        "class": Go1,
+        "config": Go1BridgeCfg,
+        "wrapper": Go1BridgeWrapper
+    },
+    "go1wrestling": {
+        "class": Go1,
+        "config": Go1WrestlingCfg,
+        "wrapper": Go1WrestlingWrapper
+    },
+    "go1tug": {
+        "class": Go1Tug,
+        "config": Go1TugCfg,
+        "wrapper": Go1TugWrapper
     },
 }
 

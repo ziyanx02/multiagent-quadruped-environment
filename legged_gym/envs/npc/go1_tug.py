@@ -11,24 +11,36 @@ from legged_gym import LEGGED_GYM_ROOT_DIR
 
 from legged_gym.envs.go1.go1 import Go1
 
-class Go1Object(Go1):
+class Go1Tug(Go1):
 
     def __init__(self, cfg, sim_params, physics_engine, sim_device, headless):
 
         self.npc_collision = getattr(cfg.asset, "npc_collision", True)
         self.fix_npc_base_link = getattr(cfg.asset, "fix_npc_base_link", False)
         self.npc_gravity = getattr(cfg.asset, "npc_gravity", True)
-
+    
         super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
 
     def _step_npc(self):
-        return
+
+        dog_pos = self.root_states[:, :3].reshape(self.num_envs, -1, 3)
+        object_pos = self.root_states_npc[:, :3].reshape(self.num_envs, -1, 3)
+
+        object_pos[:, :, 2] = 0
+
+        npc_indices = self.npc_indices.reshape(-1)
+        self.all_root_states[npc_indices, 2] = 0.5
+        self.all_root_states[npc_indices, 3:5] = 0
+        self.gym.set_actor_root_state_tensor_indexed(self.sim,
+                                                     gymtorch.unwrap_tensor(self.all_root_states),
+                                                     gymtorch.unwrap_tensor(npc_indices), len(npc_indices))
 
     def _prepare_npc(self):
-    
+        
+        #creat npc asset
         self.init_state_npc = getattr(self.cfg.init_state, "init_states_npc")
         if hasattr(self.cfg.init_state, "default_npc_joint_angles"):
-            self.default_dof_pos_npc = torch.tensor(self.cfg.init_state.default_npc_joint_angles, dtype=torch.float, device=self.device, requires_grad=False).reshape(1, -1)
+            self.default_dof_pos_npc = torch.tensor(self.cfg.asset.default_npc_joint_angles, dtype=torch.float, device=self.device, requires_grad=False).reshape(1, -1)
         else:
             self.default_dof_pos_npc = torch.zeros(self.num_actions_npc, dtype=torch.float, device=self.device, requires_grad=False).unsqueeze(0)
         
@@ -56,8 +68,6 @@ class Go1Object(Go1):
 
         npc_handles = []
         for i in range(self.num_npcs):
-            pos = self.env_origins[i].clone()
-            self.start_pose_npc.p = gymapi.Vec3(*pos)
-            npc_handle = self.gym.create_actor(env_handle, self.asset_npc, self.start_pose_npc, self.cfg.asset.name_npc, env_id, not self.npc_collision, 0)
+            npc_handle = self.gym.create_actor(env_handle, self.asset_npc, self.start_pose_npc, self.cfg.asset.name_npc, env_id, not self.npc_collision)
             npc_handles.append(npc_handle)
         return npc_handles

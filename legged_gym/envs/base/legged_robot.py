@@ -68,6 +68,7 @@ class LeggedRobot(BaseTask):
         self.sim_params = sim_params
         self.height_samples = None
         self.debug_viz = getattr(self.cfg.viewer, "debug_viz", False)
+        self.record_now = False
         self.init_done = False
         self._parse_cfg(self.cfg)
         super().__init__(self.cfg, sim_params, physics_engine, sim_device, headless)
@@ -143,6 +144,7 @@ class LeggedRobot(BaseTask):
         self.compute_reward()
         env_ids = self.reset_buf.nonzero(as_tuple=False).flatten()
         self._step_npc()
+        self.reset_ids = env_ids
         self.reset_idx(env_ids)
         self.compute_observations() # in some cases a simulation step might be required to refresh some obs (for example body positions)
 
@@ -152,11 +154,18 @@ class LeggedRobot(BaseTask):
 
         # if self.viewer and self.enable_viewer_sync and self.debug_viz:
         #     self._draw_debug_vis()
+        self._render_headless()
 
     def check_termination(self):
         """ Check if environments need to be reset
         """
-        self.reset_buf = torch.any(torch.norm(self.contact_forces[:, self.termination_contact_indices, :], dim=-1) > 1., dim=1)
+        contact_forces_limit = 1.0 if self.cfg.env.env_type == 0 else 10000.0
+        if len(self.termination_contact_indices):
+            contact_forces = self.contact_forces[:, : self.num_agents * self.num_bodies, :].reshape(self.num_envs, self.num_agents, self.num_bodies, -1)
+            self.collide_buf = torch.any(torch.norm(contact_forces[:, :, self.termination_contact_indices, :], dim=-1).reshape(self.num_envs, -1) > contact_forces_limit, dim=1)
+            self.reset_buf = self.collide_buf
+        else:
+            self.reset_buf = False
         self.time_out_buf = self.episode_length_buf > self.max_episode_length # no terminal reward for time-outs
         self.reset_buf |= self.time_out_buf
 
@@ -189,6 +198,8 @@ class LeggedRobot(BaseTask):
         self._resample_commands(env_ids)
         self._reset_buffers(env_ids)
 
+        self.store_recording(env_ids)
+    
     def compute_reward(self):
         """ Compute rewards
             Calls each reward function which had a non-zero scale (processed in self._prepare_reward_function())
@@ -434,6 +445,11 @@ class LeggedRobot(BaseTask):
             if getattr(self.cfg.domain_rand, "init_npc_base_pos_range", None) is not None:
                 self.root_states_npc[npc_ids, 0:1] += torch_rand_float(*self.cfg.domain_rand.init_npc_base_pos_range["x"], (len(npc_ids), 1), device=self.device)
                 self.root_states_npc[npc_ids, 1:2] += torch_rand_float(*self.cfg.domain_rand.init_npc_base_pos_range["y"], (len(npc_ids), 1), device=self.device)
+
+            if getattr(self.cfg.domain_rand, "init_npc_base_rpy_range", None) is not None:
+                self.root_states_npc[npc_ids, 3:7] = quat_from_euler_xyz(torch_rand_float(*self.cfg.domain_rand.init_npc_base_rpy_range["r"], (len(npc_ids), 1), device=self.device),
+                                                                         torch_rand_float(*self.cfg.domain_rand.init_npc_base_rpy_range["p"], (len(npc_ids), 1), device=self.device),
+                                                                         torch_rand_float(*self.cfg.domain_rand.init_npc_base_rpy_range["y"], (len(npc_ids), 1), device=self.device)).squeeze()
 
         # base velocities
         if getattr(self.cfg.domain_rand, "init_base_vel_range", None) is None:
@@ -879,35 +895,49 @@ class LeggedRobot(BaseTask):
 
         self.termination_contact_indices = torch.zeros(len(termination_contact_names), dtype=torch.long, device=self.device, requires_grad=False)
         for i in range(len(termination_contact_names)):
-            self.termination_contact_indices[i] = self.gym.find_actor_rigid_body_handle(self.envs[0], self.actor_handles[0][0], termination_contact_names[i]) # TODO: chenck its utility
+            self.termination_contact_indices[i] = self.gym.find_actor_rigid_body_handle(self.envs[0], self.actor_handles[0][0], termination_contact_names[i])
+
+        # if recording video, set up camera
+        if self.cfg.env.record_video:
+            from legged_gym.utils.helpers import FloatingCameraSensor
+            self.rendering_camera = FloatingCameraSensor(self)
+
+        self.video_writer = None
+        self.video_frames = []
+        self.complete_video_frames = []
+
+    def _render_headless(self):
+        if self.record_now and self.complete_video_frames is not None and len(self.complete_video_frames) == 0:
+            bx, by, bz = self.root_states[self.cfg.env.record_actor_id, 0], self.root_states[self.cfg.env.record_actor_id, 1], self.root_states[self.cfg.env.record_actor_id, 2]
+            target_loc = [bx, by , bz]
+            cam_distance = [0, -1.0, 1.0]
+            self.rendering_camera.set_position(target_loc, cam_distance)
+            self.video_frame = self.rendering_camera.get_observation()
+            self.video_frames.append(self.video_frame)
 
     def start_recording(self):
+        print("start recording")
         self.complete_video_frames = None
         self.record_now = True
-
-    def start_recording_eval(self):
-        self.complete_video_frames_eval = None
-        self.record_eval_now = True
 
     def pause_recording(self):
         self.complete_video_frames = []
         self.video_frames = []
         self.record_now = False
 
-    def pause_recording_eval(self):
-        self.complete_video_frames_eval = []
-        self.video_frames_eval = []
-        self.record_eval_now = False
-
     def get_complete_frames(self):
         if self.complete_video_frames is None:
             return []
         return self.complete_video_frames
-
-    def get_complete_frames_eval(self):
-        if self.complete_video_frames_eval is None:
-            return []
-        return self.complete_video_frames_eval
+    
+    def store_recording(self, env_ids):
+        if self.cfg.env.record_video and 0 in env_ids:
+            if self.complete_video_frames is None:
+                self.complete_video_frames = []
+            else:
+                print("Successfully store the video of last episode")
+                self.complete_video_frames = self.video_frames[:]
+            self.video_frames = []
 
     def _create_terrain(self):
         mesh_type = self.cfg.terrain.mesh_type

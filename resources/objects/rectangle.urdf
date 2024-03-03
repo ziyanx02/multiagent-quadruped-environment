@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<robot name="rectangle">
+    <link name="rectangle">
+        <visual>
+            <geometry>
+                <box size="0.2 5.0 0.08" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.2 5.0 0.08" />
+            </geometry>
+        </collision>
+    </link>
+</robot>

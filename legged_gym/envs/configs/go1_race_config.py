@@ -2,46 +2,66 @@ import numpy as np
 from legged_gym.utils.helpers import merge_dict
 from legged_gym.envs.go1.go1 import Go1Cfg
 
-class Go1SeesawCfg(Go1Cfg):
+class Go1RaceCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
-        env_name = "go1seesaw"
+        env_name = "go1raceCfg"
         num_envs = 5 # 4096
         num_agents = 2
         num_npcs = 1
         num_actions_npc = 1
-        episode_length_s = 10 # episode length in seconds
+        env_type = 1
+        episode_length_s = 5 # episode length in seconds
+
     
     class asset(Go1Cfg.asset):
-        file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/seesaw.urdf"
-        name_npc = "seesaw"
+        file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/rotation.urdf"
+        name_npc = "rotation"
         npc_collision = True
         fix_npc_base_link = True
-        npc_gravity = True
-    
+
+
     class terrain(Go1Cfg.terrain):
 
-        num_rows = 1 # 20
-        num_cols = 1 # 50
+        mesh_type = "trimesh"
+        selected = "BarrierTrack"
+        num_rows = 5 # 20
+        num_cols = 10 # 50
+        max_init_terrain_level = 2
+        border_size = 1
+        slope_treshold = 20.
+        curriculum = False
 
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
                 "init",
-                "plane",
+                "rotation",
+                "race",
                 "wall",
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
-            track_width = 3.0,
+            track_width = 3.5,
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
-                block_length = 2.0,
-                room_size = (1.0, 1.45),
+                block_length = 0,
+                room_size = (0.0, 0.0),
                 border_width = 0.00,
                 offset = (0, 0),
             ),
-            plane = dict(
-                block_length = 8.0,
+            rotation = dict(
+                block_length = 3.5,
+                depth = 0.1, # size along the forward axis
+                offset = (0, 0),
+                wide_px = (0.2,0.2)
+            ),
+            race = dict(
+                block_length = 4.0,
+                width = 0.6,
+                depth = 0.1, # size along the forward axis
+                offset = (0, 0),
+                random = (0.0, 0.1),
+                barrier = (1.0, 1.75, 3.0, -3.0, 0.3)
             ),
             wall = dict(
                 block_length = 0.1
@@ -49,26 +69,29 @@ class Go1SeesawCfg(Go1Cfg):
             wall_height= 0.5,
             virtual_terrain = False, # Change this to False for real terrain
             no_perlin_threshold = 0.06,
-            add_perlin_noise = False
+            add_perlin_noise = False,
        ))
+        
+        x_limits = [5.0,]
+        y_limits = [-1.5, 1.5]
 
     class command(Go1Cfg.command):
 
         class cfg(Go1Cfg.command.cfg):
-            vel = True         # lin_vel, ang_vel
+            vel = False         # lin_vel, ang_vel
 
     class init_state(Go1Cfg.init_state):
         multi_init_state = True
         init_state_class = Go1Cfg.init_state
         init_states = [
             init_state_class(
-                pos = [1.5, 0.5, 0.42],
+                pos = [0.5, 1.0, 0.34],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
             init_state_class(
-                pos = [0.5, -0.5, 0.42],
+                pos = [0.5, -1.0, 0.34],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
@@ -76,20 +99,15 @@ class Go1SeesawCfg(Go1Cfg):
         ]
         init_states_npc = [
             init_state_class(
-                pos = [8.0, .0, 1.0],
+                pos = [1.75, 0.0, 0.04],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
         ]
-        default_npc_joint_angles = [-0.2]
 
     class control(Go1Cfg.control):
         control_type = 'C'
-
-        class default_command(Go1Cfg.control.default_command):
-
-            gait = "pacing"
 
     class termination(Go1Cfg.termination):
         # additional factors that determines whether to terminates the episode
@@ -98,40 +116,25 @@ class Go1SeesawCfg(Go1Cfg):
             "roll",
             "pitch",
             "z_low",
+            "z_high",
+            "out_of_track",
         ]
 
     class domain_rand(Go1Cfg.domain_rand):
-        init_base_pos_range = dict(
-            x= [-0.1, 0.1],
-            y= [-0.1, 0.1],
-        )
+        init_base_pos_range = None
         init_npc_base_pos_range = None
-
-    class obs(Go1Cfg.obs):
-
-        class cfgs(Go1Cfg.obs.cfgs):
-
-            env_info = False
 
     class rewards(Go1Cfg.rewards):
         class scales:
-            
-            height_reward_scale = 1
+
+            target_reward_scale = 1
             success_reward_scale = 10
-            contact_punishment_scale = -2
-            agent_distance_punishment_scale = -0.25
-            x_movement_reward_scale = 5
-            fall_punishment_scale = -2
-            y_punishment_scale = -0.5
-            # tracking_ang_vel = 0.05
-            # world_vel_l2norm = -1.
-            # legs_energy_substeps = -1e-5
-            # alive = 2.
-            # penetrate_depth = -3e-3
-            # penetrate_volume = -3e-3
-            # exceed_dof_pos_limits = -1e-1
-            # exceed_torque_limits_i = -2e-1
+            lin_vel_x_reward_scale = 0
+            approach_frame_punishment_scale = 0
+            agent_distance_punishment_scale = -0.5
+            lin_vel_y_punishment_scale = 0
+            command_value_punishment_scale = 0
 
     class viewer(Go1Cfg.viewer):
-        pos = [0., 2., 5.]  # [m]
-        lookat = [4., 2., 0.]  # [m]
+        pos = [12., 20., 20.]  # [m]
+        lookat = [13., 20., 0.]  # [m]

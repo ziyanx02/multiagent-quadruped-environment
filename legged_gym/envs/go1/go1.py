@@ -116,6 +116,7 @@ class Go1(LeggedRobotField):
         Args:
             env_ids (list[int]): List of environment ids which must be reset
         """
+        self.reset_ids = env_ids
         if len(env_ids) == 0:
             return
         # update curriculum
@@ -133,6 +134,8 @@ class Go1(LeggedRobotField):
 
         # self._resample_commands(env_ids)
         self._reset_buffers(env_ids)
+
+        self.store_recording(env_ids)
     
     def _reset_buffers(self, env_ids):
         super()._reset_buffers(env_ids)
@@ -185,11 +188,8 @@ class Go1(LeggedRobotField):
             assert self.cfg.control.control_type == "C", "To active clock_inputs, control_type should be set to \"C\" instead of \"{}\"".format(self.cfg.control.control_type)
             self.obs_buf.clock_inputs = copy(self.clock_inputs)
         
-        if self.cfg.obs.cfgs.yaw:
-            forward = quat_apply(self.base_quat, self.forward_vec)
-            heading = torch.atan2(forward[:, 1], forward[:, 0]).unsqueeze(1)
-            # heading_error = torch.clip(0.5 * wrap_to_pi(heading), -1., 1.).unsqueeze(1)
-            self.obs_buf.yaw = heading
+        if self.cfg.obs.cfgs.base_rpy:
+            self.obs_buf.base_rpy = torch.stack(get_euler_xyz(self.base_quat), dim=1)
         
         if self.cfg.obs.cfgs.env_info and hasattr(self, "env_info"):
             self.obs_buf.env_info = self.env_info
@@ -359,11 +359,11 @@ class Go1(LeggedRobotField):
         ### get gym GPU state tensors ###
         super()._init_buffers()
 
-        self.lag_buffer = [torch.zeros_like(self.dof_pos) for i in range(self.cfg.domain_rand.lag_timesteps + 1)]
+        self.lag_buffer = [torch.zeros_like(self.dof_pos, device=self.device) for i in range(self.cfg.domain_rand.lag_timesteps + 1)]
 
         if self.cfg.control.control_type == "actuator_net" or self.cfg.control.control_type == "C":
 
-            actuator_network = torch.jit.load(self.cfg.control.actuator_network_path + "/unitree_go1.pt").to(self.device)
+            actuator_network = torch.jit.load(self.cfg.control.actuator_network_path.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR) + "/unitree_go1.pt", map_location=self.device)
 
             def eval_actuator_network(joint_pos, joint_pos_last, joint_pos_last_last, joint_vel, joint_vel_last,
                                       joint_vel_last_last):
@@ -393,8 +393,8 @@ class Go1(LeggedRobotField):
         self.locomotion_obs = locomotion_obs.repeat([self.num_envs * self.num_agents, 1])
         self.history_locomotion_obs = torch.zeros(self.num_envs * self.num_agents, 2100, dtype=torch.float, device=self.device, requires_grad=False)
         
-        body = torch.jit.load(self.cfg.control.locomotion_policy_dir + '/body_latest.jit')
-        adaptation_module = torch.jit.load(self.cfg.control.locomotion_policy_dir + '/adaptation_module_latest.jit')
+        body = torch.jit.load(self.cfg.control.locomotion_policy_dir.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR) + '/body_latest.jit')
+        adaptation_module = torch.jit.load(self.cfg.control.locomotion_policy_dir.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR) + '/adaptation_module_latest.jit')
 
         def policy(obs, info={}):
             with torch.no_grad():

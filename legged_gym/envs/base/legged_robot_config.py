@@ -42,6 +42,8 @@ class LeggedRobotCfg(BaseConfig):
         episode_length_s = 20 # episode length in seconds
         num_npcs = 0
         num_actions_npc = 0
+        env_type = 0 # 0 is cooperation and 1 is competition
+
 
     class terrain:
         mesh_type = 'trimesh' # "heightfield" # none, plane, heightfield or trimesh

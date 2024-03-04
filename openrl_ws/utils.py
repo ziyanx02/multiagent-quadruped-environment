@@ -78,7 +78,7 @@ class mqe_openrl_wrapper(gym.Wrapper):
             if k == "step count":
                 continue
             reward_dict[k] = self.env.reward_buffer[k] / (self.num_envs * step_count)
-            if "reward" in k:
+            if "reward" in k or "punishment" in k:
                 reward_dict["average step reward"] += reward_dict[k]
             self.env.reward_buffer[k] = 0
         self.env.reward_buffer["step count"] = 0

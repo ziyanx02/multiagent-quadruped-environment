@@ -62,13 +62,13 @@ class Go1SeesawCfg(Go1Cfg):
         init_state_class = Go1Cfg.init_state
         init_states = [
             init_state_class(
-                pos = [1.5, 0.5, 0.42],
+                pos = [0.0, 0.0, 0.42],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
             init_state_class(
-                pos = [0.5, -0.5, 0.42],
+                pos = [0.0, 0.0, 0.42],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],

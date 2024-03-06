@@ -94,7 +94,6 @@ class LeggedRobotField(LeggedRobot):
 
     ##### Working on simulation steps #####
     def pre_physics_step(self, actions):
-        self.volume_sample_points_refreshed = False
         actions_preprocessed = False
         if isinstance(self.cfg.normalization.clip_actions, (tuple, list)):
             self.cfg.normalization.clip_actions = torch.tensor(
@@ -182,41 +181,6 @@ class LeggedRobotField(LeggedRobot):
             actions = self.motor_strength * actions
         return super()._compute_torques(actions)
     
-    def _get_terrain_curriculum_move(self, env_ids):
-        if not (self.cfg.terrain.selected == "BarrierTrack" and self.cfg.terrain.BarrierTrack_kwargs["virtual_terrain"] and hasattr(self, "body_sample_indices")):
-            if getattr(self.cfg.curriculum, "no_moveup_when_fall", False):
-                move_up, move_down = super()._get_terrain_curriculum_move(env_ids)
-                move_up = move_up & self.time_out_buf[env_ids]
-                return move_up, move_down
-            else:
-                return super()._get_terrain_curriculum_move(env_ids)
-        distance = torch.norm(self.root_states[env_ids, :2] - self.env_origins[env_ids, :2], dim=1)
-        moved = distance > (self.terrain.env_block_length * 1.5) # 0.1 is the guess of robot touching the obstacle block.
-        passed_depths = self.terrain.get_passed_obstacle_depths(
-            self.terrain_levels[env_ids],
-            self.terrain_types[env_ids],
-            self.volume_sample_points[env_ids, :, 0].max(-1)[0], # choose the sample points that goes the furthest
-        ) + 1e-12
-
-        p_v_ok = p_d_ok = 1
-        p_v_too_much = p_d_too_much = 0
-        # NOTE: only when penetrate_* reward is computed does this function check the penetration
-        if "penetrate_volume" in self.episode_sums:
-            p_v = self.episode_sums["penetrate_volume"][env_ids]
-            p_v_normalized = p_v / passed_depths / self.reward_scales["penetrate_volume"]
-            p_v_ok = p_v_normalized < self.cfg.curriculum.penetrate_volume_threshold_harder
-            p_v_too_much = p_v_normalized > self.cfg.curriculum.penetrate_volume_threshold_easier
-        if "penetrate_depth" in self.episode_sums:
-            p_d = self.episode_sums["penetrate_depth"][env_ids]
-            p_d_normalized = p_d / passed_depths / self.reward_scales["penetrate_depth"]
-            p_d_ok = p_d_normalized < self.cfg.curriculum.penetrate_depth_threshold_harder
-            p_d_too_much = p_d_normalized > self.cfg.curriculum.penetrate_depth_threshold_easier
-
-        # print("p_v:", p_v_normalized, "p_d:", p_d_normalized)
-        move_up = p_v_ok * p_d_ok * moved
-        move_down = ((~moved) + p_v_too_much + p_d_too_much).to(bool)
-        return move_up, move_down
-
     ##### Dealing with observations #####
     def _init_buffers(self):
         # update obs_scales components incase there will be one-by-one scaling

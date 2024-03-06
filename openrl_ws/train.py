@@ -14,7 +14,12 @@ def train(args):
     start_time = datetime.now()
     start_time_str = start_time.strftime("%m/%d/%Y-%H:%M:%S")
 
-    env, env_cfg = make_env(args, custom_cfg(args))
+    if args.algo == "sppo" or args.algo == "dppo":
+        single_agent = True
+    else:
+        single_agent = False
+    
+    env, env_cfg = make_env(args, custom_cfg(args), single_agent)
     
     if args.algo == "ppo":
         args.config = "./openrl_ws/cfgs/ppo.yaml"
@@ -32,10 +37,13 @@ def train(args):
         net = MATNet(env, cfg=args, device=args.rl_device)
         agent = MATAgent(net, use_wandb=args.use_wandb)
 
+    elif args.algo == "sppo" or args.algo == "dppo":
+        pass
+
     else:
         raise NotImplementedError
     
-    if args.algo == "jrpo" or args.algo == "ppo":
+    if "po" in args.algo:
         from openrl.modules.common import PPONet
         from openrl.runners.common import PPOAgent
         net = PPONet(env, cfg=args, device=args.rl_device)

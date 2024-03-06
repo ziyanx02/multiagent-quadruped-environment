@@ -1,0 +1,11 @@
+lr: 7e-4
+critic_lr: 7e-4
+episode_length: 200
+run_dir: ./results/
+log_interval: 5
+use_recurrent_policy: true
+use_joint_action_loss: false
+use_valuenorm: true
+use_adv_normalize: true
+dual_clip_ppo: true
+dual_clip_coeff: 3.0

@@ -268,6 +268,10 @@ class BarrierTrack:
             reset_pos_px[i, 0] = room_origin_px[0] + int(room_size_px[0] / 2)
             reset_pos_px[i, 1] = room_origin_px[1] + i *  (room_size_px[1] + border_px) + int(room_size_px[1] / 2)
 
+        block_heighfield[ :, : wall_thickness_px] = wall_height
+        block_heighfield[ :, -wall_thickness_px :] = wall_height
+        block_heighfield[ : wall_thickness_px, :] = wall_height
+
         block_info = {}
         
         height_offset_px = 0

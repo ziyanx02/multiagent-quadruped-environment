@@ -28,9 +28,12 @@ from isaacgym.gymutil import parse_device_str
 from legged_gym.envs.go1.go1_config import Go1Cfg
 from openrl.envs.vec_env import BaseVecEnv
 
-def make_env(args, custom_cfg=None):
+def make_env(args, custom_cfg=None, single_agent=False):
     
     env, env_cfg = make_mqe_env(args.task, args, custom_cfg=custom_cfg)
+
+    if single_agent:
+        env = SingleAgentWrapper(env)
 
     return mqe_openrl_wrapper(env), env_cfg
 
@@ -122,6 +125,30 @@ class MATWrapper(gym.Wrapper):
     def step(self, actions, extra_data: Optional[Dict[str, Any]] = None):
         """Step all environments."""
         return self.env.step(actions, extra_data)
+
+class SingleAgentWrapper(gym.Wrapper):
+    
+    def __init__(self, env):
+        """Wraps an environment to allow a modular transformation of the :meth:`step` and :meth:`reset` methods.
+
+        Args:
+            env: The environment to wrap
+        """
+        super().__init__(env)
+
+        self.num_envs = self.env.num_envs * self.env.num_agents
+        self.num_agents = 1
+
+    def reset(self, **kwargs):
+        """Reset all environments."""
+        obs = self.env.reset(**kwargs)
+        return obs.reshape(self.num_envs, 1, -1)
+
+    def step(self, actions, extra_data: Optional[Dict[str, Any]] = None):
+        """Step all environments."""
+        actions = actions.reshape(self.env.num_envs, self.env.num_agents, -1)
+        obs, reward, termination, info = self.env.step(actions)
+        return obs.reshape(self.num_envs, 1, -1), reward.reshape(self.num_envs, 1), torch.stack([termination, termination], dim=1).reshape(self.num_envs), info
 
 def parse_arguments(parser, headless=False, no_graphics=False, custom_parameters=[]):
 

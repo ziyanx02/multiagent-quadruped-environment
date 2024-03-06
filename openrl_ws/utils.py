@@ -81,6 +81,8 @@ class mqe_openrl_wrapper(gym.Wrapper):
             if k == "step count":
                 continue
             reward_dict[k] = self.env.reward_buffer[k] / (self.num_envs * step_count)
+            if hasattr(self.env, "single_agent_reward_scale"):
+                reward_dict[k] *= self.env.single_agent_reward_scale
             if "reward" in k or "punishment" in k:
                 reward_dict["average step reward"] += reward_dict[k]
             self.env.reward_buffer[k] = 0
@@ -138,6 +140,8 @@ class SingleAgentWrapper(gym.Wrapper):
 
         self.num_envs = self.env.num_envs * self.env.num_agents
         self.num_agents = 1
+
+        self.single_agent_reward_scale = self.env.num_agents
 
     def reset(self, **kwargs):
         """Reset all environments."""

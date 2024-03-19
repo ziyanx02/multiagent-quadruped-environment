@@ -16,3 +16,4 @@ class EmptyWrapper(gym.Wrapper):
                 self.__setattr__(key, getattr(self.env.cfg.rewards.scales, key))
 
         self.obs_ids = torch.eye(self.num_agents, dtype=torch.float32, device=self.device).repeat(self.num_envs, 1).reshape(self.num_envs, self.num_agents, -1)
+    

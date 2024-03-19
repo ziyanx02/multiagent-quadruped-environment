@@ -111,8 +111,11 @@ class SingleSheepCfg(Go1Cfg):
     class rewards(Go1Cfg.rewards):
         class scales:
             success_reward_scale = 1
-            contact_punishment_scale = -0
+            contact_punishment_scale = 0
             sheep_movement_reward_scale = 2
+            mixed_sheep_reward_scale = 0
+            sheep_pos_var_exp_punishment_scale = 0
+            sheep_pos_var_lin_punishment_scale = 0
             # sheep_variance_reward_scale = 1
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.
@@ -235,11 +238,11 @@ class NineSheepCfg(Go1Cfg):
     class rewards(Go1Cfg.rewards):
         class scales:
             success_reward_scale = 0
-            contact_punishment_scale = -0
+            contact_punishment_scale = 0
             sheep_movement_reward_scale = 0
             mixed_sheep_reward_scale = 1
-            sheep_pos_var_exp_punishment_scale = -0
-            sheep_pos_var_lin_punishment_scale = -0
+            sheep_pos_var_exp_punishment_scale = 0
+            sheep_pos_var_lin_punishment_scale = 0
             # sheep_variance_reward_scale = 1
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.

@@ -2,6 +2,6 @@ seed: 0
 lr: 7e-4
 episode_length: 200
 run_dir: ./results/
-log_interval: 10
+log_interval: 5
 use_valuenorm: true
 use_adv_normalize: true

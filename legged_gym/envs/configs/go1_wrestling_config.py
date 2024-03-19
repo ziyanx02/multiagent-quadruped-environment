@@ -6,9 +6,10 @@ class Go1WrestlingCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1wrestling"
-        num_envs = 25 # 4096
+        num_envs = 1 # 4096
         num_agents = 2
         env_type = 1
+        num_npcs = 1
         obs_components = [
             "proprioception", # 48
             # "height_measurements", # 187
@@ -26,6 +27,11 @@ class Go1WrestlingCfg(Go1Cfg):
     #         delay_action_obs = True
     #         latency_range = [0.04-0.0025, 0.04+0.0075]
     #### uncomment the above to train non-virtual terrain
+        
+    class asset(Go1Cfg.asset):
+        file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/wrestling/urdf/wrestling.urdf"
+        name_npc = "wrestling"
+        fix_npc_base_link = True
 
     class terrain(Go1Cfg.terrain):
 
@@ -43,14 +49,17 @@ class Go1WrestlingCfg(Go1Cfg):
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
                 "init",
-                "rectangle",
+                # "rectangle",
+                "wall",
+                "plane",
+                "wall",
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
-            track_width = 3.5,
+            track_width = 6,
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
-                block_length = 0.5,
+                block_length = 0.0,
                 room_size = (.0, 0.0),
                 border_width = 0.00,
                 offset = (0, 0),
@@ -62,13 +71,19 @@ class Go1WrestlingCfg(Go1Cfg):
                 lenght = 3.0, 
                 offset = (0, 0),
             ),
+            wall = dict(
+                block_length = 0.1
+            ),
+            plane = dict(
+                block_length = 7,
+            ),
             circular = dict(
                 block_length = 4.0,
                 height = 0.5,
                 radius = 1.5,
                 offset = (0, 0),
             ),
-            wall_height= 0.0,
+            wall_height= 0.001,
             virtual_terrain = False, # Change this to False for real terrain
             no_perlin_threshold = 0.06,
             add_perlin_noise = False
@@ -88,17 +103,26 @@ class Go1WrestlingCfg(Go1Cfg):
         init_state_class = Go1Cfg.init_state
         init_states = [
             init_state_class(
-                pos = [2.0, 1., 0.84],
+                pos = [3.1, 1., 0.74],
                 rot = [0.0, 0.0, -1.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
             init_state_class(
-                pos = [2.0, -1.0, 0.84],
-                rot = [0.0, 0.0, 1., 1.0],
+                pos = [3.1, -1.0, 0.74],
+                rot = [0.0, 0.0, 1.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
+        ]
+        init_states_npc = [
+            init_state_class(
+                pos = [3.1, 0.0, 0.0],
+                rot = [0.0, 0.0, 0.0, 1.0],
+                lin_vel = [0.0, 0.0, 0.0],
+                ang_vel = [0.0, 0.0, 0.0],
+                
+            )
         ]
 
     class control(Go1Cfg.control):
@@ -111,7 +135,6 @@ class Go1WrestlingCfg(Go1Cfg):
             "roll",
             "pitch",
             "z_low",
-            "z_high",
             "out_of_track",
         ]
         z_low_kwargs = dict(
@@ -126,7 +149,7 @@ class Go1WrestlingCfg(Go1Cfg):
             x= [-0.1, 0.1],
             y= [-0.1, 0.1],
         )
-
+        init_npc_base_pos_range = None
     class rewards(Go1Cfg.rewards):
         class scales:
 

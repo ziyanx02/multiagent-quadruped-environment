@@ -5,10 +5,11 @@ from legged_gym.envs.go1.go1 import Go1Cfg
 class Go1BridgeCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
-        env_name = "go1gate"
-        num_envs = 25 # 4096
+        env_name = "go1wrestling"
+        num_envs = 1 # 4096
         num_agents = 2
         env_type = 1
+        num_npcs = 1
         obs_components = [
             "proprioception", # 48
             # "height_measurements", # 187
@@ -20,13 +21,17 @@ class Go1BridgeCfg(Go1Cfg):
         ]
         episode_length_s = 5 # episode length in seconds
 
-        
     #### uncomment this to train non-virtual terrain
     # class sensor(A1FieldCfg.sensor):
     #     class proprioception(A1FieldCfg.sensor.proprioception):
     #         delay_action_obs = True
     #         latency_range = [0.04-0.0025, 0.04+0.0075]
     #### uncomment the above to train non-virtual terrain
+        
+    class asset(Go1Cfg.asset):
+        file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/bridge/urdf/bridge.urdf"
+        name_npc = "bridge"
+        fix_npc_base_link = True
 
     class terrain(Go1Cfg.terrain):
 
@@ -44,11 +49,14 @@ class Go1BridgeCfg(Go1Cfg):
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
                 "init",
-                "bridge",
+                # "rectangle",
+                "wall",
+                "plane",
+                "wall",
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
-            track_width = 2.6,
+            track_width = 6,
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 0.5,
@@ -56,14 +64,26 @@ class Go1BridgeCfg(Go1Cfg):
                 border_width = 0.00,
                 offset = (0, 0),
             ),
-            bridge = dict(
+            rectangle = dict(
                 block_length = 4.0,
-                height = 2.0,
-                width = 0.6,
-                init_width = 1.0, # size along the forward axis
+                height = 0.5,
+                width = 3.0,
+                lenght = 3.0, 
                 offset = (0, 0),
             ),
-            wall_height= 0.0,
+            plane = dict(
+                block_length = 10.0,
+            ),
+            wall = dict(
+                block_length = 0.1
+            ),
+            circular = dict(
+                block_length = 4.0,
+                height = 0.5,
+                radius = 1.5,
+                offset = (0, 0),
+            ),
+            wall_height= 0.01,
             virtual_terrain = False, # Change this to False for real terrain
             no_perlin_threshold = 0.06,
             add_perlin_noise = False
@@ -83,17 +103,26 @@ class Go1BridgeCfg(Go1Cfg):
         init_state_class = Go1Cfg.init_state
         init_states = [
             init_state_class(
-                pos = [0.8, 0.0, .74],
+                pos = [2.0, 0.0, 1.4],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
             init_state_class(
-                pos = [3.8, 0.0, .74],
-                rot = [0.0, 0.0, 2., 0.5],
+                pos = [7.5, 0.0, 1.4],
+                rot = [0.0, 0.0, 1.0, 0.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
+        ]
+        init_states_npc = [
+            init_state_class(
+                pos = [5.0, 0.0, 0.72],
+                rot = [0.0, 0.0, 0.0, 1.0],
+                lin_vel = [0.0, 0.0, 0.0],
+                ang_vel = [0.0, 0.0, 0.0],
+                
+            )
         ]
 
     class control(Go1Cfg.control):
@@ -103,11 +132,10 @@ class Go1BridgeCfg(Go1Cfg):
         # additional factors that determines whether to terminates the episode
         check_obstacle_conditioned_threshold = False
         termination_terms = [
-            "roll",
-            "pitch",
-            "z_low",
-            "z_high",
-            "out_of_track",
+            # "roll",
+            # "pitch",
+            # "z_low",
+            # "out_of_track",
         ]
         z_low_kwargs = dict(
             threshold= 0.3, # [m]
@@ -121,7 +149,7 @@ class Go1BridgeCfg(Go1Cfg):
             x= [-0.1, 0.1],
             y= [-0.1, 0.1],
         )
-
+        init_npc_base_pos_range = None
     class rewards(Go1Cfg.rewards):
         class scales:
 

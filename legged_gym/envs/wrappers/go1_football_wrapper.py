@@ -35,6 +35,7 @@ class Go1FootballWrapper(EmptyWrapper):
         }
 
     def _init_extras(self, obs):
+        self.ball_flag = self.env.ball_flag
         return
 
     def reset(self):
@@ -63,7 +64,7 @@ class Go1FootballWrapper(EmptyWrapper):
         obs = torch.cat([self.obs_ids, base_info, torch.flip(base_info, [1])], dim=2)
 
         self.reward_buffer["step count"] += 1
-        reward = torch.zeros([self.env.num_envs, self.env.num_agents], device=self.env.device)
+        reward = torch.zeros([self.env.num_envs, self.env.num_agents, 1], device=self.env.device)
 
         return obs, reward, termination, info
     

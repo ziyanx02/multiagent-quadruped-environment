@@ -1,4 +1,4 @@
 {
-  "opponent_type": "tictactoe_opponent",
+  "opponent_type": "mqe_opponent",
   "description": "used for tictactoe game, need to load a nerual network"
 }

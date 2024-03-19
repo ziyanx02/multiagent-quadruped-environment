@@ -6,10 +6,11 @@ class Go1TugCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1tug"
-        num_envs = 25 # 4096
+        num_envs = 1 # 4096
         num_agents = 2
         num_npcs = 1
         env_type = 1
+        num_actions_npc = 1
         obs_components = [
             "proprioception", # 48
             # "height_measurements", # 187
@@ -31,6 +32,7 @@ class Go1TugCfg(Go1Cfg):
     class asset(Go1Cfg.asset):
         file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/circular.urdf"
         name_npc = "circular"
+        fix_npc_base_link = True
 
     class terrain(Go1Cfg.terrain):
 
@@ -63,13 +65,13 @@ class Go1TugCfg(Go1Cfg):
                 offset = (0, 0),
             ),
             plane = dict(
-                block_length = 2.6,
+                block_length = 3.0,
             ),
             rectangle = dict(
-                block_length = 0.4,
+                block_length = 0.1,
                 height = 1.0,
                 width = 6.,
-                lenght = 0.4, 
+                lenght = 0.1, 
                 offset = (0, 0),
             ),
             wall_height= 1.0,
@@ -85,20 +87,20 @@ class Go1TugCfg(Go1Cfg):
     class command(Go1Cfg.command):
 
         class cfg(Go1Cfg.command.cfg):
-            vel = False         # lin_vel, ang_vel
+            vel = True         # lin_vel, ang_vel
 
     class init_state(Go1Cfg.init_state):
         multi_init_state = True
         init_state_class = Go1Cfg.init_state
         init_states = [
             init_state_class(
-                pos = [1.5, 2.0, 0.34],
+                pos = [0.95, 2.5, 0.34],
                 rot = [0.0, 0.0, -1.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
             init_state_class(
-                pos = [2.5, -2.0, 0.34],
+                pos = [2.05, -2.5, 0.34],
                 rot = [0.0, 0.0, 1., 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
@@ -106,7 +108,7 @@ class Go1TugCfg(Go1Cfg):
         ]
         init_states_npc = [
             init_state_class(
-                pos = [1.5, 0.0, 0.5],
+                pos = [1.51, 0.0, 0.0],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
@@ -133,8 +135,8 @@ class Go1TugCfg(Go1Cfg):
         push_robots = False # use for non-virtual training
         init_dof_pos_ratio_range = None
         init_base_pos_range = dict(
-            x= [-0.1, 0.1],
-            y= [-0.1, 0.1],
+            x= [-0.0, 0.0],
+            y= [-0.0, 0.0],
         )
         init_npc_base_pos_range = None
 

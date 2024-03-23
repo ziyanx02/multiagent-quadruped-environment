@@ -6,11 +6,11 @@ class Go1SeesawCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1seesaw"
-        num_envs = 5 # 4096
+        num_envs = 1 # 4096
         num_agents = 2
         num_npcs = 1
         num_actions_npc = 1
-        episode_length_s = 10 # episode length in seconds
+        episode_length_s = 15 # episode length in seconds
     
     class asset(Go1Cfg.asset):
         file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/seesaw.urdf"
@@ -36,7 +36,7 @@ class Go1SeesawCfg(Go1Cfg):
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
-                room_size = (1.0, 1.45),
+                room_size = (1.0, 1.5),
                 border_width = 0.00,
                 offset = (0, 0),
             ),
@@ -133,5 +133,5 @@ class Go1SeesawCfg(Go1Cfg):
             # exceed_torque_limits_i = -2e-1
 
     class viewer(Go1Cfg.viewer):
-        pos = [0., 2., 5.]  # [m]
+        pos = [0., -2., 4.]  # [m]
         lookat = [4., 2., 0.]  # [m]

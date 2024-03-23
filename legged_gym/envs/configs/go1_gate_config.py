@@ -14,8 +14,8 @@ class Go1GateCfg(Go1Cfg):
 
         mesh_type = "trimesh"
         selected = "BarrierTrack"
-        num_rows = 5 # 20
-        num_cols = 10 # 50
+        num_rows = 1 # 20
+        num_cols = 1 # 50
         max_init_terrain_level = 2
         border_size = 1
         slope_treshold = 20.
@@ -34,13 +34,13 @@ class Go1GateCfg(Go1Cfg):
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2.0,
-                room_size = (1.0, 1.45),
+                room_size = (1.0, 1.5),
                 border_width = 0.00,
                 offset = (0, 0),
             ),
             gate = dict(
                 block_length = 3.0,
-                width = 0.8,
+                width = 0.6,
                 depth = 0.1, # size along the forward axis
                 offset = (0, 0),
                 random = (0.5, 0.5),
@@ -78,6 +78,30 @@ class Go1GateCfg(Go1Cfg):
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
+            # init_state_class(
+            #     pos = [0.0, 0.5, 0.42],
+            #     rot = [0.0, 0.0, 0.0, 1.0],
+            #     lin_vel = [0.0, 0.0, 0.0],
+            #     ang_vel = [0.0, 0.0, 0.0],
+            # ),
+            # init_state_class(
+            #     pos = [0.0, 1.0, 0.42],
+            #     rot = [0.0, 0.0, 0.0, 1.0],
+            #     lin_vel = [0.0, 0.0, 0.0],
+            #     ang_vel = [0.0, 0.0, 0.0],
+            # ),
+            # init_state_class(
+            #     pos = [2.8, -0.3, 0.42],
+            #     rot = [0.0, 0.0, 0.0, 1.0],
+            #     lin_vel = [0.0, 0.0, 0.0],
+            #     ang_vel = [0.0, 0.0, 0.0],
+            # ),
+            # init_state_class(
+            #     pos = [3.6, -1, 0.42],
+            #     rot = [0.0, 0.0, 0.0, 1.0],
+            #     lin_vel = [0.0, 0.0, 0.0],
+            #     ang_vel = [0.0, 0.0, 0.0],
+            # ),
         ]
 
     class control(Go1Cfg.control):
@@ -110,5 +134,5 @@ class Go1GateCfg(Go1Cfg):
             command_value_punishment_scale = 0
 
     class viewer(Go1Cfg.viewer):
-        pos = [12., 20., 20.]  # [m]
-        lookat = [13., 20., 0.]  # [m]
+        pos = [-2., 2.5, 4.]  # [m]
+        lookat = [4., 2.5, 0.]  # [m]

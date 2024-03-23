@@ -86,7 +86,7 @@ class Go1FootballDefenderWrapper(EmptyWrapper):
             ball_gate_distance = torch.norm(ball_pos[:, 0, :2] - self.gate_pos[:, :2], dim=1, keepdim=True)
             ball_gate_distance_reward = self.ball_gate_distance_reward_scale * torch.exp(-ball_gate_distance / 3)
             reward += ball_gate_distance_reward
-            self.reward_buffer["ball gate distance reward"] += torch.sum(goal_reward).cpu()
+            self.reward_buffer["ball gate distance reward"] += torch.sum(ball_gate_distance_reward).cpu()
 
         return obs, reward.repeat(1, 2), termination, info
     

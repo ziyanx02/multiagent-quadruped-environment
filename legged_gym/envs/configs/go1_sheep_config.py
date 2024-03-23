@@ -26,8 +26,8 @@ class SingleSheepCfg(Go1Cfg):
     
     class terrain(Go1Cfg.terrain):
 
-        num_rows = 5 # 20
-        num_cols = 10 # 50
+        num_rows = 1 # 20
+        num_cols = 1 # 50
 
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
@@ -134,7 +134,7 @@ class NineSheepCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1sheep"
-        num_envs = 4 # 4096
+        num_envs = 35 # 4096
         num_agents = 2
         num_npcs = 9
         episode_length_s = 15
@@ -153,8 +153,8 @@ class NineSheepCfg(Go1Cfg):
     
     class terrain(Go1Cfg.terrain):
 
-        num_rows = 2 # 20
-        num_cols = 1 # 50
+        num_rows = 5
+        num_cols = 7
 
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
@@ -170,7 +170,7 @@ class NineSheepCfg(Go1Cfg):
             # track_block_length = 2., # the x-axis distance from the env origin point
             init = dict(
                 block_length = 2,
-                room_size = (1.0, 1.95),
+                room_size = (1.0, 3),
                 border_width = 0.00,
                 offset = (0.5, 0),
             ),

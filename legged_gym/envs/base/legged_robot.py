@@ -761,8 +761,17 @@ class LeggedRobot(BaseTask):
              3. Store indices of different bodies of the robot
         """
         asset_path = self.cfg.asset.file.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR)
+
+        green_path = "/home/ziyanx/python/multiagent-quadruped-environments/resources/robots/go1/urdf/go1 green.urdf"
+        red_path = "/home/ziyanx/python/multiagent-quadruped-environments/resources/robots/go1/urdf/go1 red.urdf"
+        orange_path = "/home/ziyanx/python/multiagent-quadruped-environments/resources/robots/go1/urdf/go1 orange.urdf"
+        blue_path = "/home/ziyanx/python/multiagent-quadruped-environments/resources/robots/go1/urdf/go1 blue.urdf"
+        asset_paths = [blue_path, green_path, red_path, orange_path, ]
+
         asset_root = os.path.dirname(asset_path)
         asset_file = os.path.basename(asset_path)
+
+        asset_files = [os.path.basename(asset_path) for asset_path in asset_paths]
 
         asset_options = gymapi.AssetOptions()
         asset_options.default_dof_drive_mode = self.cfg.asset.default_dof_drive_mode
@@ -780,6 +789,9 @@ class LeggedRobot(BaseTask):
         asset_options.disable_gravity = self.cfg.asset.disable_gravity
 
         robot_asset = self.gym.load_asset(self.sim, asset_root, asset_file, asset_options)
+
+        robot_assets = [self.gym.load_asset(self.sim, asset_root, asset_file, asset_options) for asset_file in asset_files]
+
         self.dof_names = self.gym.get_asset_dof_names(robot_asset)
         self.num_dof = self.gym.get_asset_dof_count(robot_asset)
         self.num_actuated_dof = self.num_agents * self.num_dof
@@ -810,6 +822,7 @@ class LeggedRobot(BaseTask):
                     start_pose = gymapi.Transform()
                     start_pose.p = gymapi.Vec3(*base_init_state[:3])
             self.base_init_state = torch.stack(init_state_list, dim=0).repeat(self.num_envs, 1)
+            # assert len(self.base_init_state) == self.num_agents, "Mismatch num_agents and init_states"
         else:
             base_init_state_list = self.cfg.init_state.pos + self.cfg.init_state.rot + self.cfg.init_state.lin_vel + self.cfg.init_state.ang_vel
             base_init_state = to_torch(base_init_state_list, device=self.device, requires_grad=False)
@@ -854,7 +867,7 @@ class LeggedRobot(BaseTask):
                 pos[1:2] += torch_rand_float(-self.cfg.terrain.y_init_range, self.cfg.terrain.y_init_range, (1, 1), device=self.device).squeeze(1)
                 start_pose.p = gymapi.Vec3(*pos)
 
-                agent_handle = self.gym.create_actor(env_handle, robot_asset, start_pose, self.cfg.asset.name, i, self.cfg.asset.self_collisions, 0)
+                agent_handle = self.gym.create_actor(env_handle, robot_assets[j], start_pose, self.cfg.asset.name, i, self.cfg.asset.self_collisions, 0)
                 dof_props = self._process_dof_props(dof_props_asset, i) # TODO: Move out from this loop (maybe)
                 self.gym.set_actor_dof_properties(env_handle, agent_handle, dof_props)
 
@@ -962,8 +975,8 @@ class LeggedRobot(BaseTask):
             max_init_level = self.cfg.terrain.max_init_terrain_level
             if not self.cfg.terrain.curriculum:
                 max_init_level = self.cfg.terrain.num_rows - 1
-            self.terrain_levels = torch.randint(0, max_init_level+1, (self.num_envs,), device=self.device)
-            self.terrain_types = torch.div(torch.arange(self.num_envs, device=self.device), (self.num_envs/self.cfg.terrain.num_cols), rounding_mode='floor').to(torch.long)
+            self.terrain_levels = torch.arange(self.num_envs, device=self.device).to(torch.long) % self.cfg.terrain.num_rows#torch.randint(0, max_init_level+1, (self.num_envs,), device=self.device)
+            self.terrain_types = torch.arange(self.num_envs, device=self.device).to(torch.long) % self.cfg.terrain.num_cols
             self.max_terrain_level = self.cfg.terrain.num_rows
             self.terrain_origins = torch.from_numpy(self.terrain.env_origins).to(self.device).to(torch.float)
             if getattr(self.terrain, "agent_origins", None) is not None:

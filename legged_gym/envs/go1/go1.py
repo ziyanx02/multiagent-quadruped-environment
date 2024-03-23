@@ -394,14 +394,14 @@ class Go1(LeggedRobotField):
         self.locomotion_obs = locomotion_obs.repeat([self.num_envs * self.num_agents, 1])
         self.history_locomotion_obs = torch.zeros(self.num_envs * self.num_agents, 2100, dtype=torch.float, device=self.device, requires_grad=False)
         
-        body = torch.jit.load(self.cfg.control.locomotion_policy_dir + '/body_latest.jit')
-        adaptation_module = torch.jit.load(self.cfg.control.locomotion_policy_dir + '/adaptation_module_latest.jit')
+        body = torch.jit.load(self.cfg.control.locomotion_policy_dir + '/body_latest.jit', map_location=self.device)
+        adaptation_module = torch.jit.load(self.cfg.control.locomotion_policy_dir + '/adaptation_module_latest.jit', map_location=self.device)
 
         def policy(obs, info={}):
             with torch.no_grad():
                 
-                latent = adaptation_module.forward(obs.to('cpu'))
-                action = body.forward(torch.cat((obs.to('cpu'), latent), dim=-1))
+                latent = adaptation_module.forward(obs)
+                action = body.forward(torch.cat((obs, latent), dim=-1))
 
             info['latent'] = latent
             return action

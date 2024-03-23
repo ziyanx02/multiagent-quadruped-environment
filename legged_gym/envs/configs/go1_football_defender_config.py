@@ -6,7 +6,7 @@ class Go1FootballDefenderCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1football"
-        num_envs = 2 # 4096
+        num_envs = 1 # 4096
         num_agents = 3
         num_npcs = 1
         episode_length_s = 20
@@ -42,7 +42,7 @@ class Go1FootballDefenderCfg(Go1Cfg):
                 offset = (0, 0),
             ),
             plane = dict(
-                block_length = 6.0,
+                block_length = 10.0,
             ),
             gate = dict(
                 block_length = 1.0,
@@ -70,19 +70,19 @@ class Go1FootballDefenderCfg(Go1Cfg):
         init_state_class = Go1Cfg.init_state
         init_states = [
             init_state_class(
-                pos = [0.0, 0.0, 0.42],
+                pos = [3.0, 1.0, 0.42],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
             init_state_class(
-                pos = [0.0, 3.0, 0.42],
+                pos = [3.0, 2.0, 0.42],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
             init_state_class(
-                pos = [6.0, -3.0, 0.42],
+                pos = [9.0, -3.0, 0.42],
                 rot = [0.0, 0.0, 1.0, 0.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
@@ -90,7 +90,7 @@ class Go1FootballDefenderCfg(Go1Cfg):
         ]
         init_states_npc = [
             init_state_class(
-                pos = [2.0, 3.0, 0.3],
+                pos = [5.0, -2.1, 0.3],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
@@ -128,5 +128,5 @@ class Go1FootballDefenderCfg(Go1Cfg):
             # exceed_torque_limits_i = -2e-1
 
     class viewer(Go1Cfg.viewer):
-        pos = [0., 11., 5.]  # [m]
-        lookat = [4., 11., 0.]  # [m]
+        pos = [2., 2., 2.]  # [m]
+        lookat = [6., 5., 0.]  # [m]

@@ -56,7 +56,7 @@ class Go1Object(Go1):
 
         npc_handles = []
         for i in range(self.num_npcs):
-            pos = self.env_origins[i].clone()
+            pos = self.env_origins[env_id].clone()
             self.start_pose_npc.p = gymapi.Vec3(*pos)
             npc_handle = self.gym.create_actor(env_handle, self.asset_npc, self.start_pose_npc, self.cfg.asset.name_npc, env_id, not self.npc_collision, 0)
             npc_handles.append(npc_handle)

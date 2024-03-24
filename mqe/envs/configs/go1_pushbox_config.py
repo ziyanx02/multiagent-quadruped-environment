@@ -30,7 +30,6 @@ class Go1PushboxCfg(Go1Cfg):
                 "gate",
                 "wall",
             ],
-            randomize_obstacle_order = False,
             # wall_thickness= 0.2,
             track_width = 5.0,
             init = dict(

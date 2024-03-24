@@ -62,9 +62,9 @@ Blocks used in terrain registration is defined in `./mqe/utils/terrain/barrier_t
 
 4. Create new task
 
-## Existing Tasks ##
+    Currently existing tasks are exhibited in `./mqe/envs/utils.py` for reference. To create new terrain blocks, please add corresponding `BarrierTrack.get_BLOCK_NAME_block()` function in `./mqe/utils/terrain/barrier_track.py`. Please refer to following tasks for different kinds of new task: `go1gate` for tasks without objects; `go1seesaw` for tasks with fixed or free objects; `go1sheep-easy` for tasks with objects serving as NPC; `go1football-defender` for tasks with robots serving as NPC.
 
-TBD
+<!-- ## Existing Tasks ## -->
 
 ## Trouble Shooting ##
 

@@ -28,7 +28,6 @@ class Go1GateCfg(Go1Cfg):
                 "plane",
                 "wall",
             ],
-            randomize_obstacle_order = False,
             # wall_thickness= 0.2,
             track_width = 3.0,
             # track_block_length = 2., # the x-axis distance from the env origin point

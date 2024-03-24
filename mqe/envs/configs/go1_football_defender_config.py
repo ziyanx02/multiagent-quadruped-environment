@@ -31,7 +31,6 @@ class Go1FootballDefenderCfg(Go1Cfg):
                 "gate",
                 "wall",
             ],
-            randomize_obstacle_order = False,
             # wall_thickness= 0.2,
             track_width = 9.0,
             # track_block_length = 2., # the x-axis distance from the env origin point

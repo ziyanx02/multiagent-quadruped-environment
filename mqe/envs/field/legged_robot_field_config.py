@@ -24,7 +24,6 @@ class LeggedRobotFieldCfg( LeggedRobotCfg ):
                 "wall",
                 "plane",
             ],
-            randomize_obstacle_order = False,
             wall_thickness= 0.04,
             track_width = 2.,
             # track_block_length = 2., # the x-axis distance from the env origin point
@@ -55,7 +54,6 @@ class LeggedRobotFieldCfg( LeggedRobotCfg ):
             border_height= 0., # for climb, crawl, tilt, walk
             # border_height= -0.5, # for leap
             # virtual_terrain= True, # for tilt
-            draw_virtual_terrain= True,
             engaging_next_threshold= 1.2,
             curriculum_perlin= False,
             # no_perlin_threshold= 0.05, # for leap

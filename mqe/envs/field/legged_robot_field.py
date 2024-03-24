@@ -361,8 +361,6 @@ class LeggedRobotField(LeggedRobot):
             self.terrain.cfg.measure_heights = measure_heights_tmp
         else:
             return_ = super()._draw_debug_vis()
-        if self.cfg.terrain.selected == "BarrierTrack":
-            self.terrain.draw_virtual_terrain(self.viewer)
 
         for env_h, sensor_hd in zip(self.envs, self.sensor_handles):
             self._draw_sensor_vis(env_h, sensor_hd)

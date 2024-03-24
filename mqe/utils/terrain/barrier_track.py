@@ -16,12 +16,7 @@ class BarrierTrack:
                 "init",
                 "wall",
                 "plane",
-                # "climb",
-                # "crawl",
-                # "tilt",
-            ], # each race track will permute all the options
-            randomize_obstacle_order = False, # if True, will randomize the order of the obstacles instead of the order in options
-            # n_obstacles_per_track = 1, # number of obstacles per track, only used when randomize_obstacle_order is True
+            ],
             track_width = 1.6,
             track_length = None,
             # track_block_length = 1.2, # the x-axis distance from the env origin point
@@ -51,24 +46,12 @@ class BarrierTrack:
             border_perlin_noise = False,
             border_height = 0., # Incase we want the surrounding plane to be lower than the track
             virtual_terrain = False,
-            draw_virtual_terrain = False, # set True for visualization
             check_skill_combinations = False, # check if some specific skills are connected, if set. e.g. climb -> leap
             engaging_next_threshold = 0., # if > 0, engaging_next is based on this threshold instead of track_block_length/2. Make sure the obstacle is not too long.
             curriculum_perlin = True, # If True, perlin noise scale will be depends on the difficulty if possible.
             no_perlin_threshold = 0.02, # If the perlin noise is too small, clip it to zero.
         )
-    max_track_options = 5 # ("tilt", "crawl", "climb", "dynamic", "dualrun") at most
-    track_options_id_dict = {
-        "gate": 0,
-        "init": 1,
-        "wall": 2,
-        "plane": 3,
-        # "tilt": 1,
-        # "crawl": 2,
-        # "climb": 3,
-        # "leap": 4,
-        # "dualrun": 5,
-     } # track_id are aranged in this order
+    
     def __init__(self, cfg, num_envs: int, num_agents=1) -> None:
         self.cfg = cfg
         self.num_envs = num_envs
@@ -382,17 +365,6 @@ class BarrierTrack:
     def add_track_to_sim(self, track_origin_px, row_idx= None, col_idx= None):
         """ add heighfield value and add trimesh to sim for one certain race track """
         # adding trimesh and heighfields
-        if "one_obstacle_per_track" in self.track_kwargs.keys():
-            print("Warning: one_obstacle_per_track is deprecated, use n_obstacles_per_track instead.")
-            exit()
-        # if self.track_kwargs["randomize_obstacle_order"] and len(self.track_kwargs["options"]) > 0:
-        #     block_order = np.random.choice(
-        #         len(self.track_kwargs["options"]),
-        #         size= self.track_kwargs.get("n_obstacles_per_track", 1),
-        #         replace= True,
-        #     )
-        # else:
-        # TODO: add random choice for options
         block_order = self.track_kwargs["options"].copy()
         difficulties = self.get_difficulty(row_idx, col_idx)
         difficulty, virtual_track = difficulties[:2]
@@ -660,161 +632,3 @@ class BarrierTrack:
         obstacle_info[torch.logical_not(in_track_mask)] = 0.
         
         return obstacle_info
-
-    ######## methods to draw visualization #######################
-    def draw_virtual_climb_track(self,
-            block_info,
-            xy_origin,
-        ):
-        climb_depth = block_info[0]
-        climb_height = block_info[1]
-        geom = gymutil.WireframeBoxGeometry(
-            climb_depth,
-            self.env_width,
-            climb_height,
-            pose= None,
-            color= (0, 0, 1),
-        )
-        pose = gymapi.Transform(gymapi.Vec3(
-            climb_depth/2 + xy_origin[0],
-            self.env_width/2 + xy_origin[1],
-            climb_height/2,
-        ), r= None)
-        gymutil.draw_lines(
-            geom,
-            self.gym,
-            self.viewer,
-            None,
-            pose,
-        )
-
-    def draw_virtual_tilt_track(self,
-            block_info,
-            xy_origin,
-        ):
-        tilt_depth = block_info[0]
-        tilt_width = block_info[1]
-        wall_height = self.track_kwargs["tilt"]["wall_height"]
-        geom = gymutil.WireframeBoxGeometry(
-            tilt_depth,
-            (self.env_width - tilt_width) / 2,
-            wall_height,
-            pose= None,
-            color= (0, 0, 1),
-        )
-        
-        pose = gymapi.Transform(gymapi.Vec3(
-            tilt_depth/2 + xy_origin[0],
-            (self.env_width - tilt_width) / 4 + xy_origin[1],
-            wall_height/2,
-        ), r= None)
-        gymutil.draw_lines(
-            geom,
-            self.gym,
-            self.viewer,
-            None,
-            pose,
-        )
-        pose = gymapi.Transform(gymapi.Vec3(
-            tilt_depth/2 + xy_origin[0],
-            self.env_width - (self.env_width - tilt_width) / 4 + xy_origin[1],
-            wall_height/2,
-        ), r= None)
-        gymutil.draw_lines(
-            geom,
-            self.gym,
-            self.viewer,
-            None,
-            pose,
-        )
-
-    def draw_virtual_crawl_track(self,
-            block_info,
-            xy_origin,
-        ):
-        crawl_depth = block_info[0]
-        crawl_height = block_info[1]
-        wall_height = self.track_kwargs["crawl"]["wall_height"]
-        geom = gymutil.WireframeBoxGeometry(
-            crawl_depth,
-            self.env_width,
-            wall_height,
-            pose= None,
-            color= (0, 0, 1),
-        )
-        pose = gymapi.Transform(gymapi.Vec3(
-            crawl_depth/2 + xy_origin[0],
-            self.env_width/2 + xy_origin[1],
-            wall_height/2 + crawl_height,
-        ), r= None)
-        gymutil.draw_lines(
-            geom,
-            self.gym,
-            self.viewer,
-            None,
-            pose,
-        )
-
-    def draw_virtual_leap_track(self,
-            block_info,
-            xy_origin,
-        ):
-        # virtual/non-virtual terrain looks the same when leaping the gap.
-        # but the expected height can be visualized
-        leap_length = block_info[0]
-        expected_height = self.track_kwargs["leap"]["height"]
-        geom = gymutil.WireframeBoxGeometry(
-            leap_length,
-            self.env_width,
-            expected_height,
-            pose= None,
-            color= (0, 0.5, 0.5),
-        )
-        pose = gymapi.Transform(gymapi.Vec3(
-            leap_length/2 + xy_origin[0],
-            self.env_width/2 + xy_origin[1],
-            expected_height/2,
-        ), r= None)
-        gymutil.draw_lines(
-            geom,
-            self.gym,
-            self.viewer,
-            None,
-            pose,
-        )
-        
-
-    def draw_virtual_track(self,
-            track_origin_px,
-            row_idx,
-            col_idx,
-        ):
-        difficulties = self.get_difficulty(row_idx, col_idx)
-        virtual_terrain = difficulties[1]
-
-        for block_idx in range(1, self.track_info_map.shape[2]):
-            if virtual_terrain and self.track_kwargs["draw_virtual_terrain"]:
-                obstacle_id = self.track_info_map[row_idx, col_idx, block_idx, 0]
-                for k, v in self.track_options_id_dict.items():
-                    if v == obstacle_id:
-                        obstacle_name = k
-                        break
-                block_info = self.track_info_map[row_idx, col_idx, block_idx, 1:]
-
-                heightfield_x0 = track_origin_px[0] + self.track_block_resolution[0] * block_idx
-                heightfield_y0 = track_origin_px[1]
-                getattr(self, "draw_virtual_" + obstacle_name + "_track")(
-                    block_info,
-                    (np.array([heightfield_x0, heightfield_y0]) * self.cfg.horizontal_scale),
-                )
-
-    def draw_virtual_terrain(self, viewer):
-        self.viewer = viewer
-
-        for row_idx in range(self.cfg.num_rows):
-            for col_idx in range(self.cfg.num_cols):
-                self.draw_virtual_track(
-                    self.track_origins_px[row_idx, col_idx, :2],
-                    row_idx= row_idx,
-                    col_idx= col_idx,
-                )

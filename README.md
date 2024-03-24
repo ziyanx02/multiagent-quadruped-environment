@@ -58,9 +58,11 @@ Blocks used in terrain registration is defined in `./mqe/utils/terrain/barrier_t
 
     `python ./openrl_ws/test.py --algo ALGO_NAME --task TASK_NAME --checkpoint /PATH/TO/CHECKPOINT`
     - `--record_video` to record video (frames)
-    - `--algo ALGO` should be specified as well as `--checkpoint`
+    - `--algo ALGO_NAME` should be specified as well as `--checkpoint`
 
-## Task Registration ##
+4. Create new task
+
+## Existing Tasks ##
 
 TBD
 

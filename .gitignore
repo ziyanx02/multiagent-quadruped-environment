@@ -8,7 +8,6 @@ node_modules/
 dist/
 log/
 results/
-uuv/
 checkpoints/
 
 # Compiled Java class files
@@ -45,7 +44,6 @@ Thumbs.db
 *.war
 
 # Large media files
-*.mp4
 *.tiff
 *.avi
 *.flv

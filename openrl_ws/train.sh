@@ -16,14 +16,14 @@ num_steps=24000000
 device=1
 # algo="jrpo"
 # cfg=./openrl_ws/cfgs/jrpo.yaml
-# algo="ppo"
-# cfg=./openrl_ws/cfgs/ppo.yaml
+algo="ppo"
+cfg=./openrl_ws/cfgs/ppo.yaml
 # algo="mat"
 # cfg=./openrl_ws/cfgs/mat.yaml
 # algo="sppo"
 # cfg=./openrl_ws/cfgs/ppo.yaml
-algo="dppo"
-cfg=./openrl_ws/cfgs/dppo.yaml
+# algo="dppo"
+# cfg=./openrl_ws/cfgs/dppo.yaml
 
 python ./openrl_ws/train.py --headless --num_envs $num_envs --train_timesteps $num_steps\
     --task $task \
@@ -31,7 +31,7 @@ python ./openrl_ws/train.py --headless --num_envs $num_envs --train_timesteps $n
     --sim_device cuda:$device \
     --rl_device cuda:$device \
     --seed 0 \
-    --exp_name collect_data \
+    --exp_name test \
     --config $cfg \
 #     --use_wandb
 

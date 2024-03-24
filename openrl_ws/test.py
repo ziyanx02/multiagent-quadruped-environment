@@ -84,17 +84,16 @@ else:
 if getattr(args, "checkpoint") is not None:
     agent.load(args.checkpoint)
 
-env.start_recording()
+# env.start_recording()
 agent.set_env(env)  # The agent requires an interactive environment.
 obs = env.reset()  # Initialize the environment to obtain initial observations and environmental information.
 while True:
     action, _ = agent.act(obs)  # The agent predicts the next action based on environmental observations.
     # The environment takes one step according to the action, obtains the next observation, reward, whether it ends and environmental information.
     obs, r, done, info = env.step(action)
-    if done[0, 0]:
-        frames = env.get_complete_frames()
-        video_array = np.concatenate([np.expand_dims(frame, axis=0) for frame in frames ], axis=0).swapaxes(1, 3).swapaxes(2, 3)
-        print(video_array.shape)
-        print(np.mean(video_array))
-        save_gif(video_array, 1 / env.dt)
-        exit()
+    # if done[0, 0]:
+    #     frames = env.get_complete_frames()
+    #     video_array = np.concatenate([np.expand_dims(frame, axis=0) for frame in frames ], axis=0).swapaxes(1, 3).swapaxes(2, 3)
+    #     print(video_array.shape)
+    #     print(np.mean(video_array))
+    #     save_gif(video_array, 1 / env.dt)

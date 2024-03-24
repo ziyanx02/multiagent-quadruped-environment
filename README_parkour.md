@@ -13,15 +13,15 @@ This is the tutorial for training the skill policy and distilling the parkour po
 4. Install rsl_rl (PPO implementation)
    - Using the command to direct to the root path of this repository
    - `cd rsl_rl && pip install -e .` 
-5. Install legged_gym
-   - `cd ../legged_gym && pip install -e .`
+5. Install mqe
+   - `cd ../mqe && pip install -e .`
 
 ## Usage ##
-***Always run your script in the root path of this legged_gym folder (which contains a `setup.py` file).***
+***Always run your script in the root path of this mqe folder (which contains a `setup.py` file).***
 
 1. The specialized skill policy is trained using `a1_field_config.py` as task `a1_field`
 
-    Run command with `python legged_gym/scripts/train.py --headless --task a1_field`
+    Run command with `python mqe/scripts/train.py --headless --task a1_field`
     
 2. The distillation is done using `a1_field_distill_config.py` as task `a1_distill`
 
@@ -33,7 +33,7 @@ This is the tutorial for training the skill policy and distilling the parkour po
 
 ### Train a walk policy ###
 
-Launch the training by `python legged_gym/scripts/train.py --headless --task a1_field`. You will find the training log in `logs/a1_field`. The folder name is also the run name.
+Launch the training by `python mqe/scripts/train.py --headless --task a1_field`. You will find the training log in `logs/a1_field`. The folder name is also the run name.
 
 ### Train each separate skill ###
 
@@ -53,7 +53,7 @@ Launch the training by `python legged_gym/scripts/train.py --headless --task a1_
 
 1. Update the `A1FieldDistillCfgPPO.algorithm.teacher_policy.sub_policy_paths` field with the logdir of your own trained skill policy. (in `a1_field_distill_config.py`)
 
-2. Run data collection using `python legged_gym/scripts/collect.py --headless --task a1_distill`. The data will be saved in the `logs/distill_{robot}_dagger` directory.
+2. Run data collection using `python mqe/scripts/collect.py --headless --task a1_distill`. The data will be saved in the `logs/distill_{robot}_dagger` directory.
 
     ***You can generate multiple datasets by running this step multiple times.***
 
@@ -61,15 +61,15 @@ Launch the training by `python legged_gym/scripts/train.py --headless --task a1_
 
 3. Update the `A1FieldDistillCfgPPO.runner.pretrain_dataset.data_dir` field with a list of dataset directories. Comment out the `A1FieldDistillCfgPPO.runner.pretrain_dataset.scan_dir` field. (in `a1_field_distill_config.py`)
 
-4. Run `python legged_gym/scripts/train.py --headless --task a1_distill` to start distillation. The distillation log will be saved in `logs/distill_{robot}`.
+4. Run `python mqe/scripts/train.py --headless --task a1_distill` to start distillation. The distillation log will be saved in `logs/distill_{robot}`.
 
 5. Comment out `A1FieldDistillCfgPPO.runner.pretrain_dataset.data_dir` field and uncomment `A1FieldDistillCfgPPO.runner.pretrain_dataset.scan_dir` field. (in `a1_field_distill_config.py`)
 
 6. Update the `A1FieldDistillCfgPPO.runner.load_run` field with your last distillation log.
 
-7. Run `python legged_gym/scripts/train.py --headless --task a1_distill` to start dagger. The terminal will prompt you to launch a collector process.
+7. Run `python mqe/scripts/train.py --headless --task a1_distill` to start dagger. The terminal will prompt you to launch a collector process.
 
-    To run the collector process, change `RunnerCls` to `DaggerSaver` (as in lines 20-21). Run `python legged_gym/scripts/collect.py --headless --task a1_distill --load_run {the training run prompt by the training process}`.
+    To run the collector process, change `RunnerCls` to `DaggerSaver` (as in lines 20-21). Run `python mqe/scripts/collect.py --headless --task a1_distill --load_run {the training run prompt by the training process}`.
 
     ***You can run multiple collector processes to speed up the data collection. And follow the options comments in the collector script.***
 
@@ -80,5 +80,5 @@ Launch the training by `python legged_gym/scripts/train.py --headless --task a1_
 ### Visualize the policy in simulation ###
 
 ```bash
-python legged_gym/scripts/play.py --task {task} --load_run {run_name}
+python mqe/scripts/play.py --task {task} --load_run {run_name}
 ```

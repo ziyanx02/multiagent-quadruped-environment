@@ -9,7 +9,7 @@ import torch
 import gym
 from gym import spaces
 
-from legged_gym.envs.utils import make_mqe_env
+from mqe.envs.utils import make_mqe_env
 
 from openrl.configs.config import create_config_parser
 from isaacgym import gymutil
@@ -25,7 +25,7 @@ from bisect import bisect
 from isaacgym import gymapi
 from isaacgym.gymutil import parse_device_str
 
-from legged_gym.envs.go1.go1_config import Go1Cfg
+from mqe.envs.go1.go1_config import Go1Cfg
 from openrl.envs.vec_env import BaseVecEnv
 
 def make_env(args, custom_cfg=None, single_agent=False):

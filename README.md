@@ -7,6 +7,12 @@ Multi-agent Quadruped Environment(MQE) is a multi-functional and easy-to-use qua
 * Build your terrain from blocks like LEGO.
 * Click-to-use RL pipeline through [OpenRL](https://github.com/OpenRL-Lab/openrl) on pre-defined cooperative and competitive tasks.
 
+## Useful Links ##
+
+Project Website: https://ziyanx02.github.io/multiagent-quadruped-environment/
+
+Paper:
+
 ## Installation ##
 1. Create a new Python virtual env or conda environment with Python 3.6, 3.7, or 3.8 (3.8 recommended)
 2. Install PyTorch and Isaac Gym.
@@ -20,6 +26,13 @@ Multi-agent Quadruped Environment(MQE) is a multi-functional and easy-to-use qua
     - `python ./test.py`
 
 ## Code Structure ##
+
+Environment for each task is defined by:
+- a class for controlling objects involved in the task. `./mqe/envs/go1/go1.py` is a base class for Unitree Go1 robot with locomotion policy implemented in [walk-these-ways](https://github.com/Improbable-AI/walk-these-ways). `./mqe/envs/npc/` includes several classes created for different interactive objects.
+- a wrapper to specify observations, actions, rewards, and infos. `./mqe/envs/wrappers/` includes several wrappers for reference.
+- a config file to specify all the configuration about the environment, including configs for simulation, terrain registration, robot assets, etc. Config files use inheritance. `./mqe/envs/configs/` includes the config files of pre-defined tasks. To explore more available configuration, please check config files in `./mqe/envs/base/`, `./mqe/envs/field/` and `./mqe/envs/go1/`, there should be no intersections between these config files for clearance.
+
+Blocks used in terrain registration is defined in `./mqe/utils/terrain/barrier_track.py`.
 
 ## Usage ##
 1. Try different tasks
@@ -47,4 +60,10 @@ Multi-agent Quadruped Environment(MQE) is a multi-functional and easy-to-use qua
     - `--record_video` to record video (frames)
     - `--algo ALGO` should be specified as well as `--checkpoint`
 
-## Adding a new task ##
+## Task Registration ##
+
+TBD
+
+## Trouble Shooting ##
+
+1. If you get the following error: `ImportError: libpython3.8m.so.1.0: cannot open shared object file: No such file or directory`, it is also possible that you need to do `export LD_LIBRARY_PATH=/PATH/TO/LIBPYTHON/DIRECTORY` / `export LD_LIBRARY_PATH=/PATH/TO/CONDA/envs/YOUR_ENV_NAME/lib`. You can also try: `sudo apt install libpython3.8`.

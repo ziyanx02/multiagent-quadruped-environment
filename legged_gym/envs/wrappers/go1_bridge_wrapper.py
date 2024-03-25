@@ -28,6 +28,17 @@ class Go1BridgeWrapper(EmptyWrapper):
             "step count": 0
         }
 
+        self.reward_buffer_1 = {
+            "target reward": 0,
+            "success reward": 0,
+            # "approach frame punishment": 0,
+            "agent distance punishment": 0,
+            # "command lin_vel.y punishment": 0,
+            # "command value punishment": 0,
+            # "lin_vel.x reward": 0,
+            "step count": 0
+        }
+
     def _init_extras(self, obs):
         agent_ids = self.env_agent_indices.reshape(-1)
         target_pos = (self.base_init_state[agent_ids][:, 0]).reshape(self.env.num_envs, self.env.num_agents, -1)

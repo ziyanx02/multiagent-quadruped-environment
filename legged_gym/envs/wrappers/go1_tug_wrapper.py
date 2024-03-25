@@ -21,6 +21,11 @@ class Go1TugWrapper(EmptyWrapper):
             "success reward": 0,
             "step count": 0
         }
+        
+        self.reward_buffer_1 = {
+            "success reward": 0,
+            "step count": 0
+        }
 
     def _init_extras(self, obs):
         self.target_pos = torch.zeros([self.env.num_envs*self.env.num_npcs, 2], dtype=torch.float, device=self.device, requires_grad=False)

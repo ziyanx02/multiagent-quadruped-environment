@@ -33,6 +33,12 @@ class Go1FootballAgainstWrapper(EmptyWrapper):
             "step count": 0
         }
 
+        self.reward_buffer_1 = {
+            "goal reward": 0,
+            "ball gate distance reward": 0,
+            "step count": 0
+        }
+
     def _init_extras(self, obs):
         return
 

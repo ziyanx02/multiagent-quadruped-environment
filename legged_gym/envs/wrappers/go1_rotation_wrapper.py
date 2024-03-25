@@ -32,6 +32,16 @@ class Go1RotationWrapper(EmptyWrapper):
             # "lin_vel.x reward": 0,
             "step count": 0
         }
+        
+        self.reward_buffer_1 = {
+            "target reward": 0,
+            "success reward": 0,
+            # "approach frame punishment": 0,
+            # "command lin_vel.y punishment": 0,
+            # "command value punishment": 0,
+            # "lin_vel.x reward": 0,
+            "step count": 0
+        }
 
     def _init_extras(self, obs):
 

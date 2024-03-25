@@ -55,6 +55,12 @@ class Go1Cfg(LeggedRobotFieldCfg):
     class asset:
 
         file = "{LEGGED_GYM_ROOT_DIR}/resources/robots/go1/urdf/go1.urdf"
+        files = [
+            "{LEGGED_GYM_ROOT_DIR}/resources/robots/go1/urdf/go1 green.urdf",
+            "{LEGGED_GYM_ROOT_DIR}/resources/robots/go1/urdf/go1 red.urdf",
+            "{LEGGED_GYM_ROOT_DIR}/resources/robots/go1/urdf/go1 orange.urdf",
+            "{LEGGED_GYM_ROOT_DIR}/resources/robots/go1/urdf/go1 blue.urdf"
+        ] # Colorize Robots
         name = "go1"
         foot_name = "foot"  # name of the feet bodies, used to index body state and contact force tensors
         penalize_contacts_on = ["base", "thigh"]

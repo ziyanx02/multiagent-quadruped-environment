@@ -762,16 +762,15 @@ class LeggedRobot(BaseTask):
         """
         asset_path = self.cfg.asset.file.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR)
 
-        green_path = "/home/ziyanx/python/multiagent-quadruped-environments/resources/robots/go1/urdf/go1 green.urdf"
-        red_path = "/home/ziyanx/python/multiagent-quadruped-environments/resources/robots/go1/urdf/go1 red.urdf"
-        orange_path = "/home/ziyanx/python/multiagent-quadruped-environments/resources/robots/go1/urdf/go1 orange.urdf"
-        blue_path = "/home/ziyanx/python/multiagent-quadruped-environments/resources/robots/go1/urdf/go1 blue.urdf"
-        asset_paths = [blue_path, green_path, red_path, orange_path, ]
+        colorize_robot = False # Set True if visualizing with different colors
+        if colorize_robot:
+            asset_paths = [file.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR) for file in getattr(self.cfg.asset, "files")]
 
         asset_root = os.path.dirname(asset_path)
         asset_file = os.path.basename(asset_path)
 
-        asset_files = [os.path.basename(asset_path) for asset_path in asset_paths]
+        if colorize_robot:
+            asset_files = [os.path.basename(asset_path) for asset_path in asset_paths]
 
         asset_options = gymapi.AssetOptions()
         asset_options.default_dof_drive_mode = self.cfg.asset.default_dof_drive_mode
@@ -790,7 +789,8 @@ class LeggedRobot(BaseTask):
 
         robot_asset = self.gym.load_asset(self.sim, asset_root, asset_file, asset_options)
 
-        robot_assets = [self.gym.load_asset(self.sim, asset_root, asset_file, asset_options) for asset_file in asset_files]
+        if colorize_robot:
+            robot_assets = [self.gym.load_asset(self.sim, asset_root, asset_file, asset_options) for asset_file in asset_files]
 
         self.dof_names = self.gym.get_asset_dof_names(robot_asset)
         self.num_dof = self.gym.get_asset_dof_count(robot_asset)
@@ -867,7 +867,10 @@ class LeggedRobot(BaseTask):
                 pos[1:2] += torch_rand_float(-self.cfg.terrain.y_init_range, self.cfg.terrain.y_init_range, (1, 1), device=self.device).squeeze(1)
                 start_pose.p = gymapi.Vec3(*pos)
 
-                agent_handle = self.gym.create_actor(env_handle, robot_assets[j], start_pose, self.cfg.asset.name, i, self.cfg.asset.self_collisions, 0)
+                if colorize_robot:
+                    agent_handle = self.gym.create_actor(env_handle, robot_assets[j], start_pose, self.cfg.asset.name, i, self.cfg.asset.self_collisions, 0)
+                else:
+                    agent_handle = self.gym.create_actor(env_handle, robot_asset, start_pose, self.cfg.asset.name, i, self.cfg.asset.self_collisions, 0)
                 dof_props = self._process_dof_props(dof_props_asset, i) # TODO: Move out from this loop (maybe)
                 self.gym.set_actor_dof_properties(env_handle, agent_handle, dof_props)
 

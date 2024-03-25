@@ -762,7 +762,7 @@ class LeggedRobot(BaseTask):
         """
         asset_path = self.cfg.asset.file.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR)
 
-        colorize_robot = False # Set True if visualizing with different colors
+        colorize_robot = True # Set True if visualizing with different colors
         if colorize_robot:
             asset_paths = [file.format(LEGGED_GYM_ROOT_DIR=LEGGED_GYM_ROOT_DIR) for file in getattr(self.cfg.asset, "files")]
 

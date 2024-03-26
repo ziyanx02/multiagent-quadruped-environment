@@ -11,7 +11,7 @@ Multi-agent Quadruped Environment(MQE) is a multi-functional and easy-to-use qua
 
 Project Website: https://ziyanx02.github.io/multiagent-quadruped-environment/
 
-Paper:
+Paper: https://arxiv.org/abs/2403.16015
 
 ## Installation ##
 1. Create a new Python virtual env or conda environment with Python 3.6, 3.7, or 3.8 (3.8 recommended)

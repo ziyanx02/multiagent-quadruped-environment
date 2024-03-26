@@ -69,3 +69,18 @@ Blocks used in terrain registration is defined in `./mqe/utils/terrain/barrier_t
 ## Trouble Shooting ##
 
 1. If you get the following error: `ImportError: libpython3.8m.so.1.0: cannot open shared object file: No such file or directory`, it is also possible that you need to do `export LD_LIBRARY_PATH=/PATH/TO/LIBPYTHON/DIRECTORY` / `export LD_LIBRARY_PATH=/PATH/TO/CONDA/envs/YOUR_ENV_NAME/lib`. You can also try: `sudo apt install libpython3.8`.
+
+## Citing MQE ##
+
+If our work has been helpful to you. please feel free to cite us:
+
+```
+@misc{xiong2024mqe,
+      title={MQE: Unleashing the Power of Interaction with Multi-agent Quadruped Environment}, 
+      author={Ziyan Xiong and Bo Chen and Shiyu Huang and Wei-Wei Tu and Zhaofeng He and Yang Gao},
+      year={2024},
+      eprint={2403.16015},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO}
+}
+```

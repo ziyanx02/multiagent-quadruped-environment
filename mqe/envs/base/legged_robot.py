@@ -978,7 +978,7 @@ class LeggedRobot(BaseTask):
             max_init_level = self.cfg.terrain.max_init_terrain_level
             if not self.cfg.terrain.curriculum:
                 max_init_level = self.cfg.terrain.num_rows - 1
-            self.terrain_levels = torch.arange(self.num_envs, device=self.device).to(torch.long) % self.cfg.terrain.num_rows#torch.randint(0, max_init_level+1, (self.num_envs,), device=self.device)
+            self.terrain_levels = torch.randint(0, max_init_level+1, (self.num_envs,), device=self.device)
             self.terrain_types = torch.arange(self.num_envs, device=self.device).to(torch.long) % self.cfg.terrain.num_cols
             self.max_terrain_level = self.cfg.terrain.num_rows
             self.terrain_origins = torch.from_numpy(self.terrain.env_origins).to(self.device).to(torch.float)

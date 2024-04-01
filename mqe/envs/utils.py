@@ -10,6 +10,7 @@ from mqe.envs.configs.go1_gate_config import Go1GateCfg
 from mqe.envs.configs.go1_sheep_config import SingleSheepCfg, NineSheepCfg
 from mqe.envs.configs.go1_football_defender_config import Go1FootballDefenderCfg
 from mqe.envs.configs.go1_seesaw_config import Go1SeesawCfg
+from mqe.envs.configs.go1_door_config import Go1DoorCfg
 from mqe.envs.configs.go1_pushbox_config import Go1PushboxCfg
 
 # wrappers
@@ -57,6 +58,11 @@ ENV_DICT = {
         "class": Go1Object,
         "config": Go1PushboxCfg,
         "wrapper": Go1PushboxWrapper
+    },
+    "go1door": {
+        "class": Go1Object,
+        "config": Go1DoorCfg,
+        "wrapper": Go1SeesawWrapper
     },
 }
 

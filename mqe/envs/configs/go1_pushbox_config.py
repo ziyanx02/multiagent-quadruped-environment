@@ -6,7 +6,7 @@ class Go1PushboxCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1pushbox"
-        num_envs = 0
+        num_envs = 1
         num_agents = 2
         num_npcs = 1
         episode_length_s = 15

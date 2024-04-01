@@ -41,7 +41,7 @@ Blocks used in terrain registration is defined in `./mqe/utils/terrain/barrier_t
 
     - Task could be specified in `./test.py`
 
-2. Train using OpenRL
+2. Train using OpenRL (collaborative)
 
     `python ./openrl_ws/train.py --algo ALGO_NAME --task TASK_NAME`
     - `--num_envs NUM_ENVS` to specify the number of parallel simulated environments
@@ -54,17 +54,44 @@ Blocks used in terrain registration is defined in `./mqe/utils/terrain/barrier_t
     - `--use_wandb` to use WanDB
     - `--use_tensorboard` to use TensorBoard
 
-3. Evaluate trained policy
+3. Evaluate trained policy (collaborative)
 
     `python ./openrl_ws/test.py --algo ALGO_NAME --task TASK_NAME --checkpoint /PATH/TO/CHECKPOINT`
     - `--record_video` to record video (frames)
     - `--algo ALGO_NAME` should be specified as well as `--checkpoint`
 
-4. Create new task
+4. Train using OpenRL (competitive)
+
+    To be finished
+
+4. Evaluate trained policy (competitive)
+
+    To be finished
+
+6. Create new task
 
     Currently existing tasks are exhibited in `./mqe/envs/utils.py` for reference. To create new terrain blocks, please add corresponding `BarrierTrack.get_BLOCK_NAME_block()` function in `./mqe/utils/terrain/barrier_track.py`. Please refer to following tasks for different kinds of new task: `go1gate` for tasks without objects; `go1seesaw` for tasks with fixed or free objects; `go1sheep-easy` for tasks with objects serving as NPC; `go1football-defender` for tasks with robots serving as NPC.
 
-<!-- ## Existing Tasks ## -->
+## Existing Tasks ##
+
+The Task Name in the following table corresponds to `--task TASK_NAME` in task selection. Check `./mqe/envs/utils.py` for latest list of existing tasks.
+
+### Collaborative Tasks ###
+| Task Name | Task Description | Demonstration |
+|:-:|:-:|:-:|
+|go1gate|Two quadrupeds go through one narrow gate sequentially. This task requires the agents to avoid possible collision between two robots.|<img src="docs/static/images/tasks/NarrowGate.png" width = 200>|
+|go1seesaw|Two quadrupeds utilize a seesaw to climb on a suspended platform. This task requires the agents to understand the mechanism of seesaw and maintain synchrony while climbing up the seesaw.|<img src="docs/static/images/tasks/ClimbOnSeesaw.png" width = 200>|
+|go1sheep-easy|Two quadrupeds play the role of sheepdogs to herd one sheep to gp through the gate. Sheep will run away when the dheepdog approaches.|<img src="docs/static/images/tasks/SheepDogEasy.png" width = 200>|
+|go1sheep-hard|Two quadrupeds play the role of sheepdogs to herd nine sheep to gp through the gate.|<img src="docs/static/images/tasks/SheepDogHard.png" width = 200>|
+|go1pushbox|Two quadrupeds push the heavy box through the gate.|<img src="docs/static/images/tasks/PushBox.png" width = 200>|
+|go1football-defender|An opposite quadruped plays as defender, who will keep at the middle point between the ball and the goal. Limited by the defender's speed, two quadrupeds needs to collaborate to kick the ball into the goal.|<img src="docs/static/images/tasks/Football2vs1.png" width = 200>|
+
+### Competitive Tasks ###
+
+To be finished
+<!-- | Task Name | Task Description | Demonstration |
+|:-:|:-:|:-:|
+|go1tug|Two quadrupeds push the cylinder from opposite directions.|<img src="docs/static/images/tasks/PushCylinder.jpg" width = 200>| -->
 
 ## Trouble Shooting ##
 

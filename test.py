@@ -13,11 +13,13 @@ if __name__ == '__main__':
 
     # task_name = "go1plane"
     # task_name = "go1gate"
-    # task_name = "go1football-defender"
+    task_name = "go1football-defender"
+    task_name = "go1football-1vs1"
+    # task_name = "go1football-2vs2"
     # task_name = "go1sheep-easy"
     # task_name = "go1sheep-hard"
     # task_name = "go1seesaw"
-    task_name = "go1door"
+    # task_name = "go1door"
     # task_name = "go1pushbox"
     args.headless = False
 
@@ -25,4 +27,5 @@ if __name__ == '__main__':
     env.reset()
     import time
     while True:
-        obs, _, _, _ = env.step((1 + torch.randn(1, 2, 3, device="cuda")) * torch.tensor([[[1, 0, 0],[1, 0, 0]],], dtype=torch.float32, device="cuda").repeat(env.num_envs, 1, 1))
+        # obs, _, _, _ = env.step(0 * torch.tensor([[[1, 0, 0],[1, 0, 0],[1, 0, 0],[1, 0, 0],],], dtype=torch.float32, device="cuda").repeat(env.num_envs, 1, 1))
+        obs, _, _, _ = env.step(0 * torch.tensor([[[1, 0, 0],[1, 0, 0],],], dtype=torch.float32, device="cuda").repeat(env.num_envs, 1, 1))

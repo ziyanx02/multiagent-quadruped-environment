@@ -8,7 +8,7 @@ from mqe.envs.npc.go1_football_defender import Go1FootballDefender
 from mqe.envs.configs.go1_plane_config import Go1PlaneCfg
 from mqe.envs.configs.go1_gate_config import Go1GateCfg
 from mqe.envs.configs.go1_sheep_config import SingleSheepCfg, NineSheepCfg
-from mqe.envs.configs.go1_football_defender_config import Go1FootballDefenderCfg
+from mqe.envs.configs.go1_football_config import Go1FootballDefenderCfg, Go1Football1vs1Cfg, Go1Football2vs2Cfg
 from mqe.envs.configs.go1_seesaw_config import Go1SeesawCfg
 from mqe.envs.configs.go1_door_config import Go1DoorCfg
 from mqe.envs.configs.go1_pushbox_config import Go1PushboxCfg
@@ -19,7 +19,7 @@ from mqe.envs.wrappers.go1_gate_wrapper import Go1GateWrapper
 from mqe.envs.wrappers.go1_pushbox_wrapper import Go1PushboxWrapper
 from mqe.envs.wrappers.go1_sheep_wrapper import Go1SheepWrapper
 from mqe.envs.wrappers.go1_seesaw_wrapper import Go1SeesawWrapper
-from mqe.envs.wrappers.go1_football_defender_wrapper import Go1FootballDefenderWrapper
+from mqe.envs.wrappers.go1_football_wrapper import Go1FootballDefenderWrapper, Go1FootballGameWrapper
 
 from mqe.utils import get_args, make_env
 
@@ -49,6 +49,16 @@ ENV_DICT = {
         "config": Go1FootballDefenderCfg,
         "wrapper": Go1FootballDefenderWrapper
     },
+    "go1football-1vs1": {
+        "class": Go1Object,
+        "config": Go1Football1vs1Cfg,
+        "wrapper": Go1FootballGameWrapper
+    },
+    "go1football-2vs2": {
+        "class": Go1Object,
+        "config": Go1Football2vs2Cfg,
+        "wrapper": Go1FootballGameWrapper
+    },
     "go1seesaw": {
         "class": Go1Object,
         "config": Go1SeesawCfg,
@@ -59,11 +69,11 @@ ENV_DICT = {
         "config": Go1PushboxCfg,
         "wrapper": Go1PushboxWrapper
     },
-    "go1door": {
-        "class": Go1Object,
-        "config": Go1DoorCfg,
-        "wrapper": Go1SeesawWrapper
-    },
+    # "go1door": {
+    #     "class": Go1Object,
+    #     "config": Go1DoorCfg,
+    #     "wrapper": Go1SeesawWrapper
+    # },
 }
 
 def make_mqe_env(env_name, args=None, custom_cfg=None):

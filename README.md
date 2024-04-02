@@ -88,10 +88,10 @@ The Task Name in the following table corresponds to `--task TASK_NAME` in task s
 
 ### Competitive Tasks ###
 
-To be finished
-<!-- | Task Name | Task Description | Demonstration |
+| Task Name | Task Description | Demonstration |
 |:-:|:-:|:-:|
-|go1tug|Two quadrupeds push the cylinder from opposite directions.|<img src="docs/static/images/tasks/PushCylinder.jpg" width = 200>| -->
+|go1football-1vs1|Football game with 1 player each side.|<img src="docs/static/images/tasks/Football1vs1.jpg" width = 200>|
+|go1football-2vs2|Football game with 2 player each side.|<img src="docs/static/images/tasks/Football2vs2.jpg" width = 200>|
 
 ## Trouble Shooting ##
 

@@ -70,21 +70,21 @@ Blocks used in terrain registration is defined in `./mqe/utils/terrain/barrier_t
 
 6. Create new task
 
-    Currently existing tasks are exhibited in `./mqe/envs/utils.py` for reference. To create new terrain blocks, please add corresponding `BarrierTrack.get_BLOCK_NAME_block()` function in `./mqe/utils/terrain/barrier_track.py`. Please refer to following tasks for different kinds of new task: `go1gate` for tasks without objects; `go1seesaw` for tasks with fixed or free objects; `go1sheep-easy` for tasks with objects serving as NPC; `go1football-defender` for tasks with robots serving as NPC.
+    Currently, existing tasks are exhibited in `./mqe/envs/utils.py` for reference. To create new terrain blocks, please add corresponding `BarrierTrack.get_BLOCK_NAME_block()` function in `./mqe/utils/terrain/barrier_track.py`. Please refer to the following tasks for different kinds of new task: `go1gate` for tasks without objects; `go1seesaw` for tasks with fixed or free objects; `go1sheep-easy` for tasks with objects serving as NPC; `go1football-defender` for tasks with robots serving as NPC.
 
 ## Existing Tasks ##
 
-The Task Name in the following table corresponds to `--task TASK_NAME` in task selection. Check `./mqe/envs/utils.py` for latest list of existing tasks.
+The Task Name in the following table corresponds to `--task TASK_NAME` in task selection. Check `./mqe/envs/utils.py` for the latest list of existing tasks.
 
 ### Collaborative Tasks ###
 | Task Name | Task Description | Demonstration |
 |:-:|:-:|:-:|
-|go1gate|Two quadrupeds go through one narrow gate sequentially. This task requires the agents to avoid possible collision between two robots.|<img src="docs/static/images/tasks/NarrowGate.png" width = 200>|
-|go1seesaw|Two quadrupeds utilize a seesaw to climb on a suspended platform. This task requires the agents to understand the mechanism of seesaw and maintain synchrony while climbing up the seesaw.|<img src="docs/static/images/tasks/ClimbOnSeesaw.png" width = 200>|
-|go1sheep-easy|Two quadrupeds play the role of sheepdogs to herd one sheep to gp through the gate. Sheep will run away when the dheepdog approaches.|<img src="docs/static/images/tasks/SheepDogEasy.png" width = 200>|
-|go1sheep-hard|Two quadrupeds play the role of sheepdogs to herd nine sheep to gp through the gate.|<img src="docs/static/images/tasks/SheepDogHard.png" width = 200>|
+|go1gate|Two quadrupeds go through one narrow gate sequentially. This task requires the agents to avoid possible collisions between two robots.|<img src="docs/static/images/tasks/NarrowGate.png" width = 200>|
+|go1seesaw|Two quadrupeds utilize a seesaw to climb on a suspended platform. This task requires the agents to understand the mechanism of the seesaw and maintain synchrony while climbing up the seesaw.|<img src="docs/static/images/tasks/ClimbOnSeesaw.png" width = 200>|
+|go1sheep-easy|Two quadrupeds play the role of sheepdogs to herd one sheep to go through the gate. Sheep will run away when the sheepdog approaches.|<img src="docs/static/images/tasks/SheepDogEasy.png" width = 200>|
+|go1sheep-hard|Two quadrupeds play the role of sheepdogs to herd nine sheep to go through the gate.|<img src="docs/static/images/tasks/SheepDogHard.png" width = 200>|
 |go1pushbox|Two quadrupeds push the heavy box through the gate.|<img src="docs/static/images/tasks/PushBox.png" width = 200>|
-|go1football-defender|An opposite quadruped plays as defender, who will keep at the middle point between the ball and the goal. Limited by the defender's speed, two quadrupeds needs to collaborate to kick the ball into the goal.|<img src="docs/static/images/tasks/Football2vs1.png" width = 200>|
+|go1football-defender|An opposite quadruped plays as a defender, who will keep at the middle point between the ball and the goal. Two quadrupeds need to collaborate to kick the ball into the goal.|<img src="docs/static/images/tasks/Football2vs1.png" width = 200>|
 
 ### Competitive Tasks ###
 

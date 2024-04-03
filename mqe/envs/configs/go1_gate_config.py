@@ -6,7 +6,7 @@ class Go1GateCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1gate"
-        num_envs = 1 # 4096
+        num_envs = 1
         num_agents = 2
         episode_length_s = 10 # episode length in seconds
 
@@ -14,8 +14,8 @@ class Go1GateCfg(Go1Cfg):
 
         mesh_type = "trimesh"
         selected = "BarrierTrack"
-        num_rows = 1 # 20
-        num_cols = 1 # 50
+        num_rows = 1
+        num_cols = 1
         max_init_terrain_level = 2
         border_size = 1
         slope_treshold = 20.

@@ -11,5 +11,6 @@ setup(
     description='multiagent-quadruped-environments',
     install_requires=['isaacgym',
                       'matplotlib',
+                      'gym',
                       'debugpy']
 )

@@ -262,16 +262,3 @@ def get_args():
     if args.sim_device=='cuda':
         args.sim_device += f":{args.sim_device_id}"
     return args
-
-def custom_cfg(args):
-
-    def fn(cfg:Go1Cfg):
-        
-        if getattr(args, "num_envs", None) is not None:
-            cfg.env.num_envs = args.num_envs
-        
-        cfg.env.record_video = args.record_video
-
-        return cfg
-    
-    return fn

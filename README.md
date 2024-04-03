@@ -97,6 +97,8 @@ The Task Name in the following table corresponds to `--task TASK_NAME` in task s
 
 1. If you get the following error: `ImportError: libpython3.8m.so.1.0: cannot open shared object file: No such file or directory`, it is also possible that you need to do `export LD_LIBRARY_PATH=/PATH/TO/LIBPYTHON/DIRECTORY` / `export LD_LIBRARY_PATH=/PATH/TO/CONDA/envs/YOUR_ENV_NAME/lib`. You can also try: `sudo apt install libpython3.8`.
 
+2. If you get the following error: `AttributeError: module 'numpy' has no attribute 'float'.`, it's because of the version of package `numpy`. First uninstall `numpy` by `pip uninstall numpy`, and install `numpy` of specific version by `pip install numpy==1.20.3`.
+
 ## Citing MQE ##
 
 If our work has been helpful to you. please feel free to cite us:

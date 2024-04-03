@@ -1,5 +1,6 @@
 
-from openrl_ws.utils import make_env, get_args, custom_cfg, MATWrapper
+from openrl_ws.utils import make_env, get_args, MATWrapper
+from mqe.envs.utils import custom_cfg
 from openrl.utils.logger import Logger
 
 from datetime import datetime

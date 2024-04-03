@@ -6,7 +6,7 @@ class Go1FootballDefenderCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1football"
-        num_envs = 1 # 4096
+        num_envs = 1
         num_agents = 3
         num_npcs = 1
         episode_length_s = 20
@@ -21,8 +21,8 @@ class Go1FootballDefenderCfg(Go1Cfg):
     
     class terrain(Go1Cfg.terrain):
 
-        num_rows = 1 # 20
-        num_cols = 1 # 50
+        num_rows = 1
+        num_cols = 1
  
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
@@ -135,10 +135,10 @@ class Go1Football1vs1Cfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1football"
-        num_envs = 1 # 4096
+        num_envs = 1
         num_agents = 2
         num_npcs = 1
-        episode_length_s = 20
+        episode_length_s = 1
     
     class asset(Go1Cfg.asset):
         file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/ball.urdf"
@@ -150,8 +150,8 @@ class Go1Football1vs1Cfg(Go1Cfg):
     
     class terrain(Go1Cfg.terrain):
 
-        num_rows = 1 # 20
-        num_cols = 1 # 50
+        num_rows = 1
+        num_cols = 1
  
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
@@ -248,7 +248,7 @@ class Go1Football2vs2Cfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1football"
-        num_envs = 1 # 4096
+        num_envs = 1
         num_agents = 4
         num_npcs = 1
         episode_length_s = 20
@@ -263,8 +263,8 @@ class Go1Football2vs2Cfg(Go1Cfg):
     
     class terrain(Go1Cfg.terrain):
 
-        num_rows = 1 # 20
-        num_cols = 1 # 50
+        num_rows = 1
+        num_cols = 1
  
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [

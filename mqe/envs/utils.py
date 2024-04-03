@@ -1,10 +1,12 @@
 # environments
+from mqe.envs.field.legged_robot_field import LeggedRobotField
 from mqe.envs.go1.go1 import Go1
 from mqe.envs.npc.go1_sheep import Go1Sheep
 from mqe.envs.npc.go1_object import Go1Object
 from mqe.envs.npc.go1_football_defender import Go1FootballDefender
 
 # configs
+from mqe.envs.field.legged_robot_field_config import LeggedRobotFieldCfg
 from mqe.envs.configs.go1_plane_config import Go1PlaneCfg
 from mqe.envs.configs.go1_gate_config import Go1GateCfg
 from mqe.envs.configs.go1_sheep_config import SingleSheepCfg, NineSheepCfg
@@ -22,6 +24,8 @@ from mqe.envs.wrappers.go1_seesaw_wrapper import Go1SeesawWrapper
 from mqe.envs.wrappers.go1_football_wrapper import Go1FootballDefenderWrapper, Go1FootballGameWrapper
 
 from mqe.utils import get_args, make_env
+
+from typing import Tuple
 
 ENV_DICT = {
     "go1plane": {
@@ -76,7 +80,7 @@ ENV_DICT = {
     # },
 }
 
-def make_mqe_env(env_name, args=None, custom_cfg=None):
+def make_mqe_env(env_name: str, args=None, custom_cfg=None) -> Tuple[LeggedRobotField, LeggedRobotFieldCfg]:
     
     env_dict = ENV_DICT[env_name]
 
@@ -87,3 +91,16 @@ def make_mqe_env(env_name, args=None, custom_cfg=None):
     env = env_dict["wrapper"](env)
 
     return env, env_cfg
+
+def custom_cfg(args):
+
+    def fn(cfg:LeggedRobotFieldCfg):
+        
+        if getattr(args, "num_envs", None) is not None:
+            cfg.env.num_envs = args.num_envs
+        
+        cfg.env.record_video = args.record_video
+
+        return cfg
+    
+    return fn

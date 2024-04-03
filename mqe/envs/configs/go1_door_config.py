@@ -6,7 +6,7 @@ class Go1DoorCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1door"
-        num_envs = 1 # 4096
+        num_envs = 1
         num_agents = 2
         num_npcs = 1
         num_actions_npc = 1
@@ -22,8 +22,8 @@ class Go1DoorCfg(Go1Cfg):
     
     class terrain(Go1Cfg.terrain):
 
-        num_rows = 1 # 20
-        num_cols = 1 # 50
+        num_rows = 1
+        num_cols = 1
 
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [

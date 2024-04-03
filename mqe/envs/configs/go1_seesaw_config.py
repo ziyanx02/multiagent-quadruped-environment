@@ -6,11 +6,11 @@ class Go1SeesawCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1seesaw"
-        num_envs = 1 # 4096
+        num_envs = 1
         num_agents = 2
         num_npcs = 1
         num_actions_npc = 1
-        episode_length_s = 15 # episode length in seconds
+        episode_length_s = 1 # episode length in seconds
     
     class asset(Go1Cfg.asset):
         file_npc = "{LEGGED_GYM_ROOT_DIR}/resources/objects/seesaw.urdf"
@@ -21,8 +21,8 @@ class Go1SeesawCfg(Go1Cfg):
     
     class terrain(Go1Cfg.terrain):
 
-        num_rows = 1 # 20
-        num_cols = 1 # 50
+        num_rows = 1
+        num_cols = 1
 
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
@@ -132,5 +132,5 @@ class Go1SeesawCfg(Go1Cfg):
             # exceed_torque_limits_i = -2e-1
 
     class viewer(Go1Cfg.viewer):
-        pos = [0., -2., 4.]  # [m]
+        pos = [-1., -3., 5.]  # [m]
         lookat = [4., 2., 0.]  # [m]

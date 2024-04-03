@@ -282,24 +282,19 @@ class FloatingCameraSensor(Sensor):
         camera_props.width = self.env.cfg.env.recording_width_px
         camera_props.height = self.env.cfg.env.recording_height_px
         self.rendering_camera = self.env.gym.create_camera_sensor(self.env.envs[0], camera_props)
-        self.env.gym.set_camera_location(self.rendering_camera, self.env.envs[0], gymapi.Vec3(1.5, 1, 3.0),
-                                        gymapi.Vec3(0, 0, 0))
 
-    def set_position(self, target_loc=None, cam_distance=None):
-        if cam_distance is None:
-            cam_distance = [0, -1.0, 1.0]
-        if target_loc is None:
+    def set_position(self, pos=None, lookat=None):
+        if pos is None:
             bx, by, bz = self.env.root_states[0, 0], self.env.root_states[0, 1], self.env.root_states[0, 2]
-            target_loc = [bx, by, bz]
-        self.env.gym.set_camera_location(self.rendering_camera, self.env.envs[0], gymapi.Vec3(target_loc[0] + cam_distance[0],
-                                                                                      target_loc[1] + cam_distance[1],
-                                                                                      target_loc[2] + cam_distance[2]),
-                                     gymapi.Vec3(target_loc[0], target_loc[1], target_loc[2]))
+            lookat = [bx, by, bz]
+            pos = [bx, by - 1.0, bz + 1.0]
+        self.env.gym.set_camera_location(self.rendering_camera, self.env.envs[0], gymapi.Vec3(*pos), gymapi.Vec3(*lookat))
 
     def get_observation(self, env_ids = None):
         self.env.gym.step_graphics(self.env.sim)
         self.env.gym.render_all_camera_sensors(self.env.sim)
         img = self.env.gym.get_camera_image(self.env.sim, self.env.envs[0], self.rendering_camera, gymapi.IMAGE_COLOR)
+        _img = self.env.gym.get_camera_image(self.env.sim, self.env.envs[0], self.rendering_camera, gymapi.IMAGE_COLOR) # DO NOT REMOVE, to fix unknown issue
         w, h = img.shape
         return img.reshape([w, h // 4, 4])
     
@@ -309,8 +304,6 @@ class AttachedCameraSensor(Sensor):
         self.env = env
         self.attached_robot_asset = attached_robot_asset
 
-        
-
     def initialize(self, camera_label, camera_pose, camera_rpy, env_ids=None):
         if env_ids is None: env_ids = range(self.env.num_envs)
 
@@ -318,7 +311,6 @@ class AttachedCameraSensor(Sensor):
         camera_props.width = self.env.cfg.perception.image_width
         camera_props.height = self.env.cfg.perception.image_height
         camera_props.horizontal_fov = self.env.cfg.perception.image_horizontal_fov
-
 
         self.cams = []
 

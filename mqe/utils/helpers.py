@@ -281,6 +281,7 @@ class FloatingCameraSensor(Sensor):
         camera_props = gymapi.CameraProperties()
         camera_props.width = self.env.cfg.env.recording_width_px
         camera_props.height = self.env.cfg.env.recording_height_px
+        camera_props.enable_tensors = True
         self.rendering_camera = self.env.gym.create_camera_sensor(self.env.envs[0], camera_props)
 
     def set_position(self, pos=None, lookat=None):

@@ -132,5 +132,5 @@ class Go1SeesawCfg(Go1Cfg):
             # exceed_torque_limits_i = -2e-1
 
     class viewer(Go1Cfg.viewer):
-        pos = [-1., -3., 5.]  # [m]
+        pos = [0., -2., 4.]  # [m]
         lookat = [4., 2., 0.]  # [m]

@@ -30,71 +30,75 @@ class Go1FootballAgainstWrapper(EmptyWrapper):
         self.reward_buffer = {
             "goal reward": 0,
             "ball gate distance reward": 0,
-            "step count": 0
-        }
-
-        self.reward_buffer_1 = {
-            "goal reward": 0,
-            "ball gate distance reward": 0,
+            "goal punishment": 0,
             "step count": 0
         }
 
     def _init_extras(self, obs):
+        self.gate_pos = obs.env_info["door_pos"].reshape(self.num_envs, 1, -1).repeat(1, 2, 1)
+        self.gate_pos[:, :, 1] = 0
+        self.gate_pos[:, 0, 0] = self.BarrierTrack_kwargs["football"]["block_length"] - self.gate_pos[:, 0, 0]
+        self.axis = self.BarrierTrack_kwargs["football"]["block_length"]
         return
 
     def reset(self):
         obs_buf = self.env.reset()
-
-        if getattr(self, "gate_pos", None) is None:
-            self._init_extras(obs_buf)
-
+        self._init_extras(obs_buf)
         ball_pos = self.root_states_npc[:, :3].reshape(self.num_envs, 3) - self.env_origins
         ball_pos = ball_pos.unsqueeze(1).repeat(1, 4, 1)
-
         ball_vel = self.root_states_npc[:, 7:10].reshape(self.num_envs, 3).unsqueeze(1).repeat(1, 4, 1)
-
         base_pos = obs_buf.base_pos
         base_rpy = obs_buf.base_rpy
         base_info = torch.cat([base_pos, base_rpy], dim=1).reshape([self.num_envs, self.num_agents, -1])
         base_flip_info = torch.cat([torch.flip(base_info[:, :self.num_agents // 2, :], [1]), torch.flip(base_info[:, self.num_agents // 2:, :], [1])], dim=1)
         obs = torch.cat([self.obs_ids, base_info, base_flip_info, ball_pos, ball_vel], dim=2)
-
+        obs[:, 2:, 4] = self.axis - obs[:, 2:, 4]
+        obs[:, 2:, 8] = -obs[:, 2:, 8]
+        obs[:, 2:, 10] =  self.axis - obs[:, 2:, 10]
+        obs[:, 2:, 14] = -obs[:, 2:, 14]
+        obs[:, 2:, 16] = self.axis - obs[:, 2:, 16]
+        obs[:, 2:, 19] = -obs[:, 2:, 19]
         return obs
 
     def step(self, action):
         action = torch.clip(action, -1, 1)
+        action[:, 2:, 1:] = -action[:, 2:, 1:]
         obs_buf, _, termination, info = self.env.step((action * self.action_scale).reshape(-1, self.action_space.shape[0]))
-
-        if getattr(self, "gate_pos", None) is None:
-            self._init_extras(obs_buf)
-        
+        reward = torch.zeros([self.env.num_envs, 4], device=self.env.device)
         ball_pos = self.root_states_npc[:, :3].reshape(self.num_envs, 3) - self.env_origins
+
+        if self.goal_reward_scale != 0:
+            goal_reward = torch.zeros([self.env.num_envs, 1], device=self.env.device)
+            goal_reward[ball_pos[:, 0] > self.gate_pos[:, 0, 0], 0] = self.goal_reward_scale
+            reward[:, :2] += goal_reward.repeat(1, 2)
+            self.reward_buffer["goal reward"] += torch.sum(goal_reward[:, 0]).cpu()
+        
+        if self.ball_gate_distance_reward_scale != 0:
+            ball_gate_distance = torch.norm(ball_pos[:, :2] - self.gate_pos[:, 0, :], dim=1, keepdim=True)
+            ball_gate_distance_reward = self.ball_gate_distance_reward_scale * torch.exp(-ball_gate_distance / 3)
+            reward[:, :2] += ball_gate_distance_reward.repeat(1, 2)
+            self.reward_buffer["ball gate distance reward"] += torch.sum(ball_gate_distance_reward).cpu()
+        
+        if self.goal_punishment_scale != 0:
+            goal_punishment = torch.zeros([self.env.num_envs, 1], device=self.env.device)
+            goal_punishment[ball_pos[:, 0] < self.gate_pos[:, 1, 0], 0] = self.goal_reward_scale
+            reward[:, :2] -= goal_punishment.repeat(1, 2)
+            self.reward_buffer["goal punishment"] += torch.sum(goal_punishment[:, 0]).cpu()
+
         ball_pos = ball_pos.unsqueeze(1).repeat(1, 4, 1)
-
         ball_vel = self.root_states_npc[:, 7:10].reshape(self.num_envs, 3).unsqueeze(1).repeat(1, 4, 1)
-
         base_pos = obs_buf.base_pos
         base_rpy = obs_buf.base_rpy
         base_info = torch.cat([base_pos, base_rpy], dim=1).reshape([self.num_envs, self.num_agents, -1])
         base_flip_info = torch.cat([torch.flip(base_info[:, :self.num_agents // 2, :], [1]), torch.flip(base_info[:, self.num_agents // 2:, :], [1])], dim=1)
         obs = torch.cat([self.obs_ids, base_info, base_flip_info, ball_pos, ball_vel], dim=2)
-
         self.reward_buffer["step count"] += 1
-        reward = torch.zeros([self.env.num_envs, 1], device=self.env.device)
-
-        # if self.goal_reward_scale != 0:
-
-        #     goal_reward = reward.clone()
-        #     goal_reward[ball_pos[:, 0, 0] > self.gate_pos[:, 0], 0] = self.goal_reward_scale
-        #     reward += goal_reward
-        #     self.reward_buffer["goal reward"] += torch.sum(goal_reward).cpu()
-
-        # if self.ball_gate_distance_reward_scale != 0:
-            
-        #     ball_gate_distance = torch.norm(ball_pos[:, 0, :2] - self.gate_pos[:, :2], dim=1, keepdim=True)
-        #     ball_gate_distance_reward = self.ball_gate_distance_reward_scale * torch.exp(-ball_gate_distance / 3)
-        #     reward += ball_gate_distance_reward
-        #     self.reward_buffer["ball gate distance reward"] += torch.sum(ball_gate_distance_reward).cpu()
-
-        return obs, reward.repeat(1, 4), termination, info
+        obs[:, 2:, 4] = self.axis - obs[:, 2:, 4]
+        obs[:, 2:, 8] = -obs[:, 2:, 8]
+        obs[:, 2:, 10] =  self.axis - obs[:, 2:, 10]
+        obs[:, 2:, 14] = -obs[:, 2:, 14]
+        obs[:, 2:, 16] = self.axis - obs[:, 2:, 16]
+        obs[:, 2:, 19] = -obs[:, 2:, 19]
+        
+        return obs, reward.reshape(self.num_envs, 4, 1), termination, info
     

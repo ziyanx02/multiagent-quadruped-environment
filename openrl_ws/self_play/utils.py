@@ -107,7 +107,7 @@ class BaseMultiPlayerWrapper(BaseWrapper, ABC):
     def reset(self, *, seed: Optional[int] = None, **kwargs):
         while True:
             self.env.reset(seed=seed, **kwargs)
-            self.self_player = self.np_random.choice(self.env.agents)
+            self.self_player = self.env.agents[0]
             self.opponent_players = self.env.agents.copy()
             self.opponent_players.remove(self.self_player)
             while True:

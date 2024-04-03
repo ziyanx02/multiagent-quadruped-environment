@@ -6,7 +6,7 @@ class Go1FootballAgainstCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
         env_name = "go1football"
-        num_envs = 1 # 4096
+        num_envs = 2 # 4096
         num_agents = 4
         num_npcs = 1
         episode_length_s = 5
@@ -27,7 +27,7 @@ class Go1FootballAgainstCfg(Go1Cfg):
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
                 "init",
-                "foodball"
+                "football"
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
@@ -39,7 +39,7 @@ class Go1FootballAgainstCfg(Go1Cfg):
                 border_width = 0.00,
                 offset = (0, 0),
             ),
-            foodball = dict(
+            football = dict(
                 block_length = 12.0,
                 height = 4.0,
                 width = 2.0,
@@ -116,6 +116,7 @@ class Go1FootballAgainstCfg(Go1Cfg):
         class scales:
             goal_reward_scale = 10
             ball_gate_distance_reward_scale = 3
+            goal_punishment_scale = 0
             # tracking_ang_vel = 0.05
             # world_vel_l2norm = -1.
             # legs_energy_substeps = -1e-5

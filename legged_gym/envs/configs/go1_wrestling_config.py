@@ -49,10 +49,7 @@ class Go1WrestlingCfg(Go1Cfg):
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
                 "init",
-                # "rectangle",
-                "wall",
                 "plane",
-                "wall",
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
@@ -64,24 +61,11 @@ class Go1WrestlingCfg(Go1Cfg):
                 border_width = 0.00,
                 offset = (0, 0),
             ),
-            rectangle = dict(
-                block_length = 4.0,
-                height = 0.5,
-                width = 3.0,
-                lenght = 3.0, 
-                offset = (0, 0),
-            ),
             wall = dict(
                 block_length = 0.1
             ),
             plane = dict(
                 block_length = 7,
-            ),
-            circular = dict(
-                block_length = 4.0,
-                height = 0.5,
-                radius = 1.5,
-                offset = (0, 0),
             ),
             wall_height= 0.001,
             virtual_terrain = False, # Change this to False for real terrain
@@ -135,8 +119,13 @@ class Go1WrestlingCfg(Go1Cfg):
             "roll",
             "pitch",
             "z_low",
-            "out_of_track",
         ]
+        roll_kwargs = dict(
+            threshold= 1.1, # [rad] # for tilt
+        )
+        pitch_kwargs = dict(
+            threshold= 3.14
+        )
         z_low_kwargs = dict(
             threshold= 0.3, # [m]
         )
@@ -153,14 +142,9 @@ class Go1WrestlingCfg(Go1Cfg):
     class rewards(Go1Cfg.rewards):
         class scales:
 
-            target_reward_scale = 1
+            punishment_scale = 1
             success_reward_scale = 10
-            lin_vel_x_reward_scale = 0
-            approach_frame_punishment_scale = 0
-            agent_distance_punishment_scale = -0.5
-            lin_vel_y_punishment_scale = 0
-            command_value_punishment_scale = 0
-
+            
     class viewer(Go1Cfg.viewer):
         pos = [0., 11., 5.]  # [m]
         lookat = [4., 11., 0.]  # [m]

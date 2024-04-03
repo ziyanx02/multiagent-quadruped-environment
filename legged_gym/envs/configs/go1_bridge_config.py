@@ -5,7 +5,7 @@ from legged_gym.envs.go1.go1 import Go1Cfg
 class Go1BridgeCfg(Go1Cfg):
 
     class env(Go1Cfg.env):
-        env_name = "go1wrestling"
+        env_name = "go1bridge"
         num_envs = 1 # 4096
         num_agents = 2
         env_type = 1
@@ -154,12 +154,8 @@ class Go1BridgeCfg(Go1Cfg):
         class scales:
 
             target_reward_scale = 1
+            punishment_scale = 1
             success_reward_scale = 10
-            lin_vel_x_reward_scale = 0
-            approach_frame_punishment_scale = 0
-            agent_distance_punishment_scale = -0.5
-            lin_vel_y_punishment_scale = 0
-            command_value_punishment_scale = 0
 
     class viewer(Go1Cfg.viewer):
         pos = [0., 11., 5.]  # [m]

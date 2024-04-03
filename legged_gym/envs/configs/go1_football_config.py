@@ -41,7 +41,7 @@ class Go1FootballCfg(Go1Cfg):
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
                 "init",
-                "foodball"
+                "football"
             ],
             randomize_obstacle_order = False,
             # wall_thickness= 0.2,
@@ -53,20 +53,7 @@ class Go1FootballCfg(Go1Cfg):
                 border_width = 0.00,
                 offset = (0, 0),
             ),
-            plane = dict(
-                block_length = 8.,
-            ),
-            wall = dict(
-                block_length = 0.1
-            ),
-            rectangle = dict(
-                block_length = 0.4,
-                height = 1.0,
-                width = 6.,
-                lenght = 0.4, 
-                offset = (0, 0),
-            ),
-            foodball = dict(
+            football = dict(
                 block_length = 8.0,
                 height = 4.0,
                 width = 2.0,
@@ -142,13 +129,7 @@ class Go1FootballCfg(Go1Cfg):
     class rewards(Go1Cfg.rewards):
         class scales:
 
-            target_reward_scale = 1
-            success_reward_scale = 10
-            lin_vel_x_reward_scale = 0
-            approach_frame_punishment_scale = 0
-            agent_distance_punishment_scale = -0.5
-            lin_vel_y_punishment_scale = 0
-            command_value_punishment_scale = 0
+            catch_ball_reward_scale = 1
         
     class viewer(Go1Cfg.viewer):
         pos = [0., 11., 5.]  # [m]

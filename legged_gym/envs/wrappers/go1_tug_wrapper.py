@@ -21,12 +21,12 @@ class Go1TugWrapper(EmptyWrapper):
         self.reward_buffer = {
             "success reward": 0,
             "pos reward": 0,
-            # "vel reward": 0,
+            "pos punishment": 0,
             "step count": 0,
             "npc pos": 0,
             "punishment": 0,
             "total reward": 0,
-            "pos": 0 ,
+            "pos": 0,
             "pos_y": 0,
             "opponet pos": 0,
             "opponet pos_y": 0,
@@ -41,17 +41,23 @@ class Go1TugWrapper(EmptyWrapper):
     def reset(self):
         obs_buf = self.env.reset()
         base_pos = obs_buf.base_pos
-        base_quat = obs_buf.base_quat
-        base_info = torch.cat([base_pos, base_quat], dim=1).reshape([self.env.num_envs, self.env.num_agents, -1])
+        base_rpy = obs_buf.base_rpy
+        base_info = torch.cat([base_pos, base_rpy], dim=1).reshape([self.env.num_envs, self.env.num_agents, -1])
         self._init_extras(obs_buf)
-        obs = torch.cat([base_info, self.env.dof_state_npc.repeat(1, self.env.num_agents, 1), self.last_npc_pos.repeat(1, self.env.num_agents, 1)], dim=2)
+        dof_state_pos_npc = self.env.dof_state_npc[:, :, 0]
+        dis = torch.clone(base_pos.reshape([self.env.num_envs, self.env.num_agents, -1])[:, :, :2])
+        dis[:, :, 0] -= 1.6
+        dis[:, :, 1] -= dof_state_pos_npc.repeat(1, self.env.num_agents)
+        dis = torch.norm(dis, p=2, dim=-1, keepdim=True)
+        obs = torch.cat([base_info, self.env.dof_state_npc.repeat(1, self.env.num_agents, 1), dis,  self.last_npc_pos.repeat(1, self.env.num_agents, 1)], dim=2)
+        obs[:, 1, 1] = -obs[:, 1, 1]
+        obs[:, 1, 4] = -obs[:, 1, 4]
+        obs[:, 1, 6] = -obs[:, 1, 6]
+        obs[:, 1, -1] = -obs[:, 1, -1]
         self.env_step[:] += 1
-        
-
         return obs
 
     def step(self, action):
-        
         action[:, 1, 1:] = -action[:, 1, 1:]
         if any(self.reset_dic[:] > 0):
             self.reset_dic[self.reset_dic[:] > 0] -= 1
@@ -64,70 +70,68 @@ class Go1TugWrapper(EmptyWrapper):
         obs_buf, _, termination, info = self.env.step((action * self.action_scale).reshape(-1, self.action_space.shape[0]))
         self.reset_dic[self.env.reset_ids] = 3
         self.reward_buffer["step count"] += 1
-        base_pos = obs_buf.base_pos.reshape([self.env.num_envs, self.env.num_agents, -1])
 
+        base_pos = obs_buf.base_pos.reshape([self.env.num_envs, self.env.num_agents, -1])
+        dof_state_pos_npc = self.env.dof_state_npc[:, 0, 0]
+        last_dis = torch.clone(self.last_dis[:, 0, :2])
+        last_dis[:, 0] -= 1.6
+        last_dis[:, 1] -= dof_state_pos_npc 
+        last_dis = torch.norm(last_dis, p=2, dim=-1)
+        dis = torch.clone(base_pos[:, 0, :2])
+        dis[:, 0] -= 1.6
+        dis[:, 1] -= dof_state_pos_npc
+        dis = torch.norm(dis, p=2, dim=-1)
         reward = torch.zeros([self.env.num_envs, self.env.num_agents, 1], device=self.env.device, dtype=torch.float)
         
-        dof_state_pos_npc = self.env.dof_state_npc[:, 0, 0]
-        dof_state_quat_npc = self.env.dof_state_npc[:, 0, 1]
-        pos_reward = torch.zeros([self.env.num_envs, self.env.num_agents], device=self.env.device)
-        success_reward = torch.zeros([self.env.num_envs, self.env.num_agents], device=self.env.device)
-        punishment = torch.zeros([self.env.num_envs, self.env.num_agents], device=self.env.device)
+        if self.success_reward_scale != 0:
+            success_reward = torch.zeros([self.env.num_envs, self.env.num_agents], device=self.env.device)
+            success_reward[dof_state_pos_npc < 0, 0] =  self.success_reward_scale * - dof_state_pos_npc[dof_state_pos_npc < 0]
+            success_reward[self.last_npc_pos[:, 0, 0] <= dof_state_pos_npc] /= 2
+            reward[:, 0] += success_reward[:, 0]
+            self.reward_buffer["success reward"] += torch.sum(success_reward[:, 0]).cpu()
         
-        for i in range(self.env.num_envs):
-                
-            if dof_state_pos_npc[i] > 0:
-                if self.last_npc_pos[i, 0, 0] < dof_state_pos_npc[i]:
-                    success_reward[i, 0] +=  self.success_reward_scale * abs(dof_state_pos_npc[i])
-                else:
-                    success_reward[i, 0] += self.success_reward_scale * abs(dof_state_pos_npc[i]) / 2
-            if dof_state_pos_npc[i] < 0:
-                if self.last_npc_pos[i, 0, 0] >= dof_state_pos_npc[i]:
-                    punishment[i, 0] +=  self.punishment_reward_scale * abs(dof_state_pos_npc[i])
-                else:
-                    punishment[i, 0] += self.punishment_reward_scale * abs(dof_state_pos_npc[i]) / 2
-
-            if not i in self.env.reset_ids:
-                last_dis = torch.clone(self.last_dis[i, 0, :2])
-                last_dis[0] -= 2.2
-                last_dis[1] -= dof_state_pos_npc[i] 
-                dis = torch.clone(base_pos[i, 0, :2])
-                dis[0] -= 2.2
-                dis[1] -= dof_state_pos_npc[i]
-                if base_pos[i, 0, 0] > 2.0 and base_pos[i, 0, 0] < 2.4:
-                    if abs(dis[1]) < abs(last_dis[1]) and abs(dis[1]) > 1.5:
-                        pos_reward[i, 0] += pow(0.5, abs(base_pos[i, 0, 1] - dof_state_pos_npc[i]) * self.env_step[i]) * self.pos_reward_scale
-                    else: punishment[i, 0] += (pow(2, abs(base_pos[i, 0, 1] - dof_state_pos_npc[i])) - 1)
-                else:
-                    if abs(dis[0]) < abs(last_dis[0]):
-                        pos_reward[i, 0] += pow(0.5, abs(base_pos[i, 0, 0] - 2.2) * self.env_step[i]) * self.pos_reward_scale
-                    else: punishment[i, 0] += (pow(2, abs(base_pos[i, 0, 0] - 2.2)) - 1)
+        if self.punishment_reward_scale != 0:
+            punishment = torch.zeros([self.env.num_envs, self.env.num_agents], device=self.env.device)
+            punishment[dof_state_pos_npc > 0, 0] =  self.punishment_reward_scale * dof_state_pos_npc[dof_state_pos_npc > 0]
+            punishment[self.last_npc_pos[:, 0, 0] > dof_state_pos_npc] /= 2
+            reward[:, 0] -= punishment[:, 0]
+            self.reward_buffer["punishment"] += torch.sum(punishment[:, 0]).cpu()
+        
+        if self.pos_reward_scale != 0:
+            pos_reward = torch.zeros([self.env.num_envs, self.env.num_agents], device=self.env.device)
+            pos_reward[dis < last_dis, 0] = (last_dis[dis < last_dis] - dis[dis < last_dis]) * self.pos_reward_scale
+            reward[:, 0] += pos_reward[:, 0]
+            self.reward_buffer["pos reward"] += torch.sum(pos_reward[:, 0]).cpu()
+        
+        if self.pos_punishment_scale != 0:
+            pos_punishment = torch.zeros([self.env.num_envs, self.env.num_agents], device=self.env.device)
+            pos_punishment[dis >= last_dis, 0] = pow(2, dis[dis >= last_dis]) * self.pos_punishment_scale
+            reward[:, 0] -= pos_punishment[:, 0]
+            self.reward_buffer["pos punishment"] += torch.sum(pos_punishment[:, 0]).cpu()
 
         self.last_dis = torch.clone(base_pos)
         self.last_npc_pos = torch.clone(self.env.dof_state_npc[:, :, :1])
-        reward[:, :, 0] += pos_reward
-        reward[:, :, 0] += success_reward
-        reward[:, :, 0] -= punishment
 
         self.reward_buffer["npc pos"] += torch.sum(dof_state_pos_npc[:]).cpu()
-        self.reward_buffer["success reward"] += torch.sum(success_reward[:, 0]).cpu()
-        self.reward_buffer["pos reward"] += torch.sum(pos_reward[:, 0]).cpu()
-        self.reward_buffer["punishment"] += torch.sum(punishment[:, 0]).cpu()
         self.reward_buffer["total reward"] = self.reward_buffer["total reward"] + torch.sum(pos_reward[:, 0]).cpu() + torch.sum(success_reward[:, 0]).cpu() - torch.sum(punishment[:, 0]).cpu()
         self.reward_buffer["pos"] += torch.sum(base_pos[:, 0, 0]).cpu()
         self.reward_buffer["pos_y"] += torch.sum(base_pos[:, 0, 1]).cpu()
         self.reward_buffer["opponet pos"] += torch.sum(base_pos[:, 1, 0]).cpu()
         self.reward_buffer["opponet pos_y"] += torch.sum(base_pos[:, 1, 1]).cpu()
 
-
         base_pos = obs_buf.base_pos
-        base_quat = obs_buf.base_quat
-        base_info = torch.cat([base_pos, base_quat], dim=1).reshape([self.env.num_envs, self.env.num_agents, -1])
-        obs = torch.cat([base_info, self.env.dof_state_npc.repeat(1, self.env.num_agents, 1), self.last_npc_pos.repeat(1, self.env.num_agents, 1)], dim=2)
+        base_rpy = obs_buf.base_rpy
+        base_info = torch.cat([base_pos, base_rpy], dim=1).reshape([self.env.num_envs, self.env.num_agents, -1])
+        dis = torch.clone(base_pos.reshape([self.env.num_envs, self.env.num_agents, -1])[:, :, :2])
+        dis[:, :, 0] -= 1.6
+        dis[:, :, 1] -= dof_state_pos_npc.reshape(-1, 1).repeat(1, self.env.num_agents)
+        dis = torch.norm(dis, p=2, dim=-1, keepdim=True)
+        obs = torch.cat([base_info, self.env.dof_state_npc.repeat(1, self.env.num_agents, 1), dis,  self.last_npc_pos.repeat(1, self.env.num_agents, 1)], dim=2)
         obs[:, 1, 1] = -obs[:, 1, 1]
         obs[:, 1, 4] = -obs[:, 1, 4]
+        obs[:, 1, 6] = -obs[:, 1, 6]
         obs[:, 1, -1] = -obs[:, 1, -1]
         self.env_step[:] += 1
         self.env_step[self.env.reset_ids] = 1
         
-        return obs, reward, termination, info
+        return obs, reward.reshape([self.env.num_envs, self.env.num_agents, 1]), termination, info

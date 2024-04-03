@@ -9,8 +9,8 @@ class Go1TugCfg(Go1Cfg):
         num_envs = 1 # 4096
         num_agents = 2
         num_npcs = 1
-        env_type = 1
         num_actions_npc = 1
+        env_type = 1
         obs_components = [
             "proprioception", # 48
             # "height_measurements", # 187
@@ -20,7 +20,7 @@ class Go1TugCfg(Go1Cfg):
             # "sidewall_distance",
             # "forward_depth",
         ]
-        episode_length_s = 5 # episode length in seconds
+        episode_length_s = 15 # episode length in seconds
 
     #### uncomment this to train non-virtual terrain
     # class sensor(A1FieldCfg.sensor):
@@ -94,13 +94,13 @@ class Go1TugCfg(Go1Cfg):
         init_state_class = Go1Cfg.init_state
         init_states = [
             init_state_class(
-                pos = [0.95, 2.5, 0.34],
+                pos = [1.6, 2.5, 0.34],
                 rot = [0.0, 0.0, -1.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
             ),
             init_state_class(
-                pos = [2.05, -2.5, 0.34],
+                pos = [1.6, -2.5, 0.34],
                 rot = [0.0, 0.0, 1., 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
@@ -108,14 +108,13 @@ class Go1TugCfg(Go1Cfg):
         ]
         init_states_npc = [
             init_state_class(
-                pos = [1.51, 0.0, 0.0],
+                pos = [1.6, 0.0, 0.0],
                 rot = [0.0, 0.0, 0.0, 1.0],
                 lin_vel = [0.0, 0.0, 0.0],
                 ang_vel = [0.0, 0.0, 0.0],
                 
             )
         ]
-
     class control(Go1Cfg.control):
         control_type = 'C'
 
@@ -135,7 +134,7 @@ class Go1TugCfg(Go1Cfg):
         push_robots = False # use for non-virtual training
         init_dof_pos_ratio_range = None
         init_base_pos_range = dict(
-            x= [-0.0, 0.0],
+            x= [-1.0, 1.0],
             y= [-0.0, 0.0],
         )
         init_npc_base_pos_range = None
@@ -143,13 +142,10 @@ class Go1TugCfg(Go1Cfg):
     class rewards(Go1Cfg.rewards):
         class scales:
 
-            target_reward_scale = 1
             success_reward_scale = 10
-            lin_vel_x_reward_scale = 0
-            approach_frame_punishment_scale = 0
-            agent_distance_punishment_scale = -0.5
-            lin_vel_y_punishment_scale = 0
-            command_value_punishment_scale = 0
+            punishment_reward_scale = 10
+            pos_reward_scale = 2
+            pos_punishment_scale = 2
         
     class viewer(Go1Cfg.viewer):
         pos = [0., 11., 5.]  # [m]

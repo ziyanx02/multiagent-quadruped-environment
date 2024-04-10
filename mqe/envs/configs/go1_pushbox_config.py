@@ -121,5 +121,5 @@ class Go1PushboxCfg(Go1Cfg):
             # exceed_torque_limits_i = -2e-1
 
     class viewer(Go1Cfg.viewer):
-        pos = [0., 11., 5.]  # [m]
-        lookat = [4., 11., 0.]  # [m]
+        pos = [0., 6., 5.]  # [m]
+        lookat = [4., 6., 0.]  # [m]

@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<robot name="rotation">
+
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.2" length="0.04"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.2" length="0.04"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.3"/>
+            <inertia ixx="0.00304" ixy="0.0" ixz="0.0" iyy="0.00304" iyz="0.0" izz="0.006"/>
+        </inertial>
+    </link>
+
+    <link name="rotation1">
+        <visual>
+            <geometry>
+                <box size="0.08 1.95 0.8" />
+            </geometry>
+            <origin xyz="0 0 0.4" rpy="0 0 0" />
+        </visual>
+        <collision>
+            <geometry>
+               <box size="0.08 1.95 0.8" />
+            </geometry>
+            <origin xyz="0 0 0.4" rpy="0 0 0" />
+        </collision>
+        <inertial>
+            <mass value="4.0"/>
+            <inertia ixx="0.01616" ixy="0.0" ixz="0.0" iyy="0.17225" iyz="0.0" izz="1.232"/>
+        </inertial>
+    </link>
+
+
+    <joint name="rot1" type="revolute">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="base_link"/>
+        <child link="rotation1" />
+        <axis xyz="0.0 0.0 1.0" />
+        <limit effort="33.5" velocity="28"/>
+    </joint>
+
+</robot>

@@ -14,6 +14,10 @@ from mqe.envs.configs.go1_football_config import Go1FootballDefenderCfg, Go1Foot
 from mqe.envs.configs.go1_seesaw_config import Go1SeesawCfg
 from mqe.envs.configs.go1_door_config import Go1DoorCfg
 from mqe.envs.configs.go1_pushbox_config import Go1PushboxCfg
+from mqe.envs.configs.go1_tug_config import Go1TugCfg
+from mqe.envs.configs.go1_wrestling_config import Go1WrestlingCfg
+from mqe.envs.configs.go1_rotation_config import Go1RotationCfg
+from mqe.envs.configs.go1_bridge_config import Go1BridgeCfg
 
 # wrappers
 from mqe.envs.wrappers.empty_wrapper import EmptyWrapper
@@ -22,6 +26,10 @@ from mqe.envs.wrappers.go1_pushbox_wrapper import Go1PushboxWrapper
 from mqe.envs.wrappers.go1_sheep_wrapper import Go1SheepWrapper
 from mqe.envs.wrappers.go1_seesaw_wrapper import Go1SeesawWrapper
 from mqe.envs.wrappers.go1_football_wrapper import Go1FootballDefenderWrapper, Go1FootballGameWrapper
+from mqe.envs.wrappers.go1_tug_wrapper import Go1TugWrapper
+from mqe.envs.wrappers.go1_wrestling_wrapper import Go1WrestlingWrapper
+from mqe.envs.wrappers.go1_rotation_wrapper import Go1RotationWrapper
+from mqe.envs.wrappers.go1_bridge_wrapper import Go1BridgeWrapper
 
 from mqe.utils import get_args, make_env
 
@@ -72,6 +80,26 @@ ENV_DICT = {
         "class": Go1Object,
         "config": Go1PushboxCfg,
         "wrapper": Go1PushboxWrapper
+    },
+    "go1tug": {
+        "class": Go1Object,
+        "config": Go1TugCfg,
+        "wrapper": Go1TugWrapper
+    },
+    "go1wrestling": {
+        "class": Go1Object,
+        "config": Go1WrestlingCfg,
+        "wrapper": Go1WrestlingWrapper
+    },
+    "go1revolvingdoor": {
+        "class": Go1Object,
+        "config": Go1RotationCfg,
+        "wrapper": Go1RotationWrapper
+    },
+    "go1bridge": {
+        "class": Go1Object,
+        "config": Go1BridgeCfg,
+        "wrapper": Go1BridgeWrapper
     },
     # "go1door": {
     #     "class": Go1Object,

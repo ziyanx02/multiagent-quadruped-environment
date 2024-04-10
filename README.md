@@ -15,6 +15,9 @@ Paper: https://arxiv.org/abs/2403.16015
 
 ## Installation ##
 1. Create a new Python virtual env or conda environment with Python 3.6, 3.7, or 3.8 (3.8 recommended)
+    ```
+    conda create -n mqe python=3.8
+    ```
 2. Install PyTorch and Isaac Gym.
     - Install appropriate PyTorch version from https://pytorch.org/.
         ```
@@ -89,6 +92,10 @@ The Task Name in the following table corresponds to `--task TASK_NAME` in task s
 
 | Task Name | Task Description | Demonstration |
 |:-:|:-:|:-:|
+|go1tug|Two quadrupeds push the cylinder in opposite directions.|<img src="docs/static/images/tasks/PushCylinder.jpg" width = 200>|
+|go1revolvingdoor|There is a revolving door placed at the center of the field, and both the quadrupeds target on going to the other side.|<img src="docs/static/images/tasks/RevolvingDoor.jpg" width = 200>|
+|go1bridge|Two quadrupeds are placed on opposite sides of a narrow bridge. The target is to get to the other side while avoid being pushed down the bridge.|<img src="docs/static/images/tasks/TraverseBridge.jpg" width = 200>|
+|go1bridgewrestling|Two quadrupeds are placed on a Sumo wrestling arena. The target for both sides is to push the other quadruped out of the circle or let the rival fall.|<img src="docs/static/images/tasks/SumoWrestling.jpg" width = 200>|
 |go1football-1vs1|Football game with 1 player each side.|<img src="docs/static/images/tasks/Football1vs1.jpg" width = 200>|
 |go1football-2vs2|Football game with 2 player each side.|<img src="docs/static/images/tasks/Football2vs2.jpg" width = 200>|
 
@@ -97,6 +104,8 @@ The Task Name in the following table corresponds to `--task TASK_NAME` in task s
 1. If you get the following error: `ImportError: libpython3.8m.so.1.0: cannot open shared object file: No such file or directory`, it is also possible that you need to do `export LD_LIBRARY_PATH=/PATH/TO/LIBPYTHON/DIRECTORY` / `export LD_LIBRARY_PATH=/PATH/TO/CONDA/envs/YOUR_ENV_NAME/lib`. You can also try: `sudo apt install libpython3.8`.
 
 2. If you get the following error: `AttributeError: module 'numpy' has no attribute 'float'.`, it's because of the version of package `numpy`. First uninstall `numpy` by `pip uninstall numpy`, and install `numpy` of specific version by `pip install numpy==1.20.3`.
+
+3. If you get `Segmentation fault (core dumped)` while rendering frames using A100/A800, please switch to GeFoece graphic cards.
 
 ## Citing MQE ##
 

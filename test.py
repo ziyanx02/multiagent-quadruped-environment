@@ -38,16 +38,21 @@ if __name__ == '__main__':
     # task_name = "go1football-2vs2"
     # task_name = "go1sheep-easy"
     # task_name = "go1sheep-hard"
-    task_name = "go1seesaw"
+    # task_name = "go1seesaw"
     # task_name = "go1door"
-    # task_name = "go1pushbox"
+    task_name = "go1pushbox"
+    # task_name = "go1tug"
+    # task_name = "go1wrestling"
+    task_name = "go1rotationdoor"
+    # task_name = "go1bridge"
 
     args.num_envs = 1
     args.headless = False
-    args.record_video = True
+    args.record_video = False
 
     env, env_cfg = make_mqe_env(task_name, args, custom_cfg(args))
-    env.start_recording()
+    if args.record_video:
+        env.start_recording()
     env.reset()
     import time
     while True:
@@ -55,12 +60,12 @@ if __name__ == '__main__':
         #                         dtype=torch.float32, device="cuda").repeat(env.num_envs, 1, 1))
         obs, _, done, _ = env.step(0 * torch.tensor([[[1, 0, 0],[1, 0, 0],],],
                                 dtype=torch.float32, device="cuda").repeat(env.num_envs, 1, 1))
-        if done.tolist()[0]:
-            print("done")
-            frames = env.get_complete_frames()
-            if len(frames) == 0:
-                continue
-            video_array = np.concatenate([np.expand_dims(frame, axis=0) for frame in frames ], axis=0).swapaxes(1, 3).swapaxes(2, 3)
-            print(video_array.shape)
-            save_gif(video_array, 1 / env.dt)
-            exit()
+        # if done.tolist()[0]:
+        #     print("done")
+        #     frames = env.get_complete_frames()
+        #     if len(frames) == 0:
+        #         continue
+        #     video_array = np.concatenate([np.expand_dims(frame, axis=0) for frame in frames ], axis=0).swapaxes(1, 3).swapaxes(2, 3)
+        #     print(video_array.shape)
+        #     save_gif(video_array, 1 / env.dt)
+        #     exit()

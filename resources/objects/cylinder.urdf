@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<robot name="circular">
+    <link name="rectangle">
+        <visual>
+            <geometry>
+                <box size="0.1 0.1 0.008" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0"/>
+            <geometry>
+                <box size="0.001 0.001 0.008" />
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="circular">
+        <visual>
+            <geometry>
+                <cylinder radius="1.2" length="0.2"/>
+            </geometry>
+            <origin xyz="0 0 0.05" rpy="0 0 0" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.05"/>
+            <geometry>
+                <cylinder radius="1.2" length="0.5"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="3"/>
+            <inertia ixx="0.3325" ixy="0.0" ixz="0.0" iyy="0.3325" iyz="0.0" izz="0.54"/>
+        </inertial>
+    </link>
+
+    <joint name="rot1" type="prismatic">
+        <origin xyz="0 0 0.25" rpy="0 0 0" />
+        <parent link="rectangle"/>
+        <child link="circular" />
+        <axis xyz="0.0 1.0 0.0" />
+        <limit effort="3" velocity="1.0" lower="-10" upper="10"/>
+    </joint>
+</robot>

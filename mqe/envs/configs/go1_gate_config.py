@@ -12,14 +12,8 @@ class Go1GateCfg(Go1Cfg):
 
     class terrain(Go1Cfg.terrain):
 
-        mesh_type = "trimesh"
-        selected = "BarrierTrack"
         num_rows = 1
         num_cols = 1
-        max_init_terrain_level = 2
-        border_size = 1
-        slope_treshold = 20.
-        curriculum = False
 
         BarrierTrack_kwargs = merge_dict(Go1Cfg.terrain.BarrierTrack_kwargs, dict(
             options = [
@@ -114,7 +108,6 @@ class Go1GateCfg(Go1Cfg):
             "pitch",
             "z_low",
             "z_high",
-            "out_of_track",
         ]
 
     class domain_rand(Go1Cfg.domain_rand):

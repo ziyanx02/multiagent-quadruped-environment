@@ -261,6 +261,53 @@ class BarrierTrack:
 
         return block_heighfield, block_info, heighfield_noise_mask, height_offset_px, reset_pos_px
 
+    def get_rotation_block(self,
+            wall_thickness,
+            block_resolution,
+            difficulty = None,
+            virtual = False,
+            block_origin_px = None
+        ):
+        block_heighfield = np.zeros(block_resolution, dtype= np.float32)
+        heighfield_noise_mask = np.ones(block_resolution, dtype= np.float32)
+        reset_pos_px = None
+        
+        rotation_depth = np.random.uniform(*self.track_kwargs["rotation"]["depth"]) \
+                        if isinstance(self.track_kwargs["rotation"]["depth"], (tuple, list)) \
+                        else self.track_kwargs["rotation"]["depth"]
+        wall_height = np.random.uniform(*self.track_kwargs["wall_height"]) \
+                                if isinstance(self.track_kwargs["wall_height"], (tuple, list)) \
+                                else self.track_kwargs["wall_height"]
+        offset_px = (np.ceil(self.track_kwargs["rotation"]["offset"][0] / self.cfg.horizontal_scale).astype(int), \
+                     np.ceil(self.track_kwargs["rotation"]["offset"][1] / self.cfg.horizontal_scale).astype(int))
+        
+        wide_px = (np.ceil(self.track_kwargs["rotation"]["wide_px"][0] / self.cfg.horizontal_scale).astype(int), \
+                     np.ceil(self.track_kwargs["rotation"]["wide_px"][1] / self.cfg.horizontal_scale).astype(int))
+        
+        depth_px = int(rotation_depth / self.cfg.horizontal_scale)
+        height_value = wall_height / self.cfg.vertical_scale
+        wall_thickness_px = np.ceil(wall_thickness / self.cfg.horizontal_scale).astype(int)
+
+        rotation_origin = np.asarray([np.ceil((block_resolution[0] - depth_px) / 2).astype(int) + offset_px[0], \
+                                    np.ceil((block_resolution[1] - depth_px) / 2).astype(int) + offset_px[1]])
+
+        block_heighfield[rotation_origin[0] : rotation_origin[0] + depth_px, : wide_px[0]] = height_value
+        block_heighfield[rotation_origin[0] : rotation_origin[0] + depth_px, -wide_px[0] :] = height_value
+        block_heighfield[ :, : wall_thickness_px] = height_value
+        block_heighfield[ :, -wall_thickness_px :] = height_value
+
+        heighfield_noise_mask[rotation_origin[0] : rotation_origin[0] + depth_px, : wide_px[0]] = 0.
+        heighfield_noise_mask[rotation_origin[0] : rotation_origin[0] + depth_px, -wide_px[0] :] = 0.
+        heighfield_noise_mask[ :, : wall_thickness_px] = 0.
+        heighfield_noise_mask[ :, -wall_thickness_px :] = 0.
+
+        block_info = {
+            "rotation_size": torch.tensor(rotation_depth, dtype= torch.float32, device= self.device) * self.cfg.horizontal_scale,
+        }
+        height_offset_px = 0
+        
+        return block_heighfield, block_info, heighfield_noise_mask, height_offset_px, reset_pos_px
+
     def get_gate_block(self,
             wall_thickness,
             block_resolution,

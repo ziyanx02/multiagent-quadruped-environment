@@ -294,7 +294,6 @@ class FloatingCameraSensor(Sensor):
         self.env.gym.step_graphics(self.env.sim)
         self.env.gym.render_all_camera_sensors(self.env.sim)
         img = self.env.gym.get_camera_image(self.env.sim, self.env.envs[0], self.rendering_camera, gymapi.IMAGE_COLOR)
-        _img = self.env.gym.get_camera_image(self.env.sim, self.env.envs[0], self.rendering_camera, gymapi.IMAGE_COLOR) # DO NOT REMOVE, to fix unknown issue
         w, h = img.shape
         return img.reshape([w, h // 4, 4])
     

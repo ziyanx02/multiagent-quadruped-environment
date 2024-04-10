@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<robot name="door">
+
+  <material name="white">    
+      <color rgba="0.7 0.7 0.7 1.0"/>  
+  </material>
+  <material name="black">    
+      <color rgba="0.5 0.5 0.5 0.0"/>  
+  </material>
+
+  <link name="shaft">
+    <visual>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.025" length="2"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.025" length="2"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="door">
+    <visual>
+      <origin xyz="0 0.5 0"/>
+      <geometry>
+        <box size="0.05 1.0 2"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0.5 0"/>
+      <geometry>
+        <box size="0.05 1.0 2"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
+    </inertial>
+  </link>
+
+  <joint name="link" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="shaft"/>
+    <child link="door"/>
+    <axis xyz="0.0 0.0 1.0"/>
+    <limit effort="0" velocity="0.2"/>
+  </joint>
+  
+</robot>

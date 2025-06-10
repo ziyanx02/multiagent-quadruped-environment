@@ -2,10 +2,11 @@ import numpy as np
 from numpy.random import choice
 from scipy import interpolate
 
+from mqe.utils.isaac_import import gymapi
 try:
-    from isaacgym import terrain_utils, gymapi
+    from isaacgym import terrain_utils
 except ImportError:
-    from omni.isaac.lab import terrain_utils, gymapi
+    from omni.isaac.lab import terrain_utils
 
 import matplotlib.pyplot as plt
 
